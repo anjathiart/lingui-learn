@@ -1,0 +1,63 @@
+An educational web application for learning words, phrases and more.
+
+# MVP
+Create a web app which main focus is for user's to lookup words and practice them, with the aim of building their vocabularly and love for the English Language.
+
+# Initial outlook
+## Word Reference Component
+- Lookup words using an external API service
+- Add looked up words to a redis type cache to minimise API queries
+- Random word lookup
+- Urban Dictionary lookup
+- Compare American vs British uses
+- History / etemology of words
+- Synonyms, antonyms
+
+## Interactive Component
+- Add words that the user has looked up to their personalized Vocab builder
+- Categorise words
+  - Favourites
+  - Learning
+  - Mastered
+  - Archived
+- Delete words forever
+- Word of the day
+- Random words
+- Phrase of the day
+- Example sentences
+- Wikipedia?
+
+## Poetry
+
+## Lyrics
+
+## Rhyme words
+
+# MVP
+
+# Technologies
+- Python
+- Djano with django models
+- sqlite
+- CSS / SASS
+- HTML
+- Javascript / JSX
+- REACT
+
+# External API's options
+Look into RapidApi: https://rapidapi.com/
+
+Some API's that look useful
+## Core:
+- https://dictionaryapi.com/
+- Oxford dictionaries API: https://developer.oxforddictionaries.com/
+- Words API: https://www.wordsapi.com/
+- Wordnik API: https://github.com/wordnik/wordnik-python
+
+## Fun
+- Lyrics API: https://www.programmableweb.com/api/lyricwiki, https://www.programmableweb.com/api/songmeanings
+- Vocabdb : https://www.vocabdb.com/dic/
+- Spotify API?
+- https://www.programmableweb.com/api/geek-jokes
+- https://www.programmableweb.com/api/corporate-bs-buzzword-generator
+
