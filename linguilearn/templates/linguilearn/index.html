@@ -1,0 +1,29 @@
+{% extends "linguilearn/layout.html" %}
+{% load static %}
+
+{% block body %}
+	{% if user.is_authenticated %}
+	<section>
+		<div class="newPost">
+			<textarea class="newPost__input" placeholder="What is happening..."></textarea>
+			<button class="btn btn-primary  btn-block newPost__submit">Post</button>
+		</div>
+	</section>
+
+
+	<section id="profile__component"></section>
+	{% endif %}
+
+
+	<section class="bg-light">
+		<div id="pagination"></div>
+		<div id="posts__component"></div>
+	</section>
+	
+	<div id="error__component"></div>
+
+{% endblock %}
+
+{% block script %}
+	<!-- <script src="{% static 'network/network.jsx' %}" type="text/jsx"></script> -->
+{% endblock %}
