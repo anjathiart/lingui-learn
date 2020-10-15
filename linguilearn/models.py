@@ -18,7 +18,7 @@ class Word(models.Model):
 		}
 
 class User(AbstractUser):
-	followers = models.ManyToManyField("User", related_name="users_following")
+	# followers = models.ManyToManyField("User", related_name="users_following")
 	mastered_words = models.ManyToManyField("Word", related_name="users_mastered")
 	learning_words = models.ManyToManyField("Word", related_name="users_learning")
 	favourite_words = models.ManyToManyField("Word", related_name="users_favourite")

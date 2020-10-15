@@ -3,6 +3,11 @@
 
 {% block body %}
 	{% if user.is_authenticated %}
+
+	<input id="requestUsername" type="text" placeholder="Username" />
+	<button id="submitRequest">Search</button>
+
+
 	<section>
 		<div class="newPost">
 			<textarea class="newPost__input" placeholder="What is happening..."></textarea>
@@ -25,5 +30,5 @@
 {% endblock %}
 
 {% block script %}
-	<!-- <script src="{% static 'network/network.jsx' %}" type="text/jsx"></script> -->
+	<script src="{% static 'linguilearn/linguilearn.jsx' %}" type="text/jsx"></script>
 {% endblock %}
