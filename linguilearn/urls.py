@@ -10,4 +10,6 @@ urlpatterns = [
 
 	# API
 	path('friendship/<str:to_username>/add', views.friendship_add_friend, name="add_friend"),
+	path("friendship/requests_sent_list", views.friendship_requests_sent_list, name="friendship_requests_list"),
+	path('friendship/<int:friendship_request_id>/cancel', views.friendship_cancel, name="friendship_cancel"),
 ]
