@@ -16,13 +16,14 @@ from friendship.models import Friend, Follow, Block, FriendshipRequest
 def index(request):
 	return render(request, "linguilearn/index.html")
 
-
-
-
 def friendship_add_friend(request, to_username):
 	""" Create a FriendshipRequest """
 
 	ctx = {"to_username": to_username}
+
+	if not request.user.is_authenticated:
+		ctx["errors"] = ["Unauthorised. User must be authenticated."]
+		return JsonResponse(ctx, status=401)
 
 	if request.method == "POST":
 		
@@ -43,12 +44,13 @@ def friendship_add_friend(request, to_username):
 			ctx["errors"] =["%s" % e]
 			return JsonResponse(ctx, status=400)
 		else:
-			friendship_requests = Friend.objects.requests(request.user)
-			ctx["friendship_requests"] = ["%s" % friendship_requests]
+			friendship_requests_sent = Friend.objects.sent_requests(request.user)
+			ctx["friendship_requests_sent"] = [friendship_request.id for friendship_request in friendship_requests_sent]
 			return JsonResponse(ctx, status=200)
 
 	else:
-		return JsonResponse({"error": "Method not allowed!"}, status=405)
+		ctx["errors"] = ["Method not allowed!"]
+		return JsonResponse(ctx, status=405)
 
 
 def friendship_cancel(request, friendship_request_id):
@@ -78,13 +80,13 @@ def friendship_requests_sent_list(request):
 	return JsonResponse(ctx, status=200)
 
 
-def friendship_requests_sent_list(request):
-	""" View frienship requests sent by the request user"""
-	ctx = {}
-	friendship_requests_sent = Friend.objects.sent_requests(request.user)
-	ctx["friendship_requests_sent"] = [friendship_request.id for friendship_request in friendship_requests_sent]
+# def friendship_requests_list(request):
+# 	""" View frienship requests sent by the request user"""
+# 	ctx = {}
+# 	friendship_requests_sent = Friend.objects.sent_requests(request.user)
+# 	ctx["friendship_requests_sent"] = [friendship_request.id for friendship_request in friendship_requests_sent]
 	
-	return JsonResponse(ctx, status=200)
+# 	return JsonResponse(ctx, status=200)
 
 def login_view(request):
 	if request.method == "POST":

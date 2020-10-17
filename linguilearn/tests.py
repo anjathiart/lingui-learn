@@ -1,104 +1,79 @@
-# from django.contrib.auth.models import AnonymousUser
-# from django.test import RequestFactory, TestCase
-# from .models import User, Post
-# import json
-# from .views import edit, current_user, user, posts, like, unlike
+import json
+import requests
+from django.contrib.auth.models import AnonymousUser
+from django.test import RequestFactory, TestCase
+from .models import User
+from friendship.models import Friend, Follow, Block, FriendshipRequest
 
-# # SOME NOTES / INFO
-# '''
-# Recall that middleware are not supported. You can simulate a
-# logged-in user by setting request.user manually.
-# request.user = self.user
+from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list
 
-# Or you can simulate an anonymous user by setting request.user to
-# an AnonymousUser instance.
-# request.user = AnonymousUser()
+# SOME NOTES / INFO
+'''
+Recall that middleware are not supported. You can simulate a
+logged-in user by setting request.user manually.
+request.user = self.user
 
-# Test my_view() as if it were deployed at /customer/details
-# Use this syntax for class-based views.
-# response = MyView.as_view()(request)
-# '''
+Or you can simulate an anonymous user by setting request.user to
+an AnonymousUser instance.
+request.user = AnonymousUser()
 
-# class SimpleTest(TestCase):
-# 	def setUp(self):
-# 		# Every test needs access to the request factory.
-# 		self.factory = RequestFactory()
-# 		self.active_user = User.objects.create_user(
-# 			username='anja', email='anja@anja.com', password='anja')
-# 		self.passive_user = User.objects.create_user(
-# 			username='jani', email='jani@jani.com', password='jani')
-# 		self.post = Post(body="My name is Anja", user=self.active_user)
-# 		self.post.save()
-# 		self.post_edited = { "body": "My name is Jani" }
+Test my_view() as if it were deployed at /customer/details
+Use this syntax for class-based views.
+response = MyView.as_view()(request)
+'''
 
+class FriendshipRequests(TestCase):
+	def setUp(self):
+		# Every test needs access to the request factory.
+		self.factory = RequestFactory()
+		self.user_anja = User.objects.create_user(
+			username='anja', email='anja@anja.com', password='anja')
+		self.user_jani = User.objects.create_user(
+			username='jani', email='jani@jani.com', password='jani')
 
-# 	def test_unauthorised_post_edit(self):
-# 		'''
-# 		Authenticated user attempting to edit a post they do not own
-# 		Force Error: 403 (Forbidden / no scope)
-# 		'''
-# 		post_id = self.post.id
-# 		data = json.dumps(self.post_edited)
-# 		request = self.factory.put('/posts/' + str(post_id) + '/edit', data)
-# 		request.user = self.passive_user
-# 		response = edit(request, post_id)
-# 		self.assertEqual(response.status_code, 403)
+	def test_send_friend_request_unauthenticated(self):
+		'''
+		Unauthenticated user attempting to send a friend request
+		Force Error: 401 (Unauthorised)
+		'''
+		request = self.factory.post('/friendship/' + self.user_anja.username + '/add')
+		request.user = AnonymousUser()
+		response = friendship_add_friend(request, self.user_anja.id)
+		self.assertEqual(response.status_code, 401)
 
+	def test_send_friend_request(self):
+		'''
+		Authenticated user trying to send a friend request to a new friend
+		Success: status 200 and friendship_requests_sent array containing request id
+		'''
+		request = self.factory.post('/friendship/' + self.user_anja.username + '/add')
+		request.user = self.user_jani
+		response = friendship_add_friend(request, self.user_anja.username)
+		self.assertContains(response, '"friendship_requests_sent": [1]')
+		self.assertEqual(response.status_code, 200)
 
-# 	def test_follow_self(self):
-# 		'''
-# 		User must not be able to 'follow' themselves
-# 		Force Error: 403 (Forbidden / no scope)
-# 		'''
-# 		request = self.factory.put('/user/' + str(self.active_user.id))
-# 		request.user = self.active_user
-# 		response = user(request, self.active_user.id)
-# 		self.assertEqual(response.status_code, 403)
+	def test_send_friend_request_where_one_already_exists(self):
+		'''
+		Authenticated user trying to send a friend request to a new friend
+		Force Error: Friendship request already exists, status 400
+		'''
+		Friend.objects.add_friend(self.user_jani, self.user_anja)
+		request = self.factory.post('/friendship/' + self.user_anja.username + '/add')
+		request.user = self.user_jani
+		response = friendship_add_friend(request, self.user_anja.username)
+		self.assertEqual(response.status_code, 400)
 
-
-# 	def test_post_validation_empty(self):
-# 		'''
-# 		Request with missing post body
-# 		Force Error: 400
-# 		'''
-# 		request = self.factory.post('/posts', content_type='application/json')
-# 		request.user = self.active_user
-# 		response = posts(request)
-# 		self.assertEqual(response.status_code, 400)
-
-
-# 	def test_post_validation_bad(self):
-# 		'''
-# 		Request with post body that is an empty string
-# 		Force Error: 400
-# 		'''
-# 		request = self.factory.post('/posts', json.dumps({ "body": "" }), content_type='application/json')
-# 		request.user = self.active_user
-# 		response = posts(request)
-# 		self.assertEqual(response.status_code, 400)
-
-
-# 	def test_unauthenticatedUser_like(self):
-# 		'''
-# 		User that is not logged in can't like a post
-# 		Force error: 401
-# 		'''
-# 		request = self.factory.put('/posts/' + str(self.post.id) + 'like')
-# 		request.user = AnonymousUser()
-# 		response = like(request, self.post.id)
-# 		self.assertEqual(response.status_code, 401)
-
-
-# 	def test_unauthenticatedUser_like(self):
-# 		'''
-# 		User that is not logged in can't unlike a post
-# 		Force error: 401
-# 		'''
-# 		request = self.factory.put('/posts/' + str(self.post.id) + 'unlike')
-# 		request.user = AnonymousUser()
-# 		response = unlike(request, self.post.id)
-# 		self.assertEqual(response.status_code, 401)
-
+	def test_cancel_friend_request_sent(self):
+		print('hi')
+		'''
+		Authenticated user trying to cancel an existing friend request
+		Success: 200
+		'''
+		Friend.objects.add_friend(self.user_jani, self.user_anja)
+		request = self.factory.post('/friendship/1/cancel')
+		request.user = self.user_jani
+		response = friendship_cancel(request, 1)
+		self.assertEqual(response.status_code, 200)
 
 
 
