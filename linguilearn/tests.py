@@ -5,7 +5,7 @@ from django.test import RequestFactory, TestCase
 from .models import User
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 
-from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list
+from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept
 
 # SOME NOTES / INFO
 '''
@@ -64,7 +64,6 @@ class FriendshipRequests(TestCase):
 		self.assertEqual(response.status_code, 400)
 
 	def test_cancel_friend_request_sent(self):
-		print('hi')
 		'''
 		Authenticated user trying to cancel an existing friend request
 		Success: 200
@@ -75,6 +74,17 @@ class FriendshipRequests(TestCase):
 		response = friendship_cancel(request, 1)
 		self.assertEqual(response.status_code, 200)
 
+
+	def test_accept_friend_request(self):
+		'''
+		User accepting existing frienship request
+		Success: 200
+		'''
+		Friend.objects.add_friend(self.user_jani, self.user_anja)
+		request = self.factory.post('/friendship/1/accept')
+		request.user = self.user_anja
+		response = friendship_accept(request, 1)
+		self.assertEqual(response.status_code, 200)
 
 
 
