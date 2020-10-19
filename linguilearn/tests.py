@@ -5,7 +5,7 @@ from django.test import RequestFactory, TestCase
 from .models import User
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 
-from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept
+from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept, friendship_reject, user_friends
 
 # SOME NOTES / INFO
 '''
@@ -85,6 +85,58 @@ class FriendshipRequests(TestCase):
 		request.user = self.user_anja
 		response = friendship_accept(request, 1)
 		self.assertEqual(response.status_code, 200)
+
+	def test_reject_friend_request_fail(self):
+		'''
+		User rejecting existing frienship request in wrong 'relationship-direction'
+		Force Error: 404
+		'''
+		Friend.objects.add_friend(self.user_anja, self.user_jani)
+		request = self.factory.post('/friendship/1/reject')
+		request.user = self.user_anja
+		response = friendship_reject(request, 1)
+		self.assertEqual(response.status_code, 404)
+
+	def test_reject_friend_request(self):
+		'''
+		User rejecting existing frienship request'
+		Success: 200
+		'''
+		Friend.objects.add_friend(self.user_jani, self.user_anja)
+		request = self.factory.post('/friendship/1/reject')
+		request.user = self.user_anja
+		response = friendship_reject(request, 1)
+		self.assertEqual(response.status_code, 200)
+
+
+	def test_view_users_friends(self):
+		'''
+		Accept a friend request then view the users friends
+		Success: 200
+		'''
+		Friend.objects.add_friend(self.user_anja, self.user_jani)
+		f_request = self.user_jani.friendship_requests_received.get(id=1)
+		f_request.accept()
+		request = self.factory.get('/users/friends')
+		request.user = self.user_anja
+		response = user_friends(request)
+		self.assertEqual(response.status_code, 200)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
