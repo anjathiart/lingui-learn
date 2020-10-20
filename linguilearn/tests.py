@@ -105,6 +105,7 @@ class FriendshipRequests(TestCase):
 		Friend.objects.add_friend(self.user_jani, self.user_anja)
 		request = self.factory.post('/friendship/1/reject')
 		request.user = self.user_anja
+		# request.user = AnonymousUser()
 		response = friendship_reject(request, 1)
 		self.assertEqual(response.status_code, 200)
 

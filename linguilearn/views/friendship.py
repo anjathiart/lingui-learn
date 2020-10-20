@@ -13,15 +13,25 @@ from ..models import User
 from friendship.exceptions import AlreadyExistsError
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 
+from functools import wraps
 
+# Decorator function to protect views that require a user to be authenticated
+def http_auth_required(view_func):
+	@wraps(view_func)
+	def wrapper(request, *args, **kwargs):
+		if request.user.is_authenticated:
+			return view_func(request, *args, **kwargs)
+		ctx = {}
+		ctx["errors"] = ["Unauthorised. User must be authenticated."]
+		return JsonResponse(ctx, status=401)
+	return wrapper
+
+
+@http_auth_required
 def friendship_add_friend(request, to_username):
 	""" Create a FriendshipRequest """
 
 	ctx = {"to_username": to_username}
-
-	if not request.user.is_authenticated:
-		ctx["errors"] = ["Unauthorised. User must be authenticated."]
-		return JsonResponse(ctx, status=401)
 
 	if request.method == "POST":
 		
@@ -50,15 +60,11 @@ def friendship_add_friend(request, to_username):
 		ctx["errors"] = ["Method not allowed!"]
 		return JsonResponse(ctx, status=405)
 
+@http_auth_required
 def friendship_cancel(request, friendship_request_id):
 	""" Cancel a previously created friendship_request_id """
 
 	ctx = { "friend_cancelled": friendship_request_id}
-
-	if not request.user.is_authenticated:
-		ctx["errors"] = ["Unauthorised. User must be authenticated."]
-		return JsonResponse(ctx, status=401)
-
 
 	if request.method == "POST":
 		f_request = get_object_or_404(
@@ -71,13 +77,10 @@ def friendship_cancel(request, friendship_request_id):
 		ctx["errors"] = ["Method not allowed!"]
 		return JsonResponse(ctx, status=405)
 
+@http_auth_required
 def friendship_accept(request, friendship_request_id):
 	""" Accept a friendship request """
 	ctx = { "friend_accept": friendship_request_id }
-
-	if not request.user.is_authenticated:
-		ctx["errors"] = ["Unauthorised. User must be authenticated."]
-		return JsonResponse(ctx, status=401)
 
 	if request.method == "POST":
 		try:
@@ -92,14 +95,10 @@ def friendship_accept(request, friendship_request_id):
 		ctx["errors"] = ["Method not allowed!"]
 		return JsonResponse(ctx, status=405)
 
-
+@http_auth_required
 def friendship_reject(request, friendship_request_id):
 	""" Reject a friendship request """
 	ctx = { "friend_accept": friendship_request_id }
-
-	if not request.user.is_authenticated:
-		ctx["errors"] = ["Unauthorised. User must be authenticated."]
-		return JsonResponse(ctx, status=401)
 
 	if request.method == "POST":
 		try:
@@ -115,37 +114,23 @@ def friendship_reject(request, friendship_request_id):
 		return JsonResponse(ctx, status=405)
 
 
-
+@http_auth_required
 def friendship_requests_sent_list(request):
 	""" View frienship requests sent by the request user"""
 	ctx = {}
-
-	if not request.user.is_authenticated:
-		ctx["errors"] = ["Unauthorised. User must be authenticated."]
-		return JsonResponse(ctx, status=401)
-
 	friendship_requests_sent = Friend.objects.sent_requests(request.user)
 	ctx["friendship_requests_sent"] = [friendship_request.id for friendship_request in friendship_requests_sent]
 	
 	return JsonResponse(ctx, status=200)
 
+@http_auth_required
 def friendship_requests_received_list(request):
 	""" View frienship requests received by the request user"""
 	ctx = {}
-	if not request.user.is_authenticated:
-		ctx["errors"] = ["Unauthorised. User must be authenticated."]
-		return JsonResponse(ctx, status=401)
-
 	friendship_requests_sent = Friend.objects.sent_requests(request.user)
 	ctx["friendship_requests_sent"] = [friendship_request.id for friendship_request in friendship_requests_sent]
 	
 	return JsonResponse(ctx, status=200)
 
-# def friendship_requests_list(request):
-# 	""" View frienship requests sent by the request user"""
-# 	ctx = {}
-# 	friendship_requests_sent = Friend.objects.sent_requests(request.user)
-# 	ctx["friendship_requests_sent"] = [friendship_request.id for friendship_request in friendship_requests_sent]
-	
-# 	return JsonResponse(ctx, status=200)
+
 
