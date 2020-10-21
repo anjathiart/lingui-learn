@@ -15,5 +15,7 @@ urlpatterns = [
 	path('friendship/<int:friendship_request_id>/accept', views.friendship_accept, name="friendship_accept"),
 	path('friendship/<int:friendship_request_id>/accept', views.friendship_reject, name="friendship_reject"),
 
-	path('users/friends', views.user_friends, name="user_friends")
+	path('users/friends', views.user_friends, name="user_friends"),
+
+	path('words/<str:word>', views.search_for_word, name="word_search"),
 ]

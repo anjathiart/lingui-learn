@@ -5,7 +5,7 @@ from django.test import RequestFactory, TestCase
 from .models import User
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 
-from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept, friendship_reject, user_friends
+from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept, friendship_reject, user_friends, search_for_word
 
 # SOME NOTES / INFO
 '''
@@ -122,6 +122,24 @@ class FriendshipRequests(TestCase):
 		request.user = self.user_anja
 		response = user_friends(request)
 		self.assertEqual(response.status_code, 200)
+
+
+class WordsApi(TestCase):
+	def setUp(self):
+		self.factory = RequestFactory()
+		self.user_anja = User.objects.create_user(
+			username='anja', email='anja@anja.com', password='anja')
+
+	def test_entry_search(self):
+		request = self.factory.get('/words/apple')
+		request.user = self.user_anja
+		response = search_for_word(request, 'apple')
+		print(response.content)
+		self.assertEqual(response.status_code, 200)
+
+
+
+
 
 
 
