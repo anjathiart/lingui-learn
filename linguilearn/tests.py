@@ -131,9 +131,9 @@ class WordsApi(TestCase):
 			username='anja', email='anja@anja.com', password='anja')
 
 	def test_entry_search(self):
-		request = self.factory.get('/words/apple')
+		request = self.factory.get('/words/apples')
 		request.user = self.user_anja
-		response = search_for_word(request, 'apple')
+		response = search_for_word(request, 'apples')
 		print(response.content)
 		self.assertEqual(response.status_code, 200)
 
