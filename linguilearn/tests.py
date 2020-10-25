@@ -2,10 +2,10 @@ import json
 import requests
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, TestCase
-from .models import User
+from .models import User, Word
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 
-from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept, friendship_reject, user_friends, search_for_word
+from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept, friendship_reject, user_friends, search_for_word, add_word
 
 # SOME NOTES / INFO
 '''
@@ -131,9 +131,39 @@ class WordsApi(TestCase):
 			username='anja', email='anja@anja.com', password='anja')
 
 	def test_entry_search(self):
+		'''
+		Search for a word that is not in the DB, and is a lemma
+		success: 200
+		'''
 		request = self.factory.get('/words/apples')
 		request.user = self.user_anja
 		response = search_for_word(request, 'apples')
+		print(response.content)
+		self.assertEqual(response.status_code, 200)
+
+	def  test_entry_search_in_db(self):
+		'''
+		Search for a word that is in the DB already
+		success: 200
+		'''
+		word = Word(word="dog", definition="woof woof ...")
+		word.save()
+		request = self.factory.get('/words/Dog')
+		request.user = self.user_anja
+		response = search_for_word(request, 'Dog')
+		print(response.content)
+		self.assertEqual(response.status_code, 200)
+
+	def test_user_add_new_word(self):
+		'''
+		User adds new word that they don't already have in their listt
+		success: 200
+		'''
+		word = Word(word="dog", definition="woof woof ...")
+		word.save()
+		request = self.factory.get('/words/1')
+		request.user = self.user_anja
+		response = add_word(request, 1)
 		print(response.content)
 		self.assertEqual(response.status_code, 200)
 

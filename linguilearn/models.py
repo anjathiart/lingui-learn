@@ -4,17 +4,17 @@ from django.contrib.auth.models import AbstractUser
 class Word(models.Model):
 	word = models.CharField(max_length=255)
 	definition = models.CharField(max_length=1028)
-	example = models.CharField(max_length=1028)
-	phrase = models.CharField(max_length=1028)
-	word_of_the_day = models.BooleanField(default=False)
-	word_of_the_day_date = models.DateTimeField(auto_now_add=False)
+	# example = models.CharField(max_length=1028)
+	# phrase = models.CharField(max_length=1028)
+	# word_of_the_day = models.BooleanField(default=False)
+	# word_of_the_day_date = models.DateTimeField(auto_now_add=False)
 	def serialize(self):
 		return {
 			"id": self.id,
-			"word": self.sender.email,
-			"definition": [user.email for user in self.recipients.all()],
-			"example": self.subject,
-			"phrase": self.body,
+			"word": self.word,
+			"definition": self.definition,
+			# "example": self.subject,
+			# "phrase": self.body,
 		}
 
 class User(AbstractUser):
@@ -31,5 +31,6 @@ class User(AbstractUser):
 			"learning_words": [word.id for word in self.learning_words.all()],
 			"favourite_words": [word.id for word in self.favourite_words.all()],
 		}
+
 
 

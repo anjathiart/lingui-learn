@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 
-from ..models import User
+from ..models import User, Word
 
 # Oxford Api details
 oxford = {
@@ -41,7 +41,7 @@ def oxford_get_entry(word):
 			"status_code": r.status_code
 		}
 
-def oxford_entry(word):
+def oxford_search(word):
 	result = { "word": word }
 
 	endpoint = "lemmas"
@@ -53,18 +53,44 @@ def oxford_entry(word):
 		entry = oxford_get_entry(head_word)
 		entry["head_word"] = head_word
 		return entry
+	# elif r.status_code == 500:
+	# 	return { "error": 500 }
 	else:
-		return {
-			"word": word,
-			"error": "Something went wrong - could not find inflection or word",
-			"status_code": r.status_code
-		}
+		return None
+
+
+
 
 def search_for_word(request, word):
-	# endpoint = "entries"
-	# url = "https://od-api.oxforddictionaries.com/api/v2/" + endpoint + "/" + language_code + "/" + word.lower()
+
+	ctx = { "word_search": word }
+
+	try:
+		entry = Word.objects.get(word=word)
+		ctx["result"] = entry.serialize()
+		return JsonResponse(ctx, status=200)
+	except Word.DoesNotExist:
+		entry = oxford_search(word)
+		if entry:
+			# save entry to db
+			word = Word(word=entry["head_word"], definition=entry["definition"])
+			word.save()
+			ctx["result"] = word.serialize()
+			return JsonResponse(ctx, status=200)
+		return JsonResponse(ctx, status=404)
+
+
+def add_word(request, word_id):
+	ctx = { "word_id": word_id }
+	try:
+		word = Word.objects.get(id=word_id)
+		request.user.learning_words.add(word)
+		return JsonResponse(ctx, status=200)
+	except Word.DoesNotExist:
+		ctx["error"] = "Word does not exist"
+		return JsonResponse(ctx, status=404)
 	
-	result = oxford_entry(word)
+
 	# print("text \n" + r.text)
 	# print(oxfordEntryToLinguiEntry(r.json()))
 	# print("code {}\n".format(r.status_code))
@@ -72,4 +98,5 @@ def search_for_word(request, word):
 	# print("json \n" + json.dumps(r.json()))
 
 
-	return JsonResponse(result, status=result["status_code"])
+	# return JsonResponse(result, status=result["status_code"])
+

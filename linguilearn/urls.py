@@ -18,4 +18,5 @@ urlpatterns = [
 	path('users/friends', views.user_friends, name="user_friends"),
 
 	path('words/<str:word>', views.search_for_word, name="word_search"),
+	parth('words/<int:word_id>', views.add_word, name="add_word")
 ]
