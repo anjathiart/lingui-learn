@@ -7,8 +7,9 @@ from django.db import IntegrityError
 from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_http_methods
 
-from ..models import User, Word
+from ..models import User, Entry
 
 # Oxford Api details
 oxford = {
@@ -42,7 +43,7 @@ def oxford_get_entry(word):
 		}
 
 def oxford_search(word):
-	result = { "word": word }
+	# result = { "word": word }
 
 	endpoint = "lemmas"
 	url = "https://od-api.oxforddictionaries.com/api/v2/" + endpoint + "/" + "en" + "/" + word.lower()
@@ -60,35 +61,39 @@ def oxford_search(word):
 
 
 
-
-def search_for_word(request, word):
-
-	ctx = { "word_search": word }
+@require_http_methods(['GET'])
+def search_entry(request):
+	word_searched = request.GET.get('word', "")
+	ctx = { "word_searched": word_searched }
 
 	try:
-		entry = Word.objects.get(word=word)
+		entry = Entry.objects.get(word=word_searched.lower())
 		ctx["result"] = entry.serialize()
 		return JsonResponse(ctx, status=200)
-	except Word.DoesNotExist:
-		entry = oxford_search(word)
+	except Entry.DoesNotExist:
+		entry = oxford_search(word_searched.lower())
 		if entry:
 			# save entry to db
-			word = Word(word=entry["head_word"], definition=entry["definition"])
-			word.save()
-			ctx["result"] = word.serialize()
+			entry = Entry(word=entry["head_word"], definition=entry["definition"])
+			entry.save()
+			ctx["result"] = entry.serialize()
 			return JsonResponse(ctx, status=200)
 		return JsonResponse(ctx, status=404)
 
 
-def add_word(request, word_id):
-	ctx = { "word_id": word_id }
+@require_http_methods(['POST'])
+def add_entry(request, entry_id):
+
+	ctx = { "entry_id": entry_id }
+
 	try:
-		word = Word.objects.get(id=word_id)
-		request.user.learning_words.add(word)
-		return JsonResponse(ctx, status=200)
-	except Word.DoesNotExist:
-		ctx["error"] = "Word does not exist"
+		entry = Entry.objects.get(id=entry_id)
+	except Entry.DoesNotExist:
+		ctx["errors"] = ["Word does not exist"]
 		return JsonResponse(ctx, status=404)
+
+	request.user.entries.add(entry)
+	return JsonResponse(ctx, status=200)
 	
 
 	# print("text \n" + r.text)
@@ -99,4 +104,51 @@ def add_word(request, word_id):
 
 
 	# return JsonResponse(result, status=result["status_code"])
+
+@require_http_methods(['POST'])
+def remove_entry(request, entry_id):
+
+	ctx = { "entry_id": entry_id }
+
+	try:
+		request.user.remove_entry(entry_id)
+	except Entry.DoesNotExist:
+		ctx["errors"] = ["Word does not exist"]
+		return JsonResponse(ctx, status=404)
+
+	# request.user.learning_words.add(entry)
+	return JsonResponse(ctx, status=200)
+
+
+@require_http_methods(['POST'])
+def master_entry(request, entry_id):
+
+	ctx = { "entry_id": entry_id }
+
+	try:
+		request.user.master_entry(entry_id)
+	except Entry.DoesNotExist:
+		ctx["error"] = "No entry matching request entry id"
+		return JsonResponse(ctx, status=404)
+
+	# request.user.learning_words.add(entry)
+	return JsonResponse(ctx, status=200)
+
+
+@require_http_methods(['POST'])
+def star_entry(request, entry_id):
+
+	ctx = { "entry_id": entry_id }
+
+	try:
+		entry = Entry.objects.get(id=entry_id)
+	except Entry.DoesNotExist:
+		ctx["error"] = "Word does not exist"
+		return JsonResponse(ctx, status=404)
+
+	request.user.entries_starred.add(entry)
+	return JsonResponse(ctx, status=200)
+
+
+
 

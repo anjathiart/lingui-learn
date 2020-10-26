@@ -9,14 +9,17 @@ urlpatterns = [
 	path("register", views.register, name="register"),
 
 	# API
-	path('friendship/<str:to_username>/add', views.friendship_add_friend, name="add_friend"),
-	path("friendship/requests_sent_list", views.friendship_requests_sent_list, name="friendship_requests_list"),
-	path('friendship/<int:friendship_request_id>/cancel', views.friendship_cancel, name="friendship_cancel"),
-	path('friendship/<int:friendship_request_id>/accept', views.friendship_accept, name="friendship_accept"),
-	path('friendship/<int:friendship_request_id>/accept', views.friendship_reject, name="friendship_reject"),
+	path('api/friendship/<str:to_username>/add', views.friendship_add_friend),
+	path("api/friendship/requests_sent_list", views.friendship_requests_sent_list),
+	path('api/friendship/<int:friendship_request_id>/cancel', views.friendship_cancel),
+	path('api/friendship/<int:friendship_request_id>/accept', views.friendship_accept),
+	path('api/friendship/<int:friendship_request_id>/accept', views.friendship_reject),
 
-	path('users/friends', views.user_friends, name="user_friends"),
+	path('api/users/friends', views.user_friends),
 
-	path('words/<str:word>', views.search_for_word, name="word_search"),
-	parth('words/<int:word_id>', views.add_word, name="add_word")
+	path('api/entries/search', views.search_entry),
+	path('api/entries/<int:word_id>/add', views.add_entry),
+	path('api/entries/<int:word_id>/remove', views.remove_entry,),
+	path('api/entries/<int:word_id>/star', views.star_entry),
+	path('api/entries/<int:word_id>/master', views.master_entry)
 ]

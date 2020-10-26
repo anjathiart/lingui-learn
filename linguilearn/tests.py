@@ -2,10 +2,10 @@ import json
 import requests
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, TestCase
-from .models import User, Word
+from .models import User, Entry
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 
-from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept, friendship_reject, user_friends, search_for_word, add_word
+from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept, friendship_reject, user_friends, search_entry, add_entry, remove_entry, star_entry, master_entry
 
 # SOME NOTES / INFO
 '''
@@ -129,28 +129,33 @@ class WordsApi(TestCase):
 		self.factory = RequestFactory()
 		self.user_anja = User.objects.create_user(
 			username='anja', email='anja@anja.com', password='anja')
+		entry = Entry(word="dog", definition="woof woof ...")
+		entry.save()
+		self.user_anja.entries.add(entry)
+		self.entry = entry
+		unadded_entry =  Entry(word="test", definition="this entry does not exist in users list")
+		unadded_entry.save()
+		self.unadded_entry_id = unadded_entry.id
 
 	def test_entry_search(self):
 		'''
 		Search for a word that is not in the DB, and is a lemma
 		success: 200
 		'''
-		request = self.factory.get('/words/apples')
+		request = self.factory.get('api/entries/search?word=apples')
 		request.user = self.user_anja
-		response = search_for_word(request, 'apples')
+		response = search_entry(request)
 		print(response.content)
 		self.assertEqual(response.status_code, 200)
 
-	def  test_entry_search_in_db(self):
+	def test_entry_search_in_db(self):
 		'''
 		Search for a word that is in the DB already
 		success: 200
 		'''
-		word = Word(word="dog", definition="woof woof ...")
-		word.save()
-		request = self.factory.get('/words/Dog')
+		request = self.factory.get('api/entries/search?word=Dog')
 		request.user = self.user_anja
-		response = search_for_word(request, 'Dog')
+		response = search_entry(request)
 		print(response.content)
 		self.assertEqual(response.status_code, 200)
 
@@ -159,11 +164,32 @@ class WordsApi(TestCase):
 		User adds new word that they don't already have in their listt
 		success: 200
 		'''
-		word = Word(word="dog", definition="woof woof ...")
-		word.save()
-		request = self.factory.get('/words/1')
+		request = self.factory.post('api/entries/1/add')
 		request.user = self.user_anja
-		response = add_word(request, 1)
+		response = add_entry(request, 1)
+		print(response.content)
+		self.assertEqual(response.status_code, 200)
+
+
+	def test_user_star_word(self):
+		'''
+		User stars an entry
+		success: 200
+		'''
+		request = self.factory.post('api/entries/1/star')
+		request.user = self.user_anja
+		response = star_entry(request, 1)
+		print(response.content)
+		self.assertEqual(response.status_code, 200)
+
+	def test_user_star_master(self):
+		'''
+		User masters entry that does not exist in their entries
+		success: 200
+		'''
+		request = self.factory.post('api/entries/' + str(self.unadded_entry_id) + '/master')
+		request.user = self.user_anja
+		response = master_entry(request, self.unadded_entry_id)
 		print(response.content)
 		self.assertEqual(response.status_code, 200)
 

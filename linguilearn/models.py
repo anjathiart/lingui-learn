@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-class Word(models.Model):
+class Entry(models.Model):
 	word = models.CharField(max_length=255)
 	definition = models.CharField(max_length=1028)
 	# example = models.CharField(max_length=1028)
@@ -19,18 +19,41 @@ class Word(models.Model):
 
 class User(AbstractUser):
 	# followers = models.ManyToManyField("User", related_name="users_following")
-	mastered_words = models.ManyToManyField("Word", related_name="users_mastered")
-	learning_words = models.ManyToManyField("Word", related_name="users_learning")
-	favourite_words = models.ManyToManyField("Word", related_name="users_favourite")
+	entries_mastered = models.ManyToManyField("Entry", related_name="users_mastered")
+	entries = models.ManyToManyField("Entry", related_name="users")
+	entries_starred = models.ManyToManyField("Entry", related_name="users_starred")
+	
 	def serialize(self):
 		return {
 			"id": self.id,
 			"name": self.username.capitalize(),
 			"followers": [user.id for user in self.followers.all()],
-			"mastered_words": [word.id for word in self.mastered_words.all()],
-			"learning_words": [word.id for word in self.learning_words.all()],
-			"favourite_words": [word.id for word in self.favourite_words.all()],
+			"entries_mastered": [entry.id for entry in self.entries_mastered.all()],
+			"entries": [entry.id for entry in self.entries.all()],
+			"entries_starred": [entry.id for entry in self.entries_starred.all()],
 		}
+
+	def master_entry(self, entry_id):
+		entry = Entry.objects.get(id=entry_id)
+		if self.entries.filter(id=entry_id).exists():
+			self.entries.remove(entry)
+			self.entries_mastered.add(entry)
+			return {
+				"success": True
+			}
+		else:
+			# TODO: replace this with a raised exception. Create your own exceptions file with custom exceptions
+			return {
+				"error": "Entry does not belong to user",
+				"status_code": 404
+			}
+
+
+	def remove_entry(self, entry_id):
+		entry = Entry.objects.get(id=entry_id)
+		self.entries.remove(entry)
+		self.entries_starred.remove(entry)
+		self.entries_mastered.remove(entry)
 
 
 
