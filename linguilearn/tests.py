@@ -182,16 +182,27 @@ class WordsApi(TestCase):
 		print(response.content)
 		self.assertEqual(response.status_code, 200)
 
-	def test_user_star_master(self):
+	def test_user_master_nonexisting_user_entry(self):
 		'''
 		User masters entry that does not exist in their entries
-		success: 200
+		Force Error: 404
 		'''
 		request = self.factory.post('api/entries/' + str(self.unadded_entry_id) + '/master')
 		request.user = self.user_anja
 		response = master_entry(request, self.unadded_entry_id)
 		print(response.content)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, 404)
+
+	def test_user_master_nonexisting_entry(self):
+		'''
+		User masters entry that does not exist in their entries
+		Force Error: 404
+		'''
+		request = self.factory.post('api/entries/' + str(33) + '/master')
+		request.user = self.user_anja
+		response = master_entry(request, 33)
+		print(response.content)
+		self.assertEqual(response.status_code, 404)
 
 
 
