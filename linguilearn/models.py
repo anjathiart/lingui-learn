@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from linguilearn.exceptions import AlreadyExistsError, DoesNotExistForUser
 
 class Entry(models.Model):
 	word = models.CharField(max_length=255)
@@ -18,11 +19,14 @@ class Entry(models.Model):
 		}
 
 class User(AbstractUser):
-	# followers = models.ManyToManyField("User", related_name="users_following")
+	# Entries mastered by user
 	entries_mastered = models.ManyToManyField("Entry", related_name="users_mastered")
+	# Entries added by user but not yet mastered
 	entries = models.ManyToManyField("Entry", related_name="users")
+	# Entries starred by user (can be any entry in the Entries Table)
 	entries_starred = models.ManyToManyField("Entry", related_name="users_starred")
-	
+
+
 	def serialize(self):
 		return {
 			"id": self.id,
@@ -34,26 +38,34 @@ class User(AbstractUser):
 		}
 
 	def master_entry(self, entry_id):
-		entry = Entry.objects.get(id=entry_id)
+		''' add entry to mastered entries list if the entry exists for the user '''
 		if self.entries.filter(id=entry_id).exists():
 			self.entries.remove(entry)
-			self.entries_mastered.add(entry)
-			return {
-				"success": True
-			}
+			self.entries_mastered.add(Entry.objects.get(id=entry_id))
+			return True
 		else:
-			# TODO: replace this with a raised exception. Create your own exceptions file with custom exceptions
-			return {
-				"error": "Entry does not belong to user",
-				"status_code": 404
-			}
+			raise DoesNotExistForUser("Entry does not exist for this user")
 
 
 	def remove_entry(self, entry_id):
-		entry = Entry.objects.get(id=entry_id)
-		self.entries.remove(entry)
-		self.entries_starred.remove(entry)
-		self.entries_mastered.remove(entry)
+		''' Remove an entry from user entries and user's master entries '''
+		if self.entries.filter(id=entry_id).exists() or self.entries_mastered.filter(id=entry_id).exists():
+			entry = Entry.objects.get(id=entry_id)
+			self.entries.remove(entry)
+			self.entries_mastered.remove(entry)
+			return True
+		else:
+			raise DoesNotExistForUser("Entry does not exist for this user")
 
 
+
+	'''
+	def unstar_entry(self, entry_id):
+		# remove entry from starred list if it exists for the user
+		if self.entries_starred.filter(id=entry_id).exists():
+			self.entries_starred.remove(Entry.objects.get(id=entry_id))
+			return True
+		else:
+			raise DoesNotExistForUser("Entry does not exist for this user")
+	'''
 
