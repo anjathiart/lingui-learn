@@ -13,6 +13,13 @@ from linguilearn.exceptions import AlreadyExistsError, DoesNotExistForUser
 
 from ..models import User, Entry
 
+from .config import services_setup
+
+api_services = services_setup()
+
+
+
+
 # # Oxford Api details
 # oxford = {
 # 	"headers": {"app_id": "4a7b8083", "app_key": "09fd090f4447176a113d44ca173d445b"},
@@ -20,19 +27,22 @@ from ..models import User, Entry
 # }
 
 
+def wordsAPI_search(word):
+	url = api_services["words_api"]["base_url"] + word
+	headers = api_services["words_api"]["headers"]
+	r = requests.request("GET", url, headers=headers)
+	print(r.text)
+
+
 def oxford_search(word):
-	# Oxford API details
-	oxford = {
-		"headers": {"app_id": "4a7b8083", "app_key": "09fd090f4447176a113d44ca173d445b"},
-		"language_code": "en-gb"
-	}
-	url = "https://od-api.oxforddictionaries.com/api/v2/lemmas/en/" + word.lower()
-	r = requests.get(url, headers = oxford["headers"])
+	url = api_services["oxford_api"]["base_url_lemmas"] + word
+	headers = api_services["oxford_api"]["headers"]
+	r = requests.get(url, headers = headers)
 	if r.status_code == 200:
 		lex_result = r.json()
 		head_word = lex_result["results"][0]["lexicalEntries"][0]["inflectionOf"][0]["text"]
-		url = "https://od-api.oxforddictionaries.com/api/v2/entries/" + oxford["language_code"]+ "/" + head_word.lower()
-		r = requests.get(url, headers = oxford["headers"])
+		url = api_services["oxford_api"]["base_url_entries"] + head_word
+		r = requests.get(url, headers = headers)
 		if r.status_code == 200:
 			entry = r.json()
 			return {
@@ -45,6 +55,7 @@ def oxford_search(word):
 
 @require_http_methods(['GET'])
 def search_entry(request):
+	wordsAPI_search("apple")
 	word_searched = request.GET.get('word', "")
 	ctx = { "word_searched": word_searched }
 
