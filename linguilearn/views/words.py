@@ -13,26 +13,36 @@ from linguilearn.exceptions import AlreadyExistsError, DoesNotExistForUser
 
 from ..models import User, Entry
 
+# import and get api service settings
 from .config import services_setup
-
 api_services = services_setup()
-
-
-
-
-# # Oxford Api details
-# oxford = {
-# 	"headers": {"app_id": "4a7b8083", "app_key": "09fd090f4447176a113d44ca173d445b"},
-# 	"language_code": "en-gb"
-# }
 
 
 def wordsAPI_search(word):
 	url = api_services["words_api"]["base_url"] + word
 	headers = api_services["words_api"]["headers"]
-	r = requests.request("GET", url, headers=headers)
+	r = requests.request("GET", url, headers=headers, params={ "page": 1, "limit": 1})
 	print(r.text)
+	if r.status_code == 200:
+		return {
 
+		}
+
+	return None
+	
+
+def wordsAPI_random():
+	url = api_services["words_api"]["base_url"]
+	headers = api_services["words_api"]["headers"]
+	params = { "random": "true" }
+	r = requests.request("GET", url, headers=headers, params=params)
+	if r.status_code == 200:
+		return {
+
+
+		}
+	else:
+		return None
 
 def oxford_search(word):
 	url = api_services["oxford_api"]["base_url_lemmas"] + word
@@ -55,7 +65,7 @@ def oxford_search(word):
 
 @require_http_methods(['GET'])
 def search_entry(request):
-	wordsAPI_search("apple")
+	wordsAPI_search("dog")
 	word_searched = request.GET.get('word', "")
 	ctx = { "word_searched": word_searched }
 
