@@ -21,8 +21,7 @@ api_services = services_setup()
 def wordsAPI_search(word):
 	url = api_services["words_api"]["base_url"] + word
 	headers = api_services["words_api"]["headers"]
-	r = requests.request("GET", url, headers=headers, params={ "page": 1, "limit": 1})
-	print(r.text)
+	r = requests.request("GET", url, headers=headers)
 	if r.status_code == 200:
 		return {
 
@@ -65,7 +64,7 @@ def oxford_search(word):
 
 @require_http_methods(['GET'])
 def search_entry(request):
-	wordsAPI_search("dog")
+	wordsAPI_search("apple")
 	word_searched = request.GET.get('word', "")
 	ctx = { "word_searched": word_searched }
 
