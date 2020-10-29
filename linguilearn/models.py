@@ -71,11 +71,21 @@ class User(AbstractUser):
 			raise DoesNotExistForUser("Entry does not exist for this user")
 	'''
 
+class WordManager(models.Manager):
+	def get_words_learning(self, user):
+		qs = super(WordManager, self).get_queryset().filter(learning=user)
+		return [word.word_id for word in qs]
+		# return super(WordManager, self).get_queryset().filter(learning=user)
+
+
 class Word(models.Model):
 	word_id = models.CharField(max_length=255)
 	learning = models.ManyToManyField("User", related_name="users_learning")
 	mastered = models.ManyToManyField("User", related_name="users_mastered") 
 	liked = models.ManyToManyField("User", related_name="users_liked")
+
+	objects = WordManager()
+
 
 
 	def serialize(self):
