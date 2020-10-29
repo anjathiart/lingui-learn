@@ -205,6 +205,7 @@ class EntriessApi(TestCase):
 		self.assertEqual(response.status_code, 404)
 
 
+#  NOTE: to run one testcase in file: manage.py test linguilearn.tests:WordsApi.test_test  
 class WordsApi(TestCase):
 	def setUp(self):
 		# self.factory = RequestFactory()
@@ -227,6 +228,9 @@ class WordsApi(TestCase):
 		'''
 		print('hi')
 		print(self.word.serialize())
+		# words_learning = Word.objects.filter(learning__id=self.user_anja.id).all()
+		words_learning = Word.objects.get_words_learning(self.user_anja)
+		print(words_learning)
 
 
 
