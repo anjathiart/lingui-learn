@@ -18,6 +18,8 @@ class Entry(models.Model):
 			# "phrase": self.body,
 		}
 
+
+
 class User(AbstractUser):
 	# Entries mastered by user
 	entries_mastered = models.ManyToManyField("Entry", related_name="users_mastered")
@@ -69,3 +71,22 @@ class User(AbstractUser):
 			raise DoesNotExistForUser("Entry does not exist for this user")
 	'''
 
+class Word(models.Model):
+	word_id = models.CharField(max_length=255)
+	learning = models.ManyToManyField("User", related_name="users_learning")
+	mastered = models.ManyToManyField("User", related_name="users_mastered") 
+	liked = models.ManyToManyField("User", related_name="users_liked")
+
+
+	def serialize(self):
+		return {
+			"id": self.id,
+			"word_id": self.word_id,
+			"users_learning": [user.id for user in self.learning.all()],
+			"users_mastered": [user.id for user in self.mastered.all()],
+			"users_liked": [user.id for user in self.liked.all()],
+		}
+
+	def master(self, user):
+		self.learning.remove(user)
+		self.mastered.add(user)
