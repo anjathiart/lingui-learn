@@ -2,7 +2,7 @@ import json
 import requests
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, TestCase
-from .models import User, Entry
+from .models import User, Entry, Word
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 
 from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept, friendship_reject, user_friends, search_entry, add_entry, remove_entry, star_entry, master_entry
@@ -124,7 +124,7 @@ class FriendshipRequests(TestCase):
 		self.assertEqual(response.status_code, 200)
 
 
-class WordsApi(TestCase):
+class EntriessApi(TestCase):
 	def setUp(self):
 		self.factory = RequestFactory()
 		self.user_anja = User.objects.create_user(
@@ -205,8 +205,28 @@ class WordsApi(TestCase):
 		self.assertEqual(response.status_code, 404)
 
 
+class WordsApi(TestCase):
+	def setUp(self):
+		# self.factory = RequestFactory()
+		self.user_anja = User.objects.create_user(
+			username='anja', email='anja@anja.com', password='anja')
+		word = Word(word_id="dog")
+		word.save()
+		word.learning.add(self.user_anja)
+		# word.master(self.user_anja)
+		self.word = word
 
-
+		# self.user_anja.entries.add(entry)
+		# self.entry = entry
+		# unadded_entry =  Entry(word="test", definition="this entry does not exist in users list")
+		# unadded_entry.save()
+		# self.unadded_entry_id = unadded_entry.id
+	def test_test(self):
+		'''
+		testing testing
+		'''
+		print('hi')
+		print(self.word.serialize())
 
 
 
