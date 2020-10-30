@@ -15,6 +15,7 @@ urlpatterns = [
 	path('api/friendship/<int:friendship_request_id>/accept', views.friendship_accept),
 	path('api/friendship/<int:friendship_request_id>/accept', views.friendship_reject),
 
+	path('api/users', views.users),
 	path('api/users/friends', views.user_friends),
 
 	path('api/entries/search', views.search_entry),

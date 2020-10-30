@@ -3,6 +3,7 @@
 from django.contrib.auth import authenticate, login, logout
 # from django.core.paginator import Paginator
 from django.db import IntegrityError
+from django.db.models import Q
 from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -31,3 +32,12 @@ def user_friends(request):
 	else:
 		ctx["errors"] = ["Method not allowed!"]
 		return JsonResponse(ctx, status=405)
+
+
+def users(request):
+
+	search_string = request.GET.get('search', '')
+	ctx = { "search": search_string }
+	users = User.objects.filter(Q(username__icontains=search_string) | Q(email__icontains=search_string)).exclude(id=request.user.id)
+	ctx["result"] = [user.serialize() for user in users]
+	return JsonResponse(ctx, status=200)
