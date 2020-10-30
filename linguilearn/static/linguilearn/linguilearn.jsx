@@ -8,12 +8,11 @@ const secureFetch = (url, method, data) => {
 			body: JSON.stringify(data),
 			headers: { "X-CSRFToken": csrftoken },
 			credentials: 'same-origin',
-		}).then(async response => {
-			console.log(response)
+		}).then(response => {
 			if (response.ok) {
 				// All 200 errors will have response === ok
 				ReactDOM.unmountComponentAtNode(document.getElementById('error__component'));
-				resolve(response);
+				resolve(response.json());
 				return;
 			} else if (response.status === 401) {
 				// All 401's redirect user to login
@@ -21,7 +20,7 @@ const secureFetch = (url, method, data) => {
 				return;
 			} else {
 				// Deal with other errors from the server / api
-				reject(await response.json());
+				reject(response.json());
 				return;
 			}
 		}).catch(error => {
@@ -32,7 +31,7 @@ const secureFetch = (url, method, data) => {
 } 
 
 // initialise the page
-if( document.readyState !== 'loading' ) {
+if (document.readyState !== 'loading' ) {
 	console.log( 'document is already ready, just execute code here' );
 	myInitCode();
 } else {
@@ -43,48 +42,52 @@ if( document.readyState !== 'loading' ) {
 }
 
 // All code that needs to load once the DOM is ready
-async function myInitCode() {
+function myInitCode() {
+	document.querySelector('#searchForUserButton').addEventListener('click', async (e) => {
+		const usernameOrEmail = document.querySelector('#searchForUserInput').value;
+		let result = await userSearch(usernameOrEmail)
+		
 
-	secureFetch(`friendship/requests_sent_list`, 'GET')
-		.then(response => {
-			return response.json()
-		})
-		.then(result => {
-			console.log(result)
-		})
-		.catch(error => {
-			console.log(error)
-		})
-
-
-
-	document.querySelector('#submitRequest').addEventListener('click', () => {
-		let username = document.querySelector('#requestUsername').value;
-		secureFetch(`friendship/${username}/add`, 'POST')
-		.then(response => {
-			return response.json()
-		})
-		.then(result => {
-			console.log(result)
-		})
-		.catch(error => {
-			console.log(error)
-		})
 	})
+}
 
-	document.querySelector('#cancelRequest').addEventListener('click', () => {
-		let username = document.querySelector('#requestUsername').value;
-		secureFetch(`friendship/1/cancel`, 'POST')
-		.then(response => {
-			return response.json()
-		})
-		.then(result => {
-			console.log(result)
-		})
-		.catch(error => {
-			console.log(error)
-		})
+async function userSearch(search) {
+	let res = await secureFetch(`api/users?search=${search}`, 'GET')
+	.catch(error => {
+		// do something with error
+		console.log(error)
 	})
+	return res
+}
+
+
+// 	document.querySelector('#submitRequest').addEventListener('click', () => {
+// 		let username = document.querySelector('#requestUsername').value;
+// 		secureFetch(`friendship/${username}/add`, 'POST')
+// 		.then(response => {
+// 			return response.json()
+// 		})
+// 		.then(result => {
+// 			console.log(result)
+// 		})
+// 		.catch(error => {
+// 			console.log(error)
+// 		})
+// 	})
+
+// 	document.querySelector('#cancelRequest').addEventListener('click', () => {
+// 		let username = document.querySelector('#requestUsername').value;
+// 		secureFetch(`friendship/1/cancel`, 'POST')
+// 		.then(response => {
+// 			return response.json()
+// 		})
+// 		.then(result => {
+// 			console.log(result)
+// 		})
+// 		.catch(error => {
+// 			console.log(error)
+// 		})
+// 	})
 
 
 
@@ -117,4 +120,4 @@ async function myInitCode() {
 
 	}
 	load_posts();*/
-}
+// }
