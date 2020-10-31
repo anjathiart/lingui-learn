@@ -19,7 +19,7 @@ def friendship_add_friend(request, to_username):
 	ctx = {"to_username": to_username}
 		
 	try:
-		to_user = User.objects.get(username=to_username)
+		to_user = User.objects.get(username__iexact=to_username)
 	except User.DoesNotExist:
 		ctx["errors"] = ["No such username found."]
 		return JsonResponse(ctx, status=404)
