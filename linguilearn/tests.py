@@ -5,7 +5,7 @@ from django.test import RequestFactory, TestCase
 from .models import User, Entry, Word
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 
-from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept, friendship_reject, user_friends, search_entry, add_entry, remove_entry, star_entry, master_entry
+from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept, friendship_reject, user_friends, search_entry, add_entry, remove_entry, star_entry, master_entry, friendships
 
 # SOME NOTES / INFO
 '''
@@ -36,7 +36,7 @@ class FriendshipRequests(TestCase):
 		Unauthenticated user attempting to send a friend request
 		Force Error: 401 (Unauthorised)
 		'''
-		request = self.factory.post('/friendship/' + self.user_anja.username + '/add')
+		request = self.factory.post('api/friendship/' + self.user_anja.username + '/add')
 		request.user = AnonymousUser()
 		response = friendship_add_friend(request, self.user_anja.id)
 		self.assertEqual(response.status_code, 401)
@@ -46,11 +46,11 @@ class FriendshipRequests(TestCase):
 		Authenticated user trying to send a friend request to a new friend
 		Success: status 200 and friendship_requests_sent array containing request id
 		'''
-		request = self.factory.post('/friendship/' + self.user_anja.username + '/add')
+		request = self.factory.post('api/friendship/' + self.user_anja.username + '/add')
 		request.user = self.user_jani
 		response = friendship_add_friend(request, self.user_anja.username)
-		self.assertContains(response, '"friendship_requests_sent": [1]')
 		self.assertEqual(response.status_code, 200)
+
 
 	def test_send_friend_request_where_one_already_exists(self):
 		'''
@@ -58,7 +58,7 @@ class FriendshipRequests(TestCase):
 		Force Error: Friendship request already exists, status 400
 		'''
 		Friend.objects.add_friend(self.user_jani, self.user_anja)
-		request = self.factory.post('/friendship/' + self.user_anja.username + '/add')
+		request = self.factory.post('api/friendship/' + self.user_anja.username + '/add')
 		request.user = self.user_jani
 		response = friendship_add_friend(request, self.user_anja.username)
 		self.assertEqual(response.status_code, 400)
@@ -69,7 +69,7 @@ class FriendshipRequests(TestCase):
 		Success: 200
 		'''
 		Friend.objects.add_friend(self.user_jani, self.user_anja)
-		request = self.factory.post('/friendship/1/cancel')
+		request = self.factory.post('api/friendship/1/cancel')
 		request.user = self.user_jani
 		response = friendship_cancel(request, 1)
 		self.assertEqual(response.status_code, 200)
@@ -81,10 +81,11 @@ class FriendshipRequests(TestCase):
 		Success: 200
 		'''
 		Friend.objects.add_friend(self.user_jani, self.user_anja)
-		request = self.factory.post('/friendship/1/accept')
+		request = self.factory.post('api/friendship/1/accept')
 		request.user = self.user_anja
 		response = friendship_accept(request, 1)
 		self.assertEqual(response.status_code, 200)
+
 
 	def test_reject_friend_request_fail(self):
 		'''
@@ -92,10 +93,11 @@ class FriendshipRequests(TestCase):
 		Force Error: 404
 		'''
 		Friend.objects.add_friend(self.user_anja, self.user_jani)
-		request = self.factory.post('/friendship/1/reject')
+		request = self.factory.post('api/friendship/1/reject')
 		request.user = self.user_anja
 		response = friendship_reject(request, 1)
 		self.assertEqual(response.status_code, 404)
+
 
 	def test_reject_friend_request(self):
 		'''
@@ -103,7 +105,7 @@ class FriendshipRequests(TestCase):
 		Success: 200
 		'''
 		Friend.objects.add_friend(self.user_jani, self.user_anja)
-		request = self.factory.post('/friendship/1/reject')
+		request = self.factory.post('api/friendship/1/reject')
 		request.user = self.user_anja
 		# request.user = AnonymousUser()
 		response = friendship_reject(request, 1)
@@ -118,12 +120,51 @@ class FriendshipRequests(TestCase):
 		Friend.objects.add_friend(self.user_anja, self.user_jani)
 		f_request = self.user_jani.friendship_requests_received.get(id=1)
 		f_request.accept()
-		request = self.factory.get('/users/friends')
+		request = self.factory.get('api/users/friends')
 		request.user = self.user_anja
 		response = user_friends(request)
 		self.assertEqual(response.status_code, 200)
 
 
+class Friendships(TestCase):
+	def setUp(self):
+		self.factory = RequestFactory()
+		self.main_user = User.objects.create_user(
+			username='anja', email='anja@anja.com', password='anja')
+		user1 = User.objects.create_user(
+			username='user1', email='user1@user1.com', password='user1')
+		user2 = User.objects.create_user(
+			username='user2', email='user2@user2.com', password='user2')
+		user3 = User.objects.create_user(
+			username='user3', email='user3@user3.com', password='user3')
+		user4 = User.objects.create_user(
+			username='user4', email='user4@user4.com', password='user4')
+
+		friends = Friend.objects.create(from_user=self.main_user, to_user=user1)
+		friends.save()
+
+		Friend.objects.add_friend(self.main_user, user2)
+		Friend.objects.add_friend(user3, self.main_user)
+		Friend.objects.add_friend(user4, self.main_user)
+
+
+	def test_friendships_info(self):
+
+		request = self.factory.post('api/friendship/2/reject')
+		request.user = self.main_user
+		# request.user = AnonymousUser()
+		response = friendship_reject(request, 2)
+
+		request2 = self.factory.get('api/friendships')
+		request2.user = self.main_user
+		response = friendships(request2)
+		print(response.content)
+		self.assertEqual(response.status_code, 200)
+
+
+
+
+"""
 class EntriessApi(TestCase):
 	def setUp(self):
 		self.factory = RequestFactory()
@@ -231,7 +272,7 @@ class WordsApi(TestCase):
 		# words_learning = Word.objects.filter(learning__id=self.user_anja.id).all()
 		words_learning = Word.objects.get_words_learning(self.user_anja)
 		print(words_learning)
-
+"""
 
 
 
