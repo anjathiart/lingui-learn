@@ -9,6 +9,7 @@ urlpatterns = [
 	path("register", views.register, name="register"),
 
 	# API
+	path('api/friendships', views.friendships),
 	path('api/friendship/<str:to_username>/add', views.friendship_add_friend),
 	path("api/friendship/requests_sent_list", views.friendship_requests_sent_list),
 	path('api/friendship/<int:friendship_request_id>/cancel', views.friendship_cancel),
