@@ -119,6 +119,11 @@ def friendships(request):
 	for request_received in friend_requests_received:
 		ctx["friend_requests_received"].append({"username": request_received.from_user.username, "user_id": request_received.from_user.id, "request_id": request_received.id })
 
+	friend_requests_pending = Friend.objects.unrejected_requests(request.user)
+	ctx["friend_requests_pending"] = []
+	for request_pending in friend_requests_pending:
+		ctx["friend_requests_pending"].append({ "username": request_pending.from_user.username, "user_id": request_pending.from_user.id, "request_id": request_pending.id })
+
 	friend_requests_sent = Friend.objects.sent_requests(request.user)
 	ctx["friend_requests_sent"] = []
 	for request_sent in friend_requests_sent:

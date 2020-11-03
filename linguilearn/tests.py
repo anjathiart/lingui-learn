@@ -5,7 +5,7 @@ from django.test import RequestFactory, TestCase
 from .models import User, Entry, Word
 from friendship.models import Friend, Follow, Block, FriendshipRequest
 
-from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept, friendship_reject, user_friends, search_entry, add_entry, remove_entry, star_entry, master_entry, friendships
+from .views import friendship_add_friend, friendship_cancel, friendship_requests_sent_list, friendship_accept, friendship_reject, user_friends, search_entry, add_entry, remove_entry, star_entry, master_entry, friendships, user_friends
 
 # SOME NOTES / INFO
 '''
@@ -131,34 +131,31 @@ class Friendships(TestCase):
 		self.factory = RequestFactory()
 		self.main_user = User.objects.create_user(
 			username='anja', email='anja@anja.com', password='anja')
-		user1 = User.objects.create_user(
-			username='user1', email='user1@user1.com', password='user1')
 		user2 = User.objects.create_user(
-			username='user2', email='user2@user2.com', password='user2')
+			username='user1', email='user1@user1.com', password='user1')
 		user3 = User.objects.create_user(
-			username='user3', email='user3@user3.com', password='user3')
+			username='user2', email='user2@user2.com', password='user2')
 		user4 = User.objects.create_user(
+			username='user3', email='user3@user3.com', password='user3')
+		user5 = User.objects.create_user(
 			username='user4', email='user4@user4.com', password='user4')
 
-		friends = Friend.objects.create(from_user=self.main_user, to_user=user1)
+		friends = Friend.objects.create(from_user=self.main_user, to_user=user2)
 		friends.save()
 
-		Friend.objects.add_friend(self.main_user, user2)
-		Friend.objects.add_friend(user3, self.main_user)
+		Friend.objects.add_friend(self.main_user, user3)
 		Friend.objects.add_friend(user4, self.main_user)
+		Friend.objects.add_friend(user5, self.main_user)
 
 
 	def test_friendships_info(self):
 
 		request = self.factory.post('api/friendship/2/reject')
 		request.user = self.main_user
-		# request.user = AnonymousUser()
 		response = friendship_reject(request, 2)
-
-		request2 = self.factory.get('api/friendships')
+		request2 = self.factory.get('api/users/friends')
 		request2.user = self.main_user
 		response = friendships(request2)
-		print(response.content)
 		self.assertEqual(response.status_code, 200)
 
 
