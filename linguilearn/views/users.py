@@ -16,12 +16,17 @@ from friendship.models import Friend
 
 from .my_decorators import *
 
-
+@http_auth_required
+@require_http_methods(['GET'])
 def users(request):
-	search_string = request.GET.get('search', '')
-	ctx = { "search": search_string }
-	users = User.objects.filter(Q(username__icontains=search_string) | Q(email__icontains=search_string)).exclude(id=request.user.id)
-	ctx["result"] = [user.serialize() for user in users]
+	email = request.GET.get('email', '')
+	ctx = { "user_id": request.user.id, "email": email }
+	try:
+		user = User.objects.filter(email=email)
+		ctx["result"] = user.serialize()
+	except User.DoesNotExist:
+		ctx["error"] = "No user matching email entered"
+
 	return JsonResponse(ctx, status=200)
 
 

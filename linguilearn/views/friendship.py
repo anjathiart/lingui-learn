@@ -13,15 +13,15 @@ from .my_decorators import *
 
 @http_auth_required
 @require_http_methods(['POST'])
-def friendship_add_friend(request, to_username):
+def friendship_add_friend(request, to_user_email):
 	""" Create a FriendshipRequest """
 
-	ctx = {"to_username": to_username}
+	ctx = { "to_user_email": to_user_email }
 		
 	try:
-		to_user = User.objects.get(username__iexact=to_username)
+		to_user = User.objects.get(email__iexact=to_user_email)
 	except User.DoesNotExist:
-		ctx["error"] = "No such username found."
+		ctx["error"] = "No user matching this email address"
 		return JsonResponse(ctx, status=404)
 	
 	from_user = request.user
@@ -34,10 +34,9 @@ def friendship_add_friend(request, to_username):
 	except Exception as e:
 		ctx["error"] = "%s" % e
 		return JsonResponse(ctx, status=400)
-	else:
-		friendship_requests_sent = Friend.objects.sent_requests(request.user)
-		ctx["friendship_requests_sent"] = [friendship_request.id for friendship_request in friendship_requests_sent]
-		return JsonResponse(ctx, status=200)
+		# friendship_requests_sent = Friend.objects.sent_requests(request.user)
+		# ctx["friendship_requests_sent"] = [friendship_request.id for friendship_request in friendship_requests_sent]
+	return JsonResponse(ctx, status=200)
 
 
 @http_auth_required
