@@ -45,48 +45,79 @@ if (document.readyState !== 'loading' ) {
 
 // All code that needs to load once the DOM is ready
 function myInitCode() {
-	document.querySelector('#searchForUserButton').addEventListener('click', async (e) => {
-		const usernameOrEmail = document.querySelector('#searchForUserInput').value;
-		let result = await userSearch(usernameOrEmail)
+	document.querySelector('#addFriendButton').addEventListener('click', async (e) => {
+		const userEmail = document.querySelector('#addFriendEmailInput').value;
+		let result = await addFriend(userEmail)
 		console.log(result)
-		renderUserList(result.result)
 
 	})
-}
+};
 
-async function userSearch(search) {
-	let res = await secureFetch(`api/users?search=${search}`, 'GET')
+
+async function addFriend(userEmail) {
+	let res = await secureFetch(`api/friendship/${userEmail}/add`, 'POST')
+	.catch(error => {
+		renderErrorMessage(error.error)
+		console.log(error)
+	})
+	return res;
+};
+
+
+async function userSearch(qs) {
+	let res = await secureFetch(`api/users?${qs}`, 'GET')
 	.catch(error => {
 		// do something with error
 		console.log(error)
 	})
 	return res
-}
+};
 
 
 
-class Error extends React.Component {
-	render() {
-		return (
-			<div className="modal">
-				<div className="modal__content">
-					<p>{ msg }</p>
-					<button onClick={ this.close } className="btn btn-primary btn-lg">OK</button>
+function renderSuccessMessage(msg) {
+	console.log(msg)
+	class Message extends React.Component {
+		render() {
+			return (
+				<div className="modal">
+					<div className="modal__content">
+						<p>{ msg }</p>
+						<button onClick={ this.close } className="btn btn-primary btn-lg">OK</button>
+					</div>
 				</div>
-			</div>
-		);
+			);
+		}
+		close = () => {
+			ReactDOM.unmountComponentAtNode(document.getElementById('message__compoonent'));
+		}
 	}
-	close = () => {
-		ReactDOM.unmountComponentAtNode(document.getElementById('error__component'));
+	ReactDOM.render(<Message />, document.querySelector("#message__component"));
+};
+
+function renderErrorMessage(msg) {
+	console.log(msg)
+	class Error extends React.Component {
+		render() {
+			return (
+				<div className="modal">
+					<div className="modal__content">
+						<p>{ msg }</p>
+						<button onClick={ this.close } className="btn btn-primary btn-lg">OK</button>
+					</div>
+				</div>
+			);
+		}
+		close = () => {
+			ReactDOM.unmountComponentAtNode(document.getElementById('message__component'));
+		}
 	}
-}
+	ReactDOM.render(<Error />, document.querySelector("#message__component"));
+};
 
-function addFriend(user_id) {
-	alert(user_id)
-}
 
-function renderUserList(users) {
-	console.log(users)
+
+function renderUserList(user) {
 
 
 	class User extends React.Component {
@@ -128,24 +159,8 @@ function renderUserList(users) {
 
 	}
 
-	let list = [];
-	users.forEach(user => {
-		list.push(<User user={ user } key={ user.id }/>)
-	})
 
-
-
-
-
-	class UserList extends React.Component {
-		render() {
-			return (
-				<div>{ list }</div>
-			)
-		}
-	}
-
-	ReactDOM.render(<UserList />, document.querySelector("#userSearchList__component"));
+	ReactDOM.render(<User />, document.querySelector("#userSearchList__component"));
 
 
 }
