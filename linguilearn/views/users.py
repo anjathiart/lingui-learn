@@ -16,28 +16,8 @@ from friendship.models import Friend
 
 from .my_decorators import *
 
-# def user_friends(request):
-# 	""" Get a list of all the users' friends """
-
-# 	ctx = { "user_id": request.user.id }
-
-# 	if not request.user.is_authenticated:
-# 		ctx["errors"] = ["Unauthorised. User must be authenticated."]
-# 		return JsonResponse(ctx, status=401)
-
-
-# 	if request.method == "GET":
-# 		friends = Friend.objects.friends(request.user)
-# 		ctx["friends"] = [friend.id for friend in friends]
-# 		return JsonResponse(ctx, status=200)
-
-# 	else:
-# 		ctx["errors"] = ["Method not allowed!"]
-# 		return JsonResponse(ctx, status=405)
-
 
 def users(request):
-
 	search_string = request.GET.get('search', '')
 	ctx = { "search": search_string }
 	users = User.objects.filter(Q(username__icontains=search_string) | Q(email__icontains=search_string)).exclude(id=request.user.id)
