@@ -1,4 +1,7 @@
 let csrftoken = Cookies.get('csrftoken');
+let current_user = null;
+let view = '';
+
 
 // generic wrapper function for fetch requests
 const secureFetch = (url, method, data) => {
@@ -11,7 +14,6 @@ const secureFetch = (url, method, data) => {
 		}).then(async (response) => {
 			if (response.ok) {
 				// All 200 errors will have response === ok
-				ReactDOM.unmountComponentAtNode(document.getElementById('error__component'));
 				resolve( await response.json());
 				return;
 			} else if (response.status === 401) {
@@ -44,12 +46,23 @@ if (document.readyState !== 'loading' ) {
 }
 
 // All code that needs to load once the DOM is ready
-function myInitCode() {
+async function myInitCode() {
+	// load current user profile
+	await secureFetch(`api/users/current`)
+	.then(res => {
+		console.log(res);
+		current_user = res;
+		// renderUserDash();
+	})
+	.catch(error => {
+		console.log(error)
+	});
+
+
 	document.querySelector('#addFriendButton').addEventListener('click', async (e) => {
 		const userEmail = document.querySelector('#addFriendEmailInput').value;
 		let result = await addFriend(userEmail)
 		console.log(result)
-
 	})
 };
 
@@ -73,6 +86,25 @@ async function userSearch(qs) {
 	return res
 };
 
+	
+function renderUserDash() {
+	// TODO: deal with case where current user is null
+	// TODO: refactor to show all user profiles with same kind of vibe?
+
+
+	class UserDash extends React.component {
+
+		render() {
+			return (
+				<div>
+				</div>
+
+			);
+
+		}
+	}
+
+}
 
 
 function renderSuccessMessage(msg) {
