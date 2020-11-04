@@ -18,6 +18,8 @@ urlpatterns = [
 
 	path('api/users', views.users),
 	path('api/users/friends', views.user_friends),
+	path('api/users/<int:user_id>/profile', views.user_profile),
+	path('api/users/current', views.user_current),
 
 	path('api/entries/search', views.search_entry),
 	path('api/entries/<int:word_id>/add', views.add_entry),
