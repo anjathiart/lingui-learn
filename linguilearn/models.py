@@ -77,6 +77,26 @@ class WordManager(models.Manager):
 		return [word.word_id for word in qs]
 		# return super(WordManager, self).get_queryset().filter(learning=user)
 
+	def get_words_learning_count(self, user):
+		qs = super(WordManager, self).get_queryset().filter(learning=user)
+		return qs.count()
+
+	def get_words_mastered(self, user):
+		qs = super(WordManager, self).get_queryset().filter(mastered=user)
+		return [word.word_id for word in qs]
+
+	def get_words_mastered_count(self, user):
+		qs = super(WordManager, self).get_queryset().filter(mastered=user)
+		return qs.count()
+
+	def get_words_liked(self, user):
+		qs = super(WordManager, self).get_queryset().filter(liked=user)
+		return [word.word_id for word in qs]
+
+	def get_words_liked_count(self, user):
+		qs = super(WordManager, self).get_queryset().filter(liked=user)
+		return qs.count()
+
 
 class Word(models.Model):
 	word_id = models.CharField(max_length=255)
