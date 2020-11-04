@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
-from ..models import User
+from ..models import User, Word
 
 from friendship.models import Friend
 
@@ -47,3 +47,65 @@ def user_friends(request):
 		ctx["friend_requests_pending"].append({ "username": request_pending.from_user.username, "user_id": request_pending.from_user.id, "friend_request_id": request_pending.id })
 
 	return JsonResponse(ctx, status=200)
+
+
+
+@http_auth_required
+@require_http_methods(['GET'])
+def user_profile(request, user_id):
+
+	ctx = { "user_id": user_id }
+
+	if user_id == request.user.id:
+		
+		friend_requests_pending = Friend.objects.unrejected_requests(request.user)
+		ctx["friend_requests_pending"] = []
+		for request_pending in friend_requests_pending:
+			ctx["friend_requests_pending"].append({ "username": request_pending.from_user.username, "user_id": request_pending.from_user.id, "friend_request_id": request_pending.id })
+
+		user = request.user
+
+	else:
+		try:
+			user = User.objects.get(id=user_id)
+			if not Friend.objects.are_friends(user, request.user):
+				ctx["error"] = "Unauthorised - Users are not friends"
+				return JsonResponse(ctx, status=405)
+		except User.DoesNotExist:
+			ctx["error"] = "User does not exist"
+			return JsonResponse(ctx, status=404)
+	
+	friends = Friend.objects.friends(user)
+	ctx["friends"] = []
+	for friend in friends:
+		ctx["friends"].append({ "username": friend.username, "user_id": friend.id })
+
+	ctx["words_learning_count"] = Word.objects.get_words_learning_count(user)
+	ctx["words_mastered_count"] = Word.objects.get_words_mastered_count(user)
+	ctx["words_liked_count"] = Word.objects.get_words_liked_count(user)
+
+	return JsonResponse(ctx, status=200)
+
+@http_auth_required
+@require_http_methods(['GET'])
+def user_current(request):
+
+	ctx = { "user_id": request.user.id }
+
+	friends = Friend.objects.friends(request.user)
+	ctx["friends"] = []
+	for friend in friends:
+		ctx["friends"].append({ "username": friend.username, "user_id": friend.id })
+	
+	friend_requests_pending = Friend.objects.unrejected_requests(request.user)
+	ctx["friend_requests_pending"] = []
+	for request_pending in friend_requests_pending:
+		ctx["friend_requests_pending"].append({ "username": request_pending.from_user.username, "user_id": request_pending.from_user.id, "friend_request_id": request_pending.id })
+
+
+	ctx["words_learning"] = Word.objects.get_words_learning(request.user)
+	ctx["words_mastered"] = Word.objects.get_words_mastered(request.user)
+	ctx["words_liked"] = Word.objects.get_words_liked(request.user)
+
+	return JsonResponse(ctx, status=200)
+
