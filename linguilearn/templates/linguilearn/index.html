@@ -4,17 +4,11 @@
 {% block body %}
 	{% if user.is_authenticated %}
 
-	<input id="requestUsername" type="text" placeholder="Username" />
-	<button id="submitRequest">Search</button>
-	<button id="cancelRequest">Cancel</button>
 
+	<div id="app">
+	</div>
 
-	<section>
-		<div class="newPost">
-			<textarea class="newPost__input" placeholder="What is happening..."></textarea>
-			<button class="btn btn-primary  btn-block newPost__submit">Post</button>
-		</div>
-	</section>
+	
 
 
 	<section id="profile__component"></section>
@@ -27,10 +21,6 @@
 	</section>
 	
 	<div id="message__component"></div>
-
-
-	<input type="text" id="addFriendEmailInput" placeholder="user email address" />
-	<button id="addFriendButton">Search</button>
 
 	<div id="userSearchList__component"></div>
 

@@ -1,7 +1,15 @@
 let csrftoken = Cookies.get('csrftoken');
 let current_user = null;
 let view = '';
+let sideBarState = "currentUser";
+let error = '';
+let msg = '';
 
+
+const setError = (msg) => {
+	error = msg;
+	// TODO: remount <App />
+};
 
 // generic wrapper function for fetch requests
 const secureFetch = (url, method, data) => {
@@ -47,30 +55,27 @@ if (document.readyState !== 'loading' ) {
 
 // All code that needs to load once the DOM is ready
 async function myInitCode() {
+	view = "main"
 	// load current user profile
 	await secureFetch(`api/users/current`)
 	.then(res => {
 		console.log(res);
 		current_user = res;
-		// renderUserDash();
+		// renderUserDash(current_user);
+		renderPage();
 	})
 	.catch(error => {
 		console.log(error)
+		error = error.error;
 	});
 
-
-	document.querySelector('#addFriendButton').addEventListener('click', async (e) => {
-		const userEmail = document.querySelector('#addFriendEmailInput').value;
-		let result = await addFriend(userEmail)
-		console.log(result)
-	})
 };
 
 
 async function addFriend(userEmail) {
 	let res = await secureFetch(`api/friendship/${userEmail}/add`, 'POST')
 	.catch(error => {
-		renderErrorMessage(error.error)
+		error = error.error;
 		console.log(error)
 	})
 	return res;
@@ -107,6 +112,130 @@ function renderUserDash() {
 }
 
 
+class AddFriend extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			'friendStatus': '',
+			'toUserEmail': '',
+
+		}
+	};
+
+	render() {
+		return (
+			<div>
+				<input type="text" placeholder="user email address"  value={ this.state.toUserEmail } onChange={ this.handleInput.bind(this) } />
+				<button onClick={ this.actionAddFriend.bind(this) } >Search</button>
+			</div>
+
+		)
+	};
+
+	handleInput = (e) => {
+		this.setState({ toUserEmail: e.target.value });
+	};
+
+	actionAddFriend = async () => {
+		await secureFetch(`api/friendship/${this.state.toUserEmail}/add`, 'POST')
+		.then(res => {
+
+		})
+		.catch(error => {
+			msg = error.error;
+			console.log(msg)
+			this.props.onError(msg)
+		})
+	}
+
+}
+
+
+// class User extends React.Component {
+// 	// constructor(props) {
+// 	// 	super(props);
+// 	// 	this.state = {
+// 	// 		'friendStatus': '',
+
+// 	// 	}
+// 	// };
+
+// 	render() {
+// 		return (
+// 			<div className="userSearchResultCard">
+// 				<p>Username: Test User</p>
+// 				<button>Add friend</button>
+// 				<button>Remove friend</button>
+// 			</div>
+// 		)
+// 	};
+
+// };
+
+class Error extends React.Component {
+	render() {
+		return (
+			<div className="modal">
+				<div className="modal__content">
+					<p>{ this.props.msg }</p>
+					<button onClick={ this.props.onClose.bind(this) } className="btn btn-primary btn-lg">OK</button>
+				</div>
+			</div>
+		);
+	}
+};
+
+class Message extends React.Component {
+	render() {
+		return (
+			<div className="modal">
+				<div className="modal__content">
+					<p>{ this.props.msg }</p>
+					<button onClick={ this.props.onClose.bind(this) } className="btn btn-primary btn-lg">OK</button>
+				</div>
+			</div>
+		);
+	}
+};
+
+
+class App extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			'state': sideBarState,
+			'error': '',
+			'msg': '',
+		}
+	};
+
+	render() {
+		let errorHandler = this.handleError;
+		return (
+			<div>
+				{ this.state.error && <Error msg={ this.state.error } onClose={ () => this.setState({ 'error': '' }) } /> }
+				{ this.state.msg && <Message msg={ this.state.msg } onClose={ () => this.setState({ 'msg': '' }) } /> }
+				<AddFriend onError={ this.handleError.bind(this) } /> 
+			</div>
+		)
+	};
+
+	handleError = (e) => {
+		console.log('hi')
+		console.log(e)
+		this.setState({ 'error': e });
+	};
+
+}
+
+function renderPage() {
+	console.log('hi')
+	ReactDOM.render(<App />, document.querySelector("#app"));
+}
+
+
+
+
 function renderSuccessMessage(msg) {
 	console.log(msg)
 	class Message extends React.Component {
@@ -124,7 +253,7 @@ function renderSuccessMessage(msg) {
 			ReactDOM.unmountComponentAtNode(document.getElementById('message__compoonent'));
 		}
 	}
-	ReactDOM.render(<Message />, document.querySelector("#message__component"));
+	// ReactDOM.render(<Message />, document.querySelector("#message__component"));
 };
 
 function renderErrorMessage(msg) {
@@ -144,12 +273,13 @@ function renderErrorMessage(msg) {
 			ReactDOM.unmountComponentAtNode(document.getElementById('message__component'));
 		}
 	}
-	ReactDOM.render(<Error />, document.querySelector("#message__component"));
+	// ReactDOM.render(<Error />, document.querySelector("#message__component"));
 };
 
 
 
 function renderUserList(user) {
+
 
 
 	class User extends React.Component {
@@ -159,7 +289,6 @@ function renderUserList(user) {
 				friendStatus: '',
 			}
 		}
-
 
 		render() {
 			return (
@@ -192,7 +321,7 @@ function renderUserList(user) {
 	}
 
 
-	ReactDOM.render(<User />, document.querySelector("#userSearchList__component"));
+	// ReactDOM.render(<User />, document.querySelector("#userSearchList__component"));
 
 
 }
