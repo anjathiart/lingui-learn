@@ -114,7 +114,7 @@ class App extends React.Component {
 		return (
 			<div className="body">
 				<SideBar />
-				<Words />
+				<WordSearch />
 			</div>
 		)
 	};

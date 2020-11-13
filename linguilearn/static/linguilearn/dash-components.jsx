@@ -112,7 +112,7 @@ const SideBar = class extends React.Component {
 	handleError = (e) => {
 		this.setState({ 'error': e });
 	};
-}
+};
 
 
 const Words = class extends React.Component {
@@ -122,8 +122,36 @@ const Words = class extends React.Component {
 				<h1>TODO</h1>
 			</div>
 		)
-	}
+	};
+};
+
+const InputText = class extends React.Component {
+	render() {
+		return (
+			<div>
+				<input placeholder="placeholder"/>
+			</div>
+		)
+	};
+};
+
+
+const WordSearch = class extends React.Component {
+	render() {
+		return (
+			<div className="view flex">
+				<p className="mr-2">Type in a word:</p>
+				<InputText />
+				<button className="button ml-2">Search</button>
+			</div>
+		)
+	};
 }
+
+
+
+
+
 
 
 
