@@ -140,7 +140,6 @@ def word_search(request):
 	# TODO -> Rather do try ... catch with search() function throwing a DoesNotExist
 	valid_word = fetch_valid_word(search.split()[0].strip().lower())
 
-
 	if valid_word:
 		# TODO -> Factor all the logic above to do with valid words that can be into the the helper `fetch` functions
 		result = fetch_word_details(valid_word)
