@@ -137,18 +137,34 @@ const InputText = class extends React.Component {
 
 
 const WordSearch = class extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			'searchInput': 'apples',
+		}
+	};
+
 	render() {
 		return (
 			<div className="view flex">
 				<p className="mr-2">Type in a word:</p>
 				<InputText />
-				<button className="button ml-2">Search</button>
+				<button className="button ml-2" onClick={ this.actionWordSearch }>Search</button>
 			</div>
 		)
-	};
-}
+	}
 
-
+	// QUESTION -> is it better to just access `value` from the state within the function?
+	actionWordSearch = async () => {
+		await secureFetch(`api/words/search?q=${this.state.searchInput}`)
+		.then(result => {
+			console.log({ result })
+		})
+		.catch(error => {
+			console.log({ error })
+		});
+	}
+};
 
 
 
