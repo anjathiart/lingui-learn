@@ -21,9 +21,13 @@ urlpatterns = [
 	path('api/users/<int:user_id>/profile', views.user_profile),
 	path('api/users/current', views.user_current),
 
-	path('api/entries/search', views.search_entry),
+	# path('api/entries/search', views.search_entry),
 	path('api/entries/<int:word_id>/add', views.add_entry),
 	path('api/entries/<int:word_id>/remove', views.remove_entry,),
 	path('api/entries/<int:word_id>/star', views.star_entry),
-	path('api/entries/<int:word_id>/master', views.master_entry)
+	path('api/entries/<int:word_id>/master', views.master_entry),
+
+
+	# WIP -> Splitting word endpoints and entry endpoints up
+	path('api/words/search', views.word_search)
 ]
