@@ -128,8 +128,38 @@ const Words = class extends React.Component {
 const InputText = class extends React.Component {
 	render() {
 		return (
-			<div>
-				<input placeholder="placeholder"/>
+			<div className="wordEntry">
+				<input placeholder={ this.props.placeholder } value={ this.props.value } onChange={ (e) => { this.props.update(e.target.value) }}/>
+			</div>
+		)
+	};
+};
+
+
+// Component to present the search results to the user
+const WordEntry = class extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+		}
+	};
+
+	render() {
+		// Build out all the result 'cards/rows'
+		let list = [];
+		this.props.entry.list.forEach((item, index) => {
+			list.push(<div className="entry__item" key={ index }>
+				<p>Definition: { item.definition }</p>
+				<p>Part of speech: { item.partOfSpeech }</p>
+				{ item.example? <p>Example: { item.example }</p> : null }
+				</div>
+			)
+		});
+
+		return (
+			<div className="entry">
+				<h1>{ this.props.entry.word }</h1>
+				<div>{ list }</div>
 			</div>
 		)
 	};
@@ -140,30 +170,38 @@ const WordSearch = class extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			'searchInput': 'apples',
+			searchInput: '',
+			showSearchResults: false,
+			wordEntry: '',
+			addCustomEntry: false,
 		}
 	};
 
 	render() {
 		return (
-			<div className="view flex">
-				<p className="mr-2">Type in a word:</p>
-				<InputText />
-				<button className="button ml-2" onClick={ this.actionWordSearch }>Search</button>
+			<div className="view">
+				<div className="flex">
+					<InputText value={ this.state.searchInput } update={(value) => this.setState({ searchInput: value })} placeholder="Type a word to search"/>
+					<button className="button ml-2" onClick={ this.actionWordSearch }>Search</button>
+				</div>
+				{ this.state.showSearchResults ? 
+					<WordEntry entry={ this.state.wordEntry } />
+					: null
+				}
 			</div>
 		)
-	}
+	};
 
-	// QUESTION -> is it better to just access `value` from the state within the function?
 	actionWordSearch = async () => {
 		await secureFetch(`api/words/search?q=${this.state.searchInput}`)
 		.then(result => {
-			console.log({ result })
+			this.setState({ wordEntry: result.data });
+			this.setState({ showSearchResults: true });
 		})
 		.catch(error => {
-			console.log({ error })
+			this.setState ({ addCustomEntry: error.allow || false });
 		});
-	}
+	};
 };
 
 
