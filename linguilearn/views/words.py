@@ -17,20 +17,6 @@ from ..models import User, Entry
 from .config import services_setup
 api_services = services_setup()
 
-'''
-# REMOVE -> Replaced with fetch_word_entry
-def wordsAPI_search(word):
-	url = api_services["words_api"]["base_url"] + word
-	headers = api_services["words_api"]["headers"]
-	r = requests.request("GET", url, headers=headers)
-	if r.status_code == 200:
-		return {
-
-		}
-
-	return None
-	'''
-	
 
 def fetch_word_details(word):
 	url = api_services["words_api"]["base_url"] + word
@@ -44,8 +30,8 @@ def fetch_word_details(word):
 # NB --> TOD --> I'm getting confused with my python foo_bar vs camelCase. Surely JSON response should be camelCase when served to the frontend, but then
 # ... I lose consitency within my python code. UGH!
 def parse_word_details(details):
-	# print(details["syllables"])
 	# TODO -> return "" if result does not contain the thingy
+	# print(details)
 	details_parsed = {
 		"word": details["word"],
 		"numResults": len(details["results"]),
@@ -53,27 +39,34 @@ def parse_word_details(details):
 			"count": details["syllables"]["count"],
 			"list": details["syllables"]["list"]
 		},
-		"pronunciation": None,
 		"frequency": details["frequency"],
 		"list": [],
 	}
 
+	singularKeys = ["derivation", "synonym", "antonym", "example"]
+
 	# TODO -> return "" if result does not contain the thingy
 	# TODO -> Add more info later
 	for result in details["results"]:
+		# update key to plural if wordAPI returns it in singular
+
+		for key in singularKeys:
+			if key in result:
+				result[key + "s"] = result.pop(key)
+
 		details_parsed["list"].append({
 			"definition": result["definition"],
-			"partOfSpeech": result["partOfSpeech"],
-			"example": None
+			"partOfSpeech": result["partOfSpeech"] if "partOfSpeech" in result else "",
+			"examples": result["examples"] if "examples" in result else [],
+			"derivations": result["derivations"] if "derivations" in result else [],
+			"similarTo": result["similarTo"] if "similarTo" in result else [],
+			"synonyms": result["synonyms"] if "synonyms" in result else [],
+			"usageOf": result["usageOf"] if "usageOf" in result else [],
+
 		})
+		details_parsed["list"].reverse()
 
 	return details_parsed
-
-
-
-
-
-
 
 
 
@@ -83,35 +76,9 @@ def wordsAPI_random():
 	params = { "random": "true" }
 	r = requests.request("GET", url, headers=headers, params=params)
 	if r.status_code == 200:
-		return {
-
-
-		}
+		return {}
 	else:
 		return None
-
-"""
-# REMOVE -> Replaced with fetch_valid_word()
-def oxford_search(word):
-	url = api_services["oxford_api"]["base_url_lemmas"] + word
-	headers = api_services["oxford_api"]["headers"]
-	r = requests.get(url, headers = headers)
-	if r.status_code == 200:
-		lex_result = r.json()
-		head_word = lex_result["results"][0]["lexicalEntries"][0]["inflectionOf"][0]["text"]
-		url = api_services["oxford_api"]["base_url_entries"] + head_word
-		r = requests.get(url, headers = headers)
-		if r.status_code == 200:
-			entry = r.json()
-			return entry["word"]
-			'''
-			return {
-				"word": entry["word"],
-				"definition": entry["results"][0]["lexicalEntries"][0]["entries"][0]["senses"][0]["definitions"][0],
-			}
-			'''
-	return None
-	"""
 
 
 def fetch_valid_word(word):
@@ -152,30 +119,6 @@ def word_search(request):
 		return JsonResponse(ctx, status=404)
 		
 
-
-# REMOVE -> def word_search replaces:
-'''
-@require_http_methods(['GET'])
-def search_entry(request):
-	wordsAPI_search("apple")
-	word_searched = request.GET.get('word', "")
-	ctx = { "word_searched": word_searched }
-
-	try:
-		entry = Entry.objects.get(word=word_searched.lower())
-		ctx["result"] = entry.serialize()
-		return JsonResponse(ctx, status=200)
-	except Entry.DoesNotExist:
-		entry = oxford_search(word_searched.lower())
-		if entry:
-			entry = Entry(word=entry["word"], definition=entry["definition"])
-			entry.save()
-			ctx["result"] = entry.serialize()
-			return JsonResponse(ctx, status=200)
-		ctx["error"] = "No match was found for the search query"
-		return JsonResponse(ctx, status=404)
-'''
-
 @require_http_methods(['POST'])
 def add_entry(request, entry_id):
 
@@ -189,16 +132,7 @@ def add_entry(request, entry_id):
 
 	request.user.entries.add(entry)
 	return JsonResponse(ctx, status=200)
-	
 
-	# print("text \n" + r.text)
-	# print(oxfordEntryToLinguiEntry(r.json()))
-	# print("code {}\n".format(r.status_code))
-	# print("text \n" + r.text)
-	# print("json \n" + json.dumps(r.json()))
-
-
-	# return JsonResponse(result, status=result["status_code"])
 
 @require_http_methods(['POST'])
 def remove_entry(request, entry_id):
