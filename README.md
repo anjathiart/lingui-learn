@@ -16,7 +16,7 @@ Play Learn Love Lingo! A simple app where you can improve and build your English
 
 ## External services
 - Oxford Dictionaries API
-- Wordnik API
+- WordsAPI
 
 
 ## Installed packages
