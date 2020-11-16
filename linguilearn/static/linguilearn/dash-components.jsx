@@ -52,7 +52,7 @@ const AddFriend = class extends React.Component {
 	};
 
 	actionAddFriend = async () => {
-		await secureFetch(`api/friendship/${this.state.toUserEmail}/add`, 'POST')
+		await secureFetch(`v1/friendship/${this.state.toUserEmail}/add`, 'POST')
 		.then(res => {
 
 		})
@@ -149,16 +149,24 @@ const WordEntry = class extends React.Component {
 		let list = [];
 		this.props.entry.list.forEach((item, index) => {
 			list.push(<div className="entry__item" key={ index }>
-				<p>Definition: { item.definition }</p>
-				<p>Part of speech: { item.partOfSpeech }</p>
-				{ item.example? <p>Example: { item.example }</p> : null }
-				</div>
-			)
+				<p><em className="mr-1">{ item.partOfSpeech }.</em><strong>{ item.definition }</strong></p>
+				{ item.examples.length > 0 ?
+					<div>
+						<p>Examples:</p>
+						<ol>{ item.examples.map(ex => <li key={ ex }>{ ex }</li> )}</ol>
+					</div>
+					: null
+				}
+				{ item.synonyms.length > 0 ? <p>Synonyms: { item.synonyms.join(', ') } </p> : null }
+				{ item.similarTo.length > 0 ? <p>Similar: { item.similarTo.join(', ') }</p> : null }
+				{ item.usageOf.length > 0 ? <p>Usage: { item.usageOf.join(', ') }</p> : null }
+			</div>)
 		});
 
 		return (
 			<div className="entry">
 				<h1>{ this.props.entry.word }</h1>
+				<p>{ this.props.entry.syllables.list.join('-')}</p>
 				<div>{ list }</div>
 			</div>
 		)
@@ -193,13 +201,15 @@ const WordSearch = class extends React.Component {
 	};
 
 	actionWordSearch = async () => {
-		await secureFetch(`api/words/search?q=${this.state.searchInput}`)
+		await secureFetch(`v1/words/search?q=${this.state.searchInput}`)
 		.then(result => {
 			this.setState({ wordEntry: result.data });
 			this.setState({ showSearchResults: true });
+			console.log({result})
 		})
 		.catch(error => {
 			this.setState ({ addCustomEntry: error.allow || false });
+			console.log({error})
 		});
 	};
 };

@@ -20,7 +20,7 @@ if (document.readyState !== 'loading' ) {
 async function myInitCode() {
 	view = "main"
 	// load current user profile
-	await secureFetch(`api/users/current`)
+	await secureFetch(`v1/users/current`)
 	.then(res => {
 		console.log(res);
 		current_user = res;
@@ -36,7 +36,7 @@ async function myInitCode() {
 
 
 async function addFriend(userEmail) {
-	let res = await secureFetch(`api/friendship/${userEmail}/add`, 'POST')
+	let res = await secureFetch(`v1/friendship/${userEmail}/add`, 'POST')
 	.catch(error => {
 		error = error.error;
 		console.log(error)
@@ -46,7 +46,7 @@ async function addFriend(userEmail) {
 
 
 async function userSearch(qs) {
-	let res = await secureFetch(`api/users?${qs}`, 'GET')
+	let res = await secureFetch(`v1/users?${qs}`, 'GET')
 	.catch(error => {
 		// do something with error
 		console.log(error)
@@ -154,7 +154,7 @@ function renderUserList(user) {
 
 		actionAddFriend = async (username) => {
 			console.log(username)
-			let result = await secureFetch(`api/friendship/${username}/add`, 'POST').catch( e => {
+			let result = await secureFetch(`v1/friendship/${username}/add`, 'POST').catch( e => {
 				console.log(e);
 			})
 			console.log(result)
@@ -163,7 +163,7 @@ function renderUserList(user) {
 
 		actionRemoveFriend = async (username) => {
 			console.log(username)
-			let result = await secureFetch(`api/friendship/${3}/cancel`, 'POST').catch( e => {
+			let result = await secureFetch(`v1/friendship/${3}/cancel`, 'POST').catch( e => {
 				console.log(e);
 			})
 			console.log(result)
