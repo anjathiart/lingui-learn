@@ -18,28 +18,29 @@ from .config import services_setup
 api_services = services_setup()
 
 
-def fetch_word_details(word):
+def fetch_word_entry(word):
+	word = fetch_valid_word(word)
 	url = api_services["words_api"]["base_url"] + word
 	headers = api_services["words_api"]["headers"]
 	r = requests.request("GET", url, headers=headers)
 	if r.status_code == 200:
-		print('details fetched')
-		return parse_word_details(r.json())
-	return None
+		return parse_word_entry(r.json())
+	else:
+		raise ValueError(r.status_code)
+		
 
 # NB --> TOD --> I'm getting confused with my python foo_bar vs camelCase. Surely JSON response should be camelCase when served to the frontend, but then
 # ... I lose consitency within my python code. UGH!
-def parse_word_details(details):
+def parse_word_entry(entry):
 	# TODO -> return "" if result does not contain the thingy
-	# print(details)
-	details_parsed = {
-		"word": details["word"],
-		"numResults": len(details["results"]),
+	entry_parsed = {
+		"word": entry["word"],
+		"numResults": len(entry["results"]),
 		"syllables": {
-			"count": details["syllables"]["count"],
-			"list": details["syllables"]["list"]
+			"count": entry["syllables"]["count"],
+			"list": entry["syllables"]["list"]
 		},
-		"frequency": details["frequency"],
+		"frequency": entry["frequency"],
 		"list": [],
 	}
 
@@ -47,14 +48,14 @@ def parse_word_details(details):
 
 	# TODO -> return "" if result does not contain the thingy
 	# TODO -> Add more info later
-	for result in details["results"]:
+	for result in entry["results"]:
 		# update key to plural if wordAPI returns it in singular
 
 		for key in singularKeys:
 			if key in result:
 				result[key + "s"] = result.pop(key)
 
-		details_parsed["list"].append({
+		entry_parsed["list"].append({
 			"definition": result["definition"],
 			"partOfSpeech": result["partOfSpeech"] if "partOfSpeech" in result else "",
 			"examples": result["examples"] if "examples" in result else [],
@@ -64,9 +65,9 @@ def parse_word_details(details):
 			"usageOf": result["usageOf"] if "usageOf" in result else [],
 
 		})
-		details_parsed["list"].reverse()
+		entry_parsed["list"].reverse()
 
-	return details_parsed
+	return entry_parsed
 
 
 
@@ -88,8 +89,9 @@ def fetch_valid_word(word):
 	if r.status_code == 200:
 		lex_result = r.json()
 		head_word = lex_result["results"][0]["lexicalEntries"][0]["inflectionOf"][0]["text"]
-		return head_word	
-	return None
+		return head_word
+	else:
+		raise ValueError(r.status_code)
 
 
 @require_http_methods(["GET"])
@@ -105,18 +107,31 @@ def word_search(request):
 	# Sanitize the query string to get a target for the word search
 	# TODO -> what if the word must be uppercase?
 	# TODO -> Rather do try ... catch with search() function throwing a DoesNotExist
-	valid_word = fetch_valid_word(search.split()[0].strip().lower())
+	try:
+		valid_word = fetch_valid_word(search.split()[0].strip().lower())
+	except Exception as e:
+		# TODO-> log this to ther terminal nicely for debug
+		ctx["allow"] = e == 404
+		if e == 404:
+			ctx["warning"] = "No word was found for this search, check the spelling, or add it as a custom entry"
+			return JsonResponse(ctx, status=404)
+		else:
+			ctx["error"] = "Server error. Please try again later"
+			return JsonResponse(ctx, status=500)
 
-	if valid_word:
-		# TODO -> Factor all the logic above to do with valid words that can be into the the helper `fetch` functions
-		result = fetch_word_details(valid_word)
+	try:
+		result = fetch_word_entry(valid_word)
 		ctx["data"] = result
 		return JsonResponse(ctx, status=200)
+	except Exception as e:
+		ctx["allow"] = e == 404
+		if e == 404:
+			ctx["warning"] = "No word entry was found for this word. You can add it as a custom entry"
+			return JsonResponse(ctx, status=404)
+		else:
+			ctx["error"] = "Server error. Please try again later"
+			return JsonResponse(ctx, status=500)
 
-	else:
-		ctx["allow"] = True # flag to bypass error and do something (for example allow this word to be added as a made up word)
-		ctx["error"] = "No match was found for the search query"
-		return JsonResponse(ctx, status=404)
 		
 
 @require_http_methods(['POST'])

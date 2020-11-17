@@ -23,7 +23,7 @@ def users(request):
 	ctx = { "user_id": request.user.id, "email": email }
 	try:
 		user = User.objects.filter(email=email)
-		ctx["result"] = user.serialize()
+		ctx["data"] = user.serialize()
 	except User.DoesNotExist:
 		ctx["error"] = "No user matching email entered"
 
