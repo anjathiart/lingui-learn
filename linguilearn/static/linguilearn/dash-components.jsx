@@ -184,6 +184,7 @@ const WordSearch = class extends React.Component {
 			addCustomEntry: false,
 			errorMessage: '',
 			warningMessage: '',
+			fillOwnDetails: false,
 		}
 	};
 
@@ -194,16 +195,24 @@ const WordSearch = class extends React.Component {
 					<InputText value={ this.state.searchInput } update={(value) => this.setState({ searchInput: value })} placeholder="Type a word to search"/>
 					<button className="button ml-2" onClick={ this.actionWordSearch }>Search</button>
 				</div>
-				{ this.state.showSearchResults ? 
-					<WordEntry entry={ this.state.wordEntry } />
+				{ this.state.showSearchResults ?
+					<div>
+						<WordEntry entry={ this.state.wordEntry } />
+						<button onClick={ this.fillOwnDetails }>Add to Library</button>
+					</div>
 					: null
 				}
 				{ this.state.errorMessage ? <p>{ this.state.errorMessage }</p> : null }
 				{ this.state.warningMessage ? <p>{ this.state.warningMessage }</p> : null }
 				{ this.state.addCustomEntry ? <button>Add Custom Entry?</button> : null }
+				{ this.state.fillOwnDetails ? <WordEntryForm key="x"/> : null }
 			</div>
 		)
 	};
+
+	fillOwnDetails = () => {
+		this.setState({ fillOwnDetails: true });
+	}
 
 	actionWordSearch = async () => {
 		this.setState(() => { 
@@ -236,8 +245,35 @@ const WordSearch = class extends React.Component {
 
 
 
+const WordEntryForm = class extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			context: '"blah blah"',
+			source: 'The Trial',
+			author: 'Franz Kafka',
+			link: 'www.google.com',
+			notes: 'blahbalksdfas safasf',
+			label: 'learning',
+		}
+	};
 
+	render() {
+		return (
+			<div className="view">
+				<p>Context:</p>
+				<InputText value={ this.state.context } update={(value) => this.setState({ context: value })} placeholder="Context"/>
+				<p>Source / Title</p>
+				<InputText value={ this.state.source } update={(value) => this.setState({ source: value })} placeholder="Source"/>
+				<p>Author</p>
+				<InputText value={ this.state.author } update={(value) => this.setState({ author: value })} placeholder="Author"/>
+				<p>Link / Url</p>
+				<InputText value={ this.state.link } update={(value) => this.setState({ link: value })} placeholder="URL link"/>
+			</div>
+		)
+	};
 
+};
 
 
 
