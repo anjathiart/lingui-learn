@@ -110,6 +110,8 @@ def word_search(request):
 	try:
 		valid_word = fetch_valid_word(search.split()[0].strip().lower())
 	except Exception as e:
+		# convert ValueError to a integer
+		e = int("%s" % e)
 		# TODO-> log this to ther terminal nicely for debug
 		ctx["allow"] = e == 404
 		if e == 404:
@@ -124,6 +126,8 @@ def word_search(request):
 		ctx["data"] = result
 		return JsonResponse(ctx, status=200)
 	except Exception as e:
+		# cconvert ValueError to integer
+		e = int("%s" % e)
 		ctx["allow"] = e == 404
 		if e == 404:
 			ctx["warning"] = "No word entry was found for this word. You can add it as a custom entry"

@@ -16,7 +16,7 @@ const secureFetch = (url, method, data) => {
 				window.location.replace('/login');
 				return;
 			} else {
-				console.log(response)
+				console.log({response})
 				// Deal with other errors from the server / api
 				reject(await response.json());
 				return;

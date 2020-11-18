@@ -182,6 +182,8 @@ const WordSearch = class extends React.Component {
 			showSearchResults: false,
 			wordEntry: '',
 			addCustomEntry: false,
+			errorMessage: '',
+			warningMessage: '',
 		}
 	};
 
@@ -196,20 +198,37 @@ const WordSearch = class extends React.Component {
 					<WordEntry entry={ this.state.wordEntry } />
 					: null
 				}
+				{ this.state.errorMessage ? <p>{ this.state.errorMessage }</p> : null }
+				{ this.state.warningMessage ? <p>{ this.state.warningMessage }</p> : null }
+				{ this.state.addCustomEntry ? <button>Add Custom Entry?</button> : null }
 			</div>
 		)
 	};
 
 	actionWordSearch = async () => {
+		this.setState(() => { 
+			return {
+				showSearchResults: false,
+				errorMessage: '',
+				warningMessage: '',
+			}
+		});
+
+
 		await secureFetch(`v1/words/search?q=${this.state.searchInput}`)
 		.then(result => {
 			this.setState({ wordEntry: result.data });
 			this.setState({ showSearchResults: true });
-			console.log({result})
 		})
 		.catch(error => {
-			this.setState ({ addCustomEntry: error.allow || false });
-			console.log({error})
+			this.setState(() => {
+				return {
+					errorMessage: error.error,
+					warningMessage: error.warning,
+					addCustomEntry: error.allow || false
+				}
+
+			})
 		});
 	};
 };
