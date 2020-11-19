@@ -205,7 +205,7 @@ const WordSearch = class extends React.Component {
 				{ this.state.errorMessage ? <p>{ this.state.errorMessage }</p> : null }
 				{ this.state.warningMessage ? <p>{ this.state.warningMessage }</p> : null }
 				{ this.state.addCustomEntry ? <button>Add Custom Entry?</button> : null }
-				{ this.state.fillOwnDetails ? <WordEntryForm key="x"/> : null }
+				{ this.state.fillOwnDetails ? <WordEntryForm key="x" save={ (event) => this.actionSaveEntry(event) }/> : null }
 			</div>
 		)
 	};
@@ -240,6 +240,28 @@ const WordSearch = class extends React.Component {
 			})
 		});
 	};
+
+	actionSaveEntry = async (event) => {
+
+		const fields = { ...event };
+		console.log({fields})
+		await secureFetch(`v1/entries/${this.state.wordEntry.word}/add`, 'POST', fields)
+		.then(result => {
+			this.setState({ wordEntry: result.data });
+			this.setState({ showSearchResults: true });
+		})
+		.catch(error => {
+			console.log({error})
+			// this.setState(() => {
+			// 	return {
+			// 		errorMessage: error.error,
+			// 		warningMessage: error.warning,
+			// 		addCustomEntry: error.allow || false
+			// 	}
+
+			// })
+		});
+	};
 };
 
 
@@ -249,12 +271,15 @@ const WordEntryForm = class extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			context: '"blah blah"',
-			source: 'The Trial',
-			author: 'Franz Kafka',
-			link: 'www.google.com',
-			notes: 'blahbalksdfas safasf',
-			label: 'learning',
+			inputValues: {
+				context: 'He ate a poisonous apple',
+				source: 'The Trial',
+				author: 'Franz Kafka',
+				url: 'www.google.com',
+				notes: '',
+				label: '',			
+			}
+
 		}
 	};
 
@@ -262,15 +287,48 @@ const WordEntryForm = class extends React.Component {
 		return (
 			<div className="view">
 				<p>Context:</p>
-				<InputText value={ this.state.context } update={(value) => this.setState({ context: value })} placeholder="Context"/>
+				<InputText value={ this.state.inputValues.context } update={(value) => this.actionInput('context', value)} placeholder="Context"/>
 				<p>Source / Title</p>
-				<InputText value={ this.state.source } update={(value) => this.setState({ source: value })} placeholder="Source"/>
+				<InputText value={ this.state.inputValues.source } update={(value) => this.actionInput('source', value)} placeholder="Source"/>
 				<p>Author</p>
-				<InputText value={ this.state.author } update={(value) => this.setState({ author: value })} placeholder="Author"/>
+				<InputText value={ this.state.inputValues.author } update={(value) => this.actionInput('author', value)} placeholder="Author"/>
 				<p>Link / Url</p>
-				<InputText value={ this.state.link } update={(value) => this.setState({ link: value })} placeholder="URL link"/>
+				<InputText value={ this.state.inputValues.url } update={(value) => this.actionInput('url', value)} placeholder="URL link"/>
+				<button onClick={ () => this.props.save(this.state.inputValues) }>Save To Library</button>
 			</div>
 		)
+	};
+
+	actionInput = (key, value) => {
+		this.setState(prevState => {
+			// make a copy of the previous inputValues object
+			let inputValues = {...prevState.inputValues };
+			// update the key/value pair
+			inputValues[key] = value;
+			// return new state
+			return { inputValues };
+		})
+	}
+
+	actionSaveEntryToLibrary = async () => {
+		console.log({currentUser});
+		const fields = { ...this.state.inputValues };
+
+		await secureFetch(`v1/entries/add`, 'POST', fields)
+		.then(result => {
+			this.setState({ wordEntry: result.data });
+			this.setState({ showSearchResults: true });
+		})
+		.catch(error => {
+			this.setState(() => {
+				return {
+					errorMessage: error.error,
+					warningMessage: error.warning,
+					addCustomEntry: error.allow || false
+				}
+
+			})
+		});
 	};
 
 };

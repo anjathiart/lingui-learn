@@ -1,5 +1,5 @@
 let csrftoken = Cookies.get('csrftoken');
-let current_user = null;
+let currentUser = null;
 let view = '';
 let sideBarState = "currentUser";
 
@@ -23,8 +23,8 @@ async function myInitCode() {
 	await secureFetch(`v1/users/current`)
 	.then(res => {
 		console.log(res);
-		current_user = res;
-		// renderUserDash(current_user);
+		currentUser = res;
+		// renderUserDash(currentUser);
 		renderPage();
 	})
 	.catch(error => {
@@ -216,7 +216,7 @@ function renderUserList(user) {
 	/*feather.replace();
 
 	// load user
-	await load_current_user();
+	await load_currentUser();
 
 	// Handle routing to the following page
 	if (currentUser) {
