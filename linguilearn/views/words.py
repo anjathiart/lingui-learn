@@ -138,64 +138,64 @@ def word_search(request):
 
 		
 
-@require_http_methods(['POST'])
-def add_entry(request, entry_id):
+# @require_http_methods(['POST'])
+# def add_entry(request, entry_id):
 
-	ctx = { "entry_id": entry_id }
+# 	ctx = { "entry_id": entry_id }
 
-	try:
-		entry = Entry.objects.get(id=entry_id)
-	except Entry.DoesNotExist:
-		ctx["error"] = "Word does not exist"
-		return JsonResponse(ctx, status=404)
+# 	try:
+# 		entry = Entry.objects.get(id=entry_id)
+# 	except Entry.DoesNotExist:
+# 		ctx["error"] = "Word does not exist"
+# 		return JsonResponse(ctx, status=404)
 
-	request.user.entries.add(entry)
-	return JsonResponse(ctx, status=200)
-
-
-@require_http_methods(['POST'])
-def remove_entry(request, entry_id):
-
-	ctx = { "entry_id": entry_id }
-
-	try:
-		request.user.remove_entry(entry_id)
-	except Entry.DoesNotExist:
-		ctx["error"] = "Word does not exist"
-		return JsonResponse(ctx, status=404)
-
-	# request.user.learning_words.add(entry)
-	return JsonResponse(ctx, status=200)
+# 	request.user.entries.add(entry)
+# 	return JsonResponse(ctx, status=200)
 
 
-@require_http_methods(['POST'])
-def master_entry(request, entry_id):
+# @require_http_methods(['POST'])
+# def remove_entry(request, entry_id):
 
-	ctx = { "entry_id": entry_id }
+# 	ctx = { "entry_id": entry_id }
 
-	try:
-		request.user.master_entry(entry_id)
-	except DoesNotExistForUser as e:
-		ctx["error"] = "%s" % e
-		return JsonResponse(ctx, status=404)
+# 	try:
+# 		request.user.remove_entry(entry_id)
+# 	except Entry.DoesNotExist:
+# 		ctx["error"] = "Word does not exist"
+# 		return JsonResponse(ctx, status=404)
 
-	# request.user.learning_words.add(entry)
-	return JsonResponse(ctx, status=200)
+# 	# request.user.learning_words.add(entry)
+# 	return JsonResponse(ctx, status=200)
 
 
-@require_http_methods(['POST'])
-def star_entry(request, entry_id):
+# @require_http_methods(['POST'])
+# def master_entry(request, entry_id):
 
-	ctx = { "entry_id": entry_id }
+# 	ctx = { "entry_id": entry_id }
 
-	try:
-		entry = Entry.objects.get(id=entry_id)
-	except Entry.DoesNotExist:
-		ctx["error"] = "Word does not exist"
-		return JsonResponse(ctx, status=404)
+# 	try:
+# 		request.user.master_entry(entry_id)
+# 	except DoesNotExistForUser as e:
+# 		ctx["error"] = "%s" % e
+# 		return JsonResponse(ctx, status=404)
 
-	request.user.entries_starred.add(entry)
-	return JsonResponse(ctx, status=200)
+# 	# request.user.learning_words.add(entry)
+# 	return JsonResponse(ctx, status=200)
+
+
+# @require_http_methods(['POST'])
+# def star_entry(request, entry_id):
+
+# 	ctx = { "entry_id": entry_id }
+
+# 	try:
+# 		entry = Entry.objects.get(id=entry_id)
+# 	except Entry.DoesNotExist:
+# 		ctx["error"] = "Word does not exist"
+# 		return JsonResponse(ctx, status=404)
+
+# 	request.user.entries_starred.add(entry)
+# 	return JsonResponse(ctx, status=200)
 
 
 

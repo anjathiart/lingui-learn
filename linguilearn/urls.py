@@ -22,10 +22,11 @@ urlpatterns = [
 	path('v1/users/current', views.user_current),
 
 	# path('v1/entries/search', views.search_entry),
-	path('v1/entries/<int:word_id>/add', views.add_entry),
+	# path('v1/entries/<int:word_id>/add', views.add_entry),
 	path('v1/entries/<int:word_id>/remove', views.remove_entry,),
 	path('v1/entries/<int:word_id>/star', views.star_entry),
 	path('v1/entries/<int:word_id>/master', views.master_entry),
+	path('v1/entries/<str:word>/add', views.add_entry),
 
 	# WIP -> Splitting word endpoints and entry endpoints up
 	path('v1/words/search', views.word_search)
