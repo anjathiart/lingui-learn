@@ -180,6 +180,7 @@ const WordSearch = class extends React.Component {
 		this.state = {
 			searchInput: '',
 			showSearchResults: false,
+			wordId: '',
 			wordEntry: '',
 			addCustomEntry: false,
 			errorMessage: '',
@@ -226,6 +227,7 @@ const WordSearch = class extends React.Component {
 
 		await secureFetch(`v1/words/search?q=${this.state.searchInput}`)
 		.then(result => {
+			this.setState({ wordId: result.wordId });
 			this.setState({ wordEntry: result.data });
 			this.setState({ showSearchResults: true });
 		})
@@ -244,11 +246,13 @@ const WordSearch = class extends React.Component {
 	actionSaveEntry = async (event) => {
 
 		const fields = { ...event };
-		console.log({fields})
-		await secureFetch(`v1/entries/${this.state.wordEntry.word}/add`, 'POST', fields)
+		// console.log({fields})
+		// console.log(this.state.wordEntry)
+		await secureFetch(`v1/entries/${this.state.wordId}/add`, 'POST', fields)
 		.then(result => {
-			this.setState({ wordEntry: result.data });
-			this.setState({ showSearchResults: true });
+			console.log(result.data)
+			// this.setState({ wordEntry: result.data });
+			// this.setState({ showSearchResults: true });
 		})
 		.catch(error => {
 			console.log({error})
