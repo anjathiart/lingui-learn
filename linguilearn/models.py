@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from linguilearn.exceptions import AlreadyExistsError, DoesNotExistForUser
 
+'''
 class Entry(models.Model):
 	word = models.CharField(max_length=255)
 	definition = models.CharField(max_length=1028)
@@ -17,26 +18,26 @@ class Entry(models.Model):
 			# "example": self.subject,
 			# "phrase": self.body,
 		}
-
-
+'''
 
 class User(AbstractUser):
+
 	# Entries mastered by user
-	entries_mastered = models.ManyToManyField("Entry", related_name="users_mastered")
+	# entries_mastered = models.ManyToManyField("Entry", related_name="users_mastered")
 	# Entries added by user but not yet mastered
-	entries = models.ManyToManyField("Entry", related_name="users")
+	# entries = models.ManyToManyField("Entry", related_name="users")
 	# Entries starred by user (can be any entry in the Entries Table)
-	entries_starred = models.ManyToManyField("Entry", related_name="users_starred")
+	# entries_starred = models.ManyToManyField("Entry", related_name="users_starred")
 
 
 	def serialize(self):
 		return {
 			"id": self.id,
 			"name": self.username.capitalize(),
-			"followers": [user.id for user in self.followers.all()],
-			"entries_mastered": [entry.id for entry in self.entries_mastered.all()],
-			"entries": [entry.id for entry in self.entries.all()],
-			"entries_starred": [entry.id for entry in self.entries_starred.all()],
+			# "followers": [user.id for user in self.followers.all()],
+			# "entries_mastered": [entry.id for entry in self.entries_mastered.all()],
+			# "entries": [entry.id for entry in self.entries.all()],
+			# "entries_starred": [entry.id for entry in self.entries_starred.all()],
 		}
 
 	def master_entry(self, entry_id):
@@ -99,19 +100,17 @@ class WordManager(models.Manager):
 
 
 class Word(models.Model):
-	word_id = models.CharField(max_length=255)
+	text = models.CharField(max_length=255)
 	learning = models.ManyToManyField("User", related_name="users_learning")
 	mastered = models.ManyToManyField("User", related_name="users_mastered") 
 	liked = models.ManyToManyField("User", related_name="users_liked")
 
 	objects = WordManager()
 
-
-
 	def serialize(self):
 		return {
 			"id": self.id,
-			"word_id": self.word_id,
+			"word": self.text,
 			"users_learning": [user.id for user in self.learning.all()],
 			"users_mastered": [user.id for user in self.mastered.all()],
 			"users_liked": [user.id for user in self.liked.all()],
@@ -120,3 +119,24 @@ class Word(models.Model):
 	def master(self, user):
 		self.learning.remove(user)
 		self.mastered.add(user)
+
+
+class Entry(models.Model):
+	user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="user_entries")
+	word =  models.ForeignKey("Word", on_delete=models.CASCADE, related_name="word_entries")
+	# word = models.ForeignKey("Word", on_delete=models.CASCADE, related_name="entries")
+	# optional entries
+	context = models.CharField(max_length=1024, blank=True)
+	source = models.CharField(max_length=255, blank=True)
+	author = models.CharField(max_length=255, blank=True)
+	url = models.TextField(blank=True)
+	notes = models.TextField(blank=True)
+	# created_at = models.DateTimeField(auto_now_add=False)
+	# last_modified = models.DateTimeField(auto_now_add=False)
+
+
+	
+
+
+
+
