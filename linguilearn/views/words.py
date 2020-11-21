@@ -11,7 +11,7 @@ from django.views.decorators.http import require_http_methods
 
 from linguilearn.exceptions import AlreadyExistsError, DoesNotExistForUser
 
-from ..models import User, Entry
+from ..models import User, Word
 
 # import and get api service settings
 from .config import services_setup
@@ -121,6 +121,10 @@ def word_search(request):
 			ctx["error"] = "Server error. Please try again later"
 			return JsonResponse(ctx, status=500)
 
+	# Add the word to the database
+	word = Word(text=valid_word)
+	word.save()
+	ctx["wordId"] = word.id
 	try:
 		result = fetch_word_entry(valid_word)
 		ctx["data"] = result

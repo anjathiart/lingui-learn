@@ -11,13 +11,13 @@ from django.views.decorators.http import require_http_methods
 
 from linguilearn.exceptions import AlreadyExistsError, DoesNotExistForUser
 
-from ..models import User, Entry
+from ..models import User, Entry, Word
 
 
 @require_http_methods(['POST'])
-def add_entry(request, word):
+def add_entry(request, word_id):
 
-	ctx = { "user_id": request.user.id, "word": word }
+	ctx = { "userId": request.user.id, "wordId": word_id }
 
 	# load post body
 	data = json.loads(request.body)
@@ -26,7 +26,31 @@ def add_entry(request, word):
 	source = data.get('source', '')
 	author = data.get('author', '')
 	url = data.get('url', '')
-	pass
+	notes = data.get('notes', '')
+	print('a')
+	try:
+		word = Word.objects.get(id = word_id)
+		print('x')
+	except Word.DoesNotExist:
+		ctx["error"] = "Word does not exist"
+		return JsonResponse(ctx, status=400)
+
+	try:
+		print('y')
+		print(request.user)
+		entry = Entry(word=word, user=request.user, context=context, source=source, author=author, url=url, notes=notes)
+		entry.save()
+		print('z')
+		print(entry)
+		ctx["data"] = { "entryId": entry.id }
+	except ValueError as e:
+		print(e)
+		ctx["error"] = "could not create the entry"
+		return JsonResponse(ctx, status=500)
+
+	return JsonResponse(ctx, status=200)
+
+
 
 
 @require_http_methods(['POST'])
