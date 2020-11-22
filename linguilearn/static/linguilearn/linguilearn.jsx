@@ -106,6 +106,7 @@ class App extends React.Component {
 		this.state = {
 			'error': '',
 			'msg': '',
+			'view': 'search',
 		}
 	};
 
@@ -113,8 +114,11 @@ class App extends React.Component {
 		let errorHandler = this.handleError;
 		return (
 			<div className="body">
-				<SideBar />
-				<WordSearch />
+				<SideBar view = { (view) => this.setState({ view: view }) } />
+				<div className = "view">
+					{ this.state.view === 'search' ? <WordSearch /> : null }
+					{ this.state.view === 'library' ? <Library userId = { currentUser.user_id }/> : null}
+				</div>
 			</div>
 		)
 	};
