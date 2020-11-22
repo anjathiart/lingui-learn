@@ -16,18 +16,19 @@ body {
 p {
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
+  font-size: 12px;
 }
 
 .body {
   display: flex;
+  flex-wrap: wrap;
   border: 1px solid black;
+  justify-content: center;
 }
 
 .view {
   border: 1px solid pink;
-  max-width: 1028px;
   width: 1028px;
-  min-width: 480px;
   padding: 1rem;
 }
 

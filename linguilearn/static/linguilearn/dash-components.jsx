@@ -344,17 +344,37 @@ const Library = class extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			userId: '',
+			list: [],
 		}
 	};
 
-	componentWillMount() {
-		console.log(this.props.userId)
+	async componentDidMount() {
+		//  fetch users library
+		await secureFetch(`v1/users/${this.props.userId}/library`).then(result => {
+			console.log({result})
+			this.setState({ list: result.data.list })
+		}).catch(error => {
+			console.log({error})
+		})
+
+
+		// console.log(this.props.userId)
 	}
 
 	render() {
 		return (
 			<div>
 				<h1>Library</h1>
+				{ this.state.list.map(entry => {
+					return (
+						<div className="entry" key={ entry.id }>
+							<p>{ entry.word }</p>
+						</div>
+					)
+
+
+				})}
 			</div>
 		)
 	};
