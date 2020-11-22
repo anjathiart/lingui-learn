@@ -131,8 +131,23 @@ class Entry(models.Model):
 	author = models.CharField(max_length=255, blank=True)
 	url = models.TextField(blank=True)
 	notes = models.TextField(blank=True)
-	# created_at = models.DateTimeField(auto_now_add=False)
+	created_at = models.DateTimeField(auto_now_add=True)
 	# last_modified = models.DateTimeField(auto_now_add=False)
+
+	def serialize(self):
+		return {
+			"id": self.id,
+			"word": self.word.text,
+			"context": self.context,
+			"source": self.source,
+			"author": self.author,
+			"url": self.url,
+			"notes": self.notes,
+			"created": self.created_at
+		}
+
+	class Meta:
+		ordering= ["-created_at"]
 
 
 	
