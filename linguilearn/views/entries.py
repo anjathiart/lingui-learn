@@ -42,6 +42,26 @@ def add_entry(request, word_id):
 		ctx["error"] = "Something went wrong... please try again later"
 		return JsonResponse(ctx, status=500)
 
+@require_http_methods(['POST'])
+def update_entry(request, entry_id):
+
+	ctx = { "userId": request.user.id, "entryId": entry_id }
+
+	# load post body
+	data = json.loads(request.body)
+
+	context = data.get('context', '')
+	source = data.get('source', '')
+	author = data.get('author', '')
+	url = data.get('url', '')
+	notes = data.get('notes', '')
+	try:
+		Entry.objects.filter(id = entry_id).update(context=context, source=source, author=author, url=url, notes=notes)
+		# ctx["data"] = { "entryId": entry_id }
+		return JsonResponse(ctx, status=200)
+	except Entry.DoesNotExist:
+		ctx["error"] = "Entry does not exist"
+		return JsonResponse(ctx, status=404)
 
 
 @require_http_methods(['GET'])
