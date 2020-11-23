@@ -101,6 +101,7 @@ class WordManager(models.Manager):
 
 class Word(models.Model):
 	text = models.CharField(max_length=255)
+	details = models.TextField(blank=True)
 	learning = models.ManyToManyField("User", related_name="users_learning")
 	mastered = models.ManyToManyField("User", related_name="users_mastered") 
 	liked = models.ManyToManyField("User", related_name="users_liked")

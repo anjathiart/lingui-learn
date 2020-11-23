@@ -108,8 +108,17 @@ def word_search(request):
 	# TODO -> what if the word must be uppercase?
 	# TODO -> Rather do try ... catch with search() function throwing a DoesNotExist
 	try:
+		word = Word.objects.get(text=search)
+		print('x)')
+	except Word.DoesNotExist:
+		print('y')
 		valid_word = fetch_valid_word(search.split()[0].strip().lower())
+		# Add the word to the database
+		word = Word(text=valid_word)
+		word.save()
 	except Exception as e:
+		print('xx')
+		print(e)
 		# convert ValueError to a integer
 		e = int("%s" % e)
 		# TODO-> log this to ther terminal nicely for debug
@@ -121,24 +130,26 @@ def word_search(request):
 			ctx["error"] = "Server error. Please try again later"
 			return JsonResponse(ctx, status=500)
 
-	# Add the word to the database
-	word = Word(text=valid_word)
-	word.save()
 	ctx["wordId"] = word.id
-	try:
-		result = fetch_word_entry(valid_word)
-		ctx["data"] = result
+	if (word.details):
+		ctx["data"] = json.loads(word.details)
 		return JsonResponse(ctx, status=200)
-	except Exception as e:
-		# cconvert ValueError to integer
-		e = int("%s" % e)
-		ctx["allow"] = e == 404
-		if e == 404:
-			ctx["warning"] = "No word entry was found for this word. You can add it as a custom entry"
-			return JsonResponse(ctx, status=404)
-		else:
-			ctx["error"] = "Server error. Please try again later"
-			return JsonResponse(ctx, status=500)
+	else:
+		try:
+			result = fetch_word_entry(word.text)
+			Word.objects.filter(id=word.id).update(details=json.dumps(result))
+			ctx["data"] = result
+			return JsonResponse(ctx, status=200)
+		except Exception as e:
+			# cconvert ValueError to integer
+			e = int("%s" % e)
+			ctx["allow"] = e == 404
+			if e == 404:
+				ctx["warning"] = "No word entry was found for this word. You can add it as a custom entry"
+				return JsonResponse(ctx, status=404)
+			else:
+				ctx["error"] = "Server error. Please try again later"
+				return JsonResponse(ctx, status=500)
 
 		
 

@@ -1,17 +1,12 @@
-# import json
 
 from django.contrib.auth import authenticate, login, logout
-# from django.core.paginator import Paginator
 from django.db import IntegrityError
-# from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from ..models import User
 
-# from friendship.exceptions import AlreadyExistsError
-# from friendship.models import Friend, Follow, Block, FriendshipRequest
 
 def index(request):
 	return render(request, "linguilearn/index.html")
@@ -29,7 +24,7 @@ def login_view(request):
 			login(request, user)
 			return HttpResponseRedirect(reverse("index"))
 		else:
-			return render(request, "network/login.html", {
+			return render(request, "linguilearn/login.html", {
 				"message": "Invalid username and/or password."
 			})
 	else:

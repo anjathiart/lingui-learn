@@ -34,17 +34,17 @@ def users(request):
 @require_http_methods(['GET'])
 def user_friends(request):
 	"""Returns a list of all the current users friends and pending friend requests"""
-	ctx = { "user_id": request.user.id}
+	ctx = { "userId": request.user.id}
 
 	friends = Friend.objects.friends(request.user)
 	ctx["friends"] = []
 	for friend in friends:
-		ctx["friends"].append({ "username": friend.username, "user_id": friend.id })
+		ctx["friends"].append({ "userName": friend.username, "userId": friend.id })
 
 	friend_requests_pending = Friend.objects.unrejected_requests(request.user)
-	ctx["friend_requests_pending"] = []
+	ctx["friendRequestsPending"] = []
 	for request_pending in friend_requests_pending:
-		ctx["friend_requests_pending"].append({ "username": request_pending.from_user.username, "user_id": request_pending.from_user.id, "friend_request_id": request_pending.id })
+		ctx["friendRequestsPending"].append({ "userName": request_pending.from_user.username, "userId": request_pending.from_user.id, "friendRequestId": request_pending.id })
 
 	return JsonResponse(ctx, status=200)
 
@@ -54,14 +54,14 @@ def user_friends(request):
 @require_http_methods(['GET'])
 def user_profile(request, user_id):
 
-	ctx = { "user_id": user_id }
+	ctx = { "userId": user_id }
 
 	if user_id == request.user.id:
 		
 		friend_requests_pending = Friend.objects.unrejected_requests(request.user)
-		ctx["friend_requests_pending"] = []
+		ctx["friendRequestsPending"] = []
 		for request_pending in friend_requests_pending:
-			ctx["friend_requests_pending"].append({ "username": request_pending.from_user.username, "user_id": request_pending.from_user.id, "friend_request_id": request_pending.id })
+			ctx["friendRequestsPending"].append({ "userName": request_pending.from_user.username, "userId": request_pending.from_user.id, "friendRequestId": request_pending.id })
 
 		user = request.user
 
@@ -78,11 +78,11 @@ def user_profile(request, user_id):
 	friends = Friend.objects.friends(user)
 	ctx["friends"] = []
 	for friend in friends:
-		ctx["friends"].append({ "username": friend.username, "user_id": friend.id })
+		ctx["friends"].append({ "username": friend.username, "userId": friend.id })
 
-	ctx["words_learning_count"] = Word.objects.get_words_learning_count(user)
-	ctx["words_mastered_count"] = Word.objects.get_words_mastered_count(user)
-	ctx["words_liked_count"] = Word.objects.get_words_liked_count(user)
+	ctx["wordsLearningCount"] = Word.objects.get_words_learning_count(user)
+	ctx["wordsMasteredCount"] = Word.objects.get_words_mastered_count(user)
+	ctx["wordsLikedCount"] = Word.objects.get_words_liked_count(user)
 
 	return JsonResponse(ctx, status=200)
 
@@ -90,22 +90,22 @@ def user_profile(request, user_id):
 @require_http_methods(['GET'])
 def user_current(request):
 
-	ctx = { "user_id": request.user.id }
+	ctx = { "userId": request.user.id, "userName": request.user.username }
 
 	friends = Friend.objects.friends(request.user)
 	ctx["friends"] = []
 	for friend in friends:
-		ctx["friends"].append({ "username": friend.username, "user_id": friend.id })
+		ctx["friends"].append({ "username": friend.username, "userId": friend.id })
 	
 	friend_requests_pending = Friend.objects.unrejected_requests(request.user)
 	ctx["friend_requests_pending"] = []
 	for request_pending in friend_requests_pending:
-		ctx["friend_requests_pending"].append({ "username": request_pending.from_user.username, "user_id": request_pending.from_user.id, "friend_request_id": request_pending.id })
+		ctx["friendRequestsPending"].append({ "userName": request_pending.from_user.username, "userId": request_pending.from_user.id, "friendRequestId": request_pending.id })
 
 
-	ctx["words_learning"] = Word.objects.get_words_learning(request.user)
-	ctx["words_mastered"] = Word.objects.get_words_mastered(request.user)
-	ctx["words_liked"] = Word.objects.get_words_liked(request.user)
+	ctx["wordsLearning"] = Word.objects.get_words_learning(request.user)
+	ctx["wordsMastered"] = Word.objects.get_words_mastered(request.user)
+	ctx["wordsLiked"] = Word.objects.get_words_liked(request.user)
 
 	return JsonResponse(ctx, status=200)
 
