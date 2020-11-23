@@ -35,51 +35,44 @@ def parse_word_entry(entry):
 	# TODO -> return "" if result does not contain the thingy
 	entry_parsed = {
 		"word": entry["word"],
-		"numResults": len(entry["results"]),
-		"syllables": {
-			"count": entry["syllables"]["count"],
-			"list": entry["syllables"]["list"]
-		},
-		"frequency": entry["frequency"],
 		"list": [],
+		"syllables": {
+			"count": 0,
+			"list": [],
+		},
 	}
+
+	if "syllables" in entry:
+		entry_parsed["syllanbles"] = {
+			"count": entry["syllables"]["count"] if "count" in entry["syllables"] else 0,
+			"list": entry["syllables"]["list"] if "list" in entry["syllables"] else [],
+		}
 
 	singularKeys = ["derivation", "synonym", "antonym", "example"]
 
-	# TODO -> return "" if result does not contain the thingy
-	# TODO -> Add more info later
-	for result in entry["results"]:
-		# update key to plural if wordAPI returns it in singular
+	if "results" in entry:
+		for result in entry["results"]:
 
-		for key in singularKeys:
-			if key in result:
-				result[key + "s"] = result.pop(key)
+			# update key to plural if wordAPI returns it in singular
+			for key in singularKeys:
+				if key in result:
+					result[key + "s"] = result.pop(key)
 
-		entry_parsed["list"].append({
-			"definition": result["definition"],
-			"partOfSpeech": result["partOfSpeech"] if "partOfSpeech" in result else "",
-			"examples": result["examples"] if "examples" in result else [],
-			"derivations": result["derivations"] if "derivations" in result else [],
-			"similarTo": result["similarTo"] if "similarTo" in result else [],
-			"synonyms": result["synonyms"] if "synonyms" in result else [],
-			"usageOf": result["usageOf"] if "usageOf" in result else [],
+			entry_parsed["list"].append({
+				"definition": result["definition"],
+				"partOfSpeech": result["partOfSpeech"] if "partOfSpeech" in result else "",
+				"examples": result["examples"] if "examples" in result else [],
+				"derivations": result["derivations"] if "derivations" in result else [],
+				"similarTo": result["similarTo"] if "similarTo" in result else [],
+				"synonyms": result["synonyms"] if "synonyms" in result else [],
+				"usageOf": result["usageOf"] if "usageOf" in result else [],
 
-		})
-		entry_parsed["list"].reverse()
+			})
+
+			# reverse the order of the results since it seems like the WordsApi returns the most general result last
+			entry_parsed["list"].reverse()
 
 	return entry_parsed
-
-
-
-def wordsAPI_random():
-	url = api_services["words_api"]["base_url"]
-	headers = api_services["words_api"]["headers"]
-	params = { "random": "true" }
-	r = requests.request("GET", url, headers=headers, params=params)
-	if r.status_code == 200:
-		return {}
-	else:
-		return None
 
 
 def fetch_valid_word(word):
@@ -96,6 +89,7 @@ def fetch_valid_word(word):
 
 @require_http_methods(["GET"])
 def word_search(request):
+	# Word.objects.all().delete()
 	search = request.GET.get("q", "")
 	ctx = { "search": search }
 
@@ -104,31 +98,29 @@ def word_search(request):
 		ctx["error"] = "Search input is empty!"
 		return JsonResponse(ctx, status=400)
 	
-	# Sanitize the query string to get a target for the word search
-	# TODO -> what if the word must be uppercase?
-	# TODO -> Rather do try ... catch with search() function throwing a DoesNotExist
 	try:
 		word = Word.objects.get(text=search)
-		print('x)')
 	except Word.DoesNotExist:
-		print('y')
-		valid_word = fetch_valid_word(search.split()[0].strip().lower())
-		# Add the word to the database
-		word = Word(text=valid_word)
-		word.save()
-	except Exception as e:
-		print('xx')
-		print(e)
-		# convert ValueError to a integer
-		e = int("%s" % e)
-		# TODO-> log this to ther terminal nicely for debug
-		ctx["allow"] = e == 404
-		if e == 404:
-			ctx["warning"] = "No word was found for this search, check the spelling, or add it as a custom entry"
-			return JsonResponse(ctx, status=404)
-		else:
-			ctx["error"] = "Server error. Please try again later"
-			return JsonResponse(ctx, status=500)
+		try:
+			valid_word = fetch_valid_word(search.split()[0].strip().lower())
+			try:
+				word = Word.objects.get(text=valid_word)
+			except Word.DoesNotExist:
+				# Add the word to the database
+				word = Word(text=valid_word)
+				word.save()
+		except Exception as e:
+			# convert ValueError to a integer
+			# TODO-> log this to ther terminal nicely for debug
+			e = int("%s" % e)
+			ctx["allow"] = e == 404
+			if e == 404:
+				ctx["warning"] = "No word was found for this search, check the spelling, or add it as a custom entry"
+				return JsonResponse(ctx, status=404)
+			else:
+				ctx["error"] = "Server error. Please try again later"
+				return JsonResponse(ctx, status=500)
+		
 
 	ctx["wordId"] = word.id
 	if (word.details):
@@ -137,9 +129,6 @@ def word_search(request):
 	else:
 		try:
 			result = fetch_word_entry(word.text)
-			Word.objects.filter(id=word.id).update(details=json.dumps(result))
-			ctx["data"] = result
-			return JsonResponse(ctx, status=200)
 		except Exception as e:
 			# cconvert ValueError to integer
 			e = int("%s" % e)
@@ -151,66 +140,10 @@ def word_search(request):
 				ctx["error"] = "Server error. Please try again later"
 				return JsonResponse(ctx, status=500)
 
-		
+		Word.objects.filter(id=word.id).update(details=json.dumps(result))
+		ctx["data"] = result
+		return JsonResponse(ctx, status=200)
 
-# @require_http_methods(['POST'])
-# def add_entry(request, entry_id):
-
-# 	ctx = { "entry_id": entry_id }
-
-# 	try:
-# 		entry = Entry.objects.get(id=entry_id)
-# 	except Entry.DoesNotExist:
-# 		ctx["error"] = "Word does not exist"
-# 		return JsonResponse(ctx, status=404)
-
-# 	request.user.entries.add(entry)
-# 	return JsonResponse(ctx, status=200)
-
-
-# @require_http_methods(['POST'])
-# def remove_entry(request, entry_id):
-
-# 	ctx = { "entry_id": entry_id }
-
-# 	try:
-# 		request.user.remove_entry(entry_id)
-# 	except Entry.DoesNotExist:
-# 		ctx["error"] = "Word does not exist"
-# 		return JsonResponse(ctx, status=404)
-
-# 	# request.user.learning_words.add(entry)
-# 	return JsonResponse(ctx, status=200)
-
-
-# @require_http_methods(['POST'])
-# def master_entry(request, entry_id):
-
-# 	ctx = { "entry_id": entry_id }
-
-# 	try:
-# 		request.user.master_entry(entry_id)
-# 	except DoesNotExistForUser as e:
-# 		ctx["error"] = "%s" % e
-# 		return JsonResponse(ctx, status=404)
-
-# 	# request.user.learning_words.add(entry)
-# 	return JsonResponse(ctx, status=200)
-
-
-# @require_http_methods(['POST'])
-# def star_entry(request, entry_id):
-
-# 	ctx = { "entry_id": entry_id }
-
-# 	try:
-# 		entry = Entry.objects.get(id=entry_id)
-# 	except Entry.DoesNotExist:
-# 		ctx["error"] = "Word does not exist"
-# 		return JsonResponse(ctx, status=404)
-
-# 	request.user.entries_starred.add(entry)
-# 	return JsonResponse(ctx, status=200)
 
 
 

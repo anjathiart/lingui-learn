@@ -297,6 +297,7 @@ const WordSearch = class extends React.Component {
 
 		await secureFetch(`v1/words/search?q=${this.state.searchInput}`)
 		.then(result => {
+			console.log(result.data)
 			this.setState({ wordId: result.wordId });
 			this.setState({ wordEntry: result.data });
 			this.setState({ showSearchResults: true });

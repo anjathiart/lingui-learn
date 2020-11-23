@@ -128,7 +128,7 @@ class App extends React.Component {
 	}*/
 
 	render() {
-		let errorHandler = this.handleError;
+		// let errorHandler = this.handleError;
 		return (
 			<div className="body">
 				<SideBar view = { (view) => this.setState({ view: view }) } />
@@ -140,9 +140,9 @@ class App extends React.Component {
 		)
 	};
 
-	handleError = (e) => {
+	/*handleError = (e) => {
 		this.setState({ 'error': e });
-	};
+	};*/
 
 }
 
