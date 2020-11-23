@@ -89,15 +89,21 @@ def fetch_valid_word(word):
 
 @require_http_methods(["GET"])
 def word_search(request):
-	# Word.objects.all().delete()
 	search = request.GET.get("q", "")
 	ctx = { "search": search }
 
-	# Validation
+	# Check that the search string is not empty
 	if search == "":
 		ctx["error"] = "Search input is empty!"
 		return JsonResponse(ctx, status=400)
 	
+	'''
+	Get the word object for the search string.
+	- Check the search string with exisiting Word objects
+	- If no object, find a valid word for this search string and query the Word table again
+	- if still no matching object, create a Word object for this valid word
+	- If a matching word object nor a valid word can be found, return 404
+	'''
 	try:
 		word = Word.objects.get(text=search)
 	except Word.DoesNotExist:
@@ -106,12 +112,10 @@ def word_search(request):
 			try:
 				word = Word.objects.get(text=valid_word)
 			except Word.DoesNotExist:
-				# Add the word to the database
+				# Add the valid word to the database
 				word = Word(text=valid_word)
 				word.save()
 		except Exception as e:
-			# convert ValueError to a integer
-			# TODO-> log this to ther terminal nicely for debug
 			e = int("%s" % e)
 			ctx["allow"] = e == 404
 			if e == 404:
@@ -120,9 +124,12 @@ def word_search(request):
 			else:
 				ctx["error"] = "Server error. Please try again later"
 				return JsonResponse(ctx, status=500)
-		
-
+	
 	ctx["wordId"] = word.id
+
+	'''
+	Either get the word details from the local word object, or retreive the word details from an external service and save it to the word object
+	'''
 	if (word.details):
 		ctx["data"] = json.loads(word.details)
 		return JsonResponse(ctx, status=200)
