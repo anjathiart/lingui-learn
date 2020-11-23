@@ -1,6 +1,7 @@
+// Global state
 let csrftoken = Cookies.get('csrftoken');
 let currentUser = null;
-let view = '';
+let view = 'main';
 let sideBarState = "currentUser";
 
 
@@ -110,6 +111,22 @@ class App extends React.Component {
 		}
 	};
 
+/*	async componentDidMount() {
+		// load current user profile
+		await secureFetch(`v1/users/current`)
+		.then(res => {
+			console.log(res);
+			currentUser = res;
+			// renderUserDash(currentUser);
+			// renderPage();
+		})
+		.catch(error => {
+			console.log(error)
+			error = error.error;
+		});
+
+	}*/
+
 	render() {
 		let errorHandler = this.handleError;
 		return (
@@ -117,7 +134,7 @@ class App extends React.Component {
 				<SideBar view = { (view) => this.setState({ view: view }) } />
 				<div className = "view">
 					{ this.state.view === 'search' ? <WordSearch /> : null }
-					{ this.state.view === 'library' ? <Library userId = { currentUser.user_id }/> : null}
+					{ this.state.view === 'library' ? <Library userId = { currentUser.userId }/> : null}
 				</div>
 			</div>
 		)

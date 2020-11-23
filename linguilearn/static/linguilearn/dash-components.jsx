@@ -73,6 +73,7 @@ const Profile = class extends React.Component {
 			'learningCount': 3,
 			'masteredCount': 4,
 			'likedCount': 10,
+			'addFriend': false,
 		}
 	};
 
@@ -80,7 +81,7 @@ const Profile = class extends React.Component {
 		return (
 			<div>
 				<h1>Anja</h1>
-				<p>{ `${this.state.friendsCount} Friends` }</p>
+				<p><span>{ `${this.state.friendsCount} Friends` }</span><span className="ml-2"><button onClick={ () => this.setState({ addFreind: true }) }>Add Friend</button></span></p>
 				<p>Lingo: <span>{ `${this.state.learningCount} Learning`}</span><span>{ `${this.state.masteredCount} Mastered`}</span><span>{ `${this.state.likedCount} Liked`}</span></p>
 			</div>
 
@@ -106,6 +107,13 @@ const SideBar = class extends React.Component {
 				<Profile />
 				<AddFriend onError={ this.handleError.bind(this) } />
 				<p onClick={ this.props.view.bind(this, 'library') }>Library</p>
+				<ul>
+					<li>All</li>
+					<li>Favourites</li>
+					<li>Mastered</li>
+					<li>Learning</li>
+				</ul>
+				<p onClick={ this.props.view.bind(this, 'search') }>Search Words</p>
 			</div>
 		)
 	};
@@ -114,6 +122,48 @@ const SideBar = class extends React.Component {
 		this.setState({ 'error': e });
 	};
 };
+
+
+/*const Nav = class extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+
+		}
+	};
+
+	render() {
+		return (
+			<div className="nav">
+				<ul className="navbar-nav mr-auto">
+					{ currentUser !== null ?
+						<li className="nav-item">
+							<a id="profileLink" className="nav-link" href="#"><strong>{ currentUser.userName }</strong></a>
+						</li> : null }
+					
+					{ currentUser !== null ?
+						<li className="nav-item">
+							<a className="nav-link" href="login">Log Out</a>
+						</li>
+					: <div>
+						<li className="nav-item">
+							<a className="nav-link" href="{% url 'login' %}">Log In</a>
+						</li>
+						<li className="nav-item">
+							<a className="nav-link" href="{% url 'register' %}">Register</a>
+						</li>
+					</div> }
+				</ul>
+			</div>
+		)
+	};
+
+	actionNavClicked = (value) => {
+		window.location.href = '/login.html'
+	};
+
+};*/
+
 
 
 const Words = class extends React.Component {
@@ -346,6 +396,7 @@ const Library = class extends React.Component {
 		this.state = {
 			userId: '',
 			list: [],
+			selectedEntry: -1,
 		}
 	};
 
@@ -366,10 +417,11 @@ const Library = class extends React.Component {
 		return (
 			<div>
 				<h1>Library</h1>
-				{ this.state.list.map(entry => {
+				{ this.state.list.map((entry, i) => {
 					return (
 						<div className="entry" key={ entry.id }>
-							<p>{ entry.word }</p>
+							<p onClick={ () => this.setState({ selectedEntry: i })}>{ entry.word }</p>
+							{ this.state.selectedEntry === i ? <LibraryEntry entry = { this.state.list[i] } key = { 'entry' + i }/> : null }
 						</div>
 					)
 
@@ -379,7 +431,71 @@ const Library = class extends React.Component {
 		)
 	};
 
+};
 
+const LibraryEntry = class extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			userId: '',
+			list: [],
+			showWordDetails: true,
+			wordEntryDetails: null,
+		}
+	};
+
+	initialState = {
+		userId: '',
+		list: [],
+		showWordDetails: true,
+		wordEntryDetails: null,
+	}
+
+	async componentDidMount() {
+		//  fetch users library
+		await this.loadWordDetails();
+	}
+
+	componentWillUnmount() {
+		this.setState(this.initialState)
+	}
+
+	render() {
+		let entry = this.state.wordEntryDetails;
+		return (
+			<div className="libraryEntry">
+
+				<div className="libraryEntry__tabs">
+				</div>
+
+				<div className="libraryEntry__content">
+					<p>Context: { this.props.entry.context }</p>
+					<p>Source: { this.props.entry.source }</p>
+					<p>Author: { this.props.entry.author }</p>
+					<p>Notes: { this.props.entry.notes }</p>
+					<button onClick = { () => this.actionUpdateEntry() }>Edit</button>
+				</div>
+
+				{ this.state.showWordDetails && this.state.wordEntryDetails ? <div>
+					<WordEntry entry={ entry } />
+				</div> : null }
+			</div>
+		)
+	};
+
+	loadWordDetails = async () => {
+		const wordKey =`entryDetails${this.props.entry.word}`
+		await secureFetch(`v1/words/search?q=${ this.props.entry.word }`).then(result => {
+				this.setState({ wordEntryDetails: result.data });
+			}).catch(error => {
+				console.log({ error });
+			})
+		this.setState({ showWordDetails: true });
+	}
+
+	actionUpdateEntry = async () => {
+		console.log("TODO")
+	}
 
 };
 
