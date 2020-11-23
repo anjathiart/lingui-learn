@@ -359,6 +359,16 @@ const WordEntryForm = class extends React.Component {
 		};
 	};
 
+	componentDidMount() {
+		if (this.props.inputValues) {
+
+			for (let i = 0; i < Object.keys(this.props.inputValues).length; i += 1) {
+				let key = Object.keys(this.props.inputValues)[i]
+				this.actionInput(key, this.props.inputValues[key] )
+			}
+		}
+	}
+
 	render() {
 		return (
 			<div className=''>
@@ -378,6 +388,8 @@ const WordEntryForm = class extends React.Component {
 	};
 
 	actionInput = (key, value) => {
+		console.log('x')
+		console.log({key, value})
 		this.setState(prevState => {
 			// make a copy of the previous inputValues object
 			let inputValues = {...prevState.inputValues };
@@ -402,12 +414,7 @@ const Library = class extends React.Component {
 
 	async componentDidMount() {
 		//  fetch users library
-		await secureFetch(`v1/users/${this.props.userId}/library`).then(result => {
-			console.log({result})
-			this.setState({ list: result.data.list })
-		}).catch(error => {
-			console.log({error})
-		})
+		await this.actionFetchLibrary()
 
 
 		// console.log(this.props.userId)
@@ -421,7 +428,7 @@ const Library = class extends React.Component {
 					return (
 						<div className="entry" key={ entry.id }>
 							<p onClick={ () => this.setState({ selectedEntry: i })}>{ entry.word }</p>
-							{ this.state.selectedEntry === i ? <LibraryEntry entry = { this.state.list[i] } key = { 'entry' + i }/> : null }
+							{ this.state.selectedEntry === i ? <LibraryEntry entry={ this.state.list[i] } update={ (event) => this.actionFetchLibrary() } key={ 'entry' + i }/> : null }
 						</div>
 					)
 
@@ -430,6 +437,15 @@ const Library = class extends React.Component {
 			</div>
 		)
 	};
+
+	actionFetchLibrary = async () => {
+		await secureFetch(`v1/users/${this.props.userId}/library`).then(result => {
+			console.log({result})
+			this.setState({ list: result.data.list })
+		}).catch(error => {
+			console.log({error})
+		})
+	}
 
 };
 
@@ -449,6 +465,7 @@ const LibraryEntry = class extends React.Component {
 		list: [],
 		showWordDetails: true,
 		wordEntryDetails: null,
+		showEntryForm: false,
 	}
 
 	async componentDidMount() {
@@ -473,8 +490,19 @@ const LibraryEntry = class extends React.Component {
 					<p>Source: { this.props.entry.source }</p>
 					<p>Author: { this.props.entry.author }</p>
 					<p>Notes: { this.props.entry.notes }</p>
-					<button onClick = { () => this.actionUpdateEntry() }>Edit</button>
+					<button onClick = { () => this.setState({showEntryForm: true}) }>Edit</button>
 				</div>
+
+				{ this.state.showEntryForm ? <div className="modal">
+					<div className="modal__content">
+						<WordEntryForm 
+							inputValues={ { context: this.props.entry.context, source: this.props.entry.source} }
+							save={ (event) => this.actionUpdateEntry(event) }
+						/>
+					</div>
+				</div> : null }
+
+
 
 				{ this.state.showWordDetails && this.state.wordEntryDetails ? <div>
 					<WordEntry entry={ entry } />
@@ -493,8 +521,16 @@ const LibraryEntry = class extends React.Component {
 		this.setState({ showWordDetails: true });
 	}
 
-	actionUpdateEntry = async () => {
+	actionUpdateEntry = async (event) => {
 		console.log("TODO")
+		const fields = { ...event };
+		await secureFetch(`v1/entries/${this.props.entry.id}/update`, 'POST', fields).then(result => {
+			// console.log(result)
+			this.setState({ showEntryForm: false });
+			this.props.update();
+		}).catch(error => {
+			// console.log({error})
+		})
 	}
 
 };
