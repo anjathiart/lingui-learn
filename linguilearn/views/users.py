@@ -80,9 +80,9 @@ def user_profile(request, user_id):
 	for friend in friends:
 		ctx["friends"].append({ "username": friend.username, "userId": friend.id })
 
-	ctx["wordsLearningCount"] = Word.objects.get_words_learning_count(user)
-	ctx["wordsMasteredCount"] = Word.objects.get_words_mastered_count(user)
-	ctx["wordsLikedCount"] = Word.objects.get_words_liked_count(user)
+	ctx["wordsLearningCount"] = []
+	ctx["wordsMasteredCount"] = []
+	ctx["wordsLikedCount"] = []
 
 	return JsonResponse(ctx, status=200)
 
@@ -103,9 +103,9 @@ def user_current(request):
 		ctx["friendRequestsPending"].append({ "userName": request_pending.from_user.username, "userId": request_pending.from_user.id, "friendRequestId": request_pending.id })
 
 
-	ctx["wordsLearning"] = Word.objects.get_words_learning(request.user)
-	ctx["wordsMastered"] = Word.objects.get_words_mastered(request.user)
-	ctx["wordsLiked"] = Word.objects.get_words_liked(request.user)
+	ctx["wordsLearning"] = []
+	ctx["wordsMastered"] =[]
+	ctx["wordsLiked"] = []
 
 	return JsonResponse(ctx, status=200)
 

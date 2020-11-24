@@ -11,9 +11,11 @@ from django.views.decorators.http import require_http_methods
 
 from linguilearn.exceptions import AlreadyExistsError, DoesNotExistForUser
 
+from .my_decorators import *
+
 from ..models import User, Entry, Word
 
-
+@http_auth_required
 @require_http_methods(['POST'])
 def add_entry(request, word_id):
 
@@ -42,10 +44,16 @@ def add_entry(request, word_id):
 		ctx["error"] = "Something went wrong... please try again later"
 		return JsonResponse(ctx, status=500)
 
+@http_auth_required
 @require_http_methods(['POST'])
 def update_entry(request, entry_id):
 
 	ctx = { "userId": request.user.id, "entryId": entry_id }
+
+	entry = Entry.objects.get(id=entry_id)
+	if request.user.id != entry.user.id:
+		ctx["error"] = "Not authorized!"
+		return JsonResponse(ctx, status=403)
 
 	# load post body
 	data = json.loads(request.body)
@@ -55,8 +63,10 @@ def update_entry(request, entry_id):
 	author = data.get('author', '')
 	url = data.get('url', '')
 	notes = data.get('notes', '')
+
 	try:
-		Entry.objects.filter(id = entry_id).update(context=context, source=source, author=author, url=url, notes=notes)
+		# Entry.objects.filter(id = entry_id).update(context=context, source=source, author=author, url=url, notes=notes)
+		Entry.objects.get(id = entry_id).update_entry(data)
 		# ctx["data"] = { "entryId": entry_id }
 		return JsonResponse(ctx, status=200)
 	except Entry.DoesNotExist:
@@ -64,6 +74,7 @@ def update_entry(request, entry_id):
 		return JsonResponse(ctx, status=404)
 
 
+@http_auth_required
 @require_http_methods(['GET'])
 def library(request, user_id):
 	ctx = { "userId": user_id }
@@ -79,6 +90,7 @@ def library(request, user_id):
 	}
 	return JsonResponse(ctx, status=200)
 
+@http_auth_required
 @require_http_methods(['POST'])
 def remove_entry(request, entry_id):
 
@@ -94,6 +106,27 @@ def remove_entry(request, entry_id):
 	return JsonResponse(ctx, status=200)
 
 
+@http_auth_required
+@require_http_methods(['POST'])
+def update_entry_list(request, entry_id):
+	ctx = { "userId": request.user.id, "entryId": entry_id }
+
+	# load post body
+	data = json.loads(request.body)
+	entry_list = data.get('entryList', '')
+
+	# validate entry_list field
+
+	try:
+		Entry.objects.filter(id=entry_id).update(entry_list=entry_list)
+		ctx['success'] = True
+		return JsonResponse(ctx, status=200)
+	except Entry.DoesNotExist:
+		ctx["error"] = "Entry does not exist"
+		return JsonResponse(ctx, status=404)
+
+
+@http_auth_required
 @require_http_methods(['POST'])
 def master_entry(request, entry_id):
 
@@ -109,6 +142,7 @@ def master_entry(request, entry_id):
 	return JsonResponse(ctx, status=200)
 
 
+@http_auth_required
 @require_http_methods(['POST'])
 def star_entry(request, entry_id):
 
