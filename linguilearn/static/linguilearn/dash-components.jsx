@@ -42,23 +42,23 @@ const SideBar = class extends React.Component {
 				{ this.state.error && <ErrorBlanket msg={ this.state.error } onClose={ () => this.setState({ 'error': '' }) } /> }
 				{ this.state.msg && <MessageBlanket msg={ this.state.msg } onClose={ () => this.setState({ 'msg': '' }) } /> }
 				<h1>{ this.props.userName }</h1>
-				<p onClick={ () => this.actionViewLibrary('all') }>Library</p>
+				<p onClick={ () => this.actionViewLibrary('all') }>Library ({ this.props.listCountSummary.totalCount })</p>
+				<p>Lists</p>
 				<ul>
-					<li onClick={ () => this.actionViewLibrary('all') }>All ({ this.props.listCountSummary.totalCount })</li>
-					<li onClick={ () => this.actionViewLibrary('favourites') }>Favourites ({ this.props.listCountSummary.favouritesCount })</li>
-					<li onClick={ () => this.actionViewLibrary('mastered') }>Mastered ({ this.props.listCountSummary.masteredCount })</li>
 					<li onClick={ () => this.actionViewLibrary('learning') }>Learning ({ this.props.listCountSummary.learningCount })</li>
+					<li onClick={ () => this.actionViewLibrary('mastered') }>Mastered ({ this.props.listCountSummary.masteredCount })</li>
 					<li onClick={ () => this.actionViewLibrary('archived') }>Archived ({ this.props.listCountSummary.archivedCount })</li>
-
 				</ul>
+				<p onClick={ () => this.actionViewLibrary('favourites') }>Favourites ({ this.props.listCountSummary.favouritesCount })</p>
 				<p onClick={ this.props.view.bind(this, 'search') }>Search Words</p>
 			</div>
 		)
 	};
 
 	actionViewLibrary = async (filter) => {
-		this.props.view('library');
 		this.props.filterLibrary(filter);
+		this.props.view('library');
+		
 	}
 };
 
@@ -317,7 +317,7 @@ const Library = class extends React.Component {
 								? <LibraryEntry
 									entry={ entry }
 									update={ (event) => this.actionFetchLibrary() }
-									delete={ () => this.props.reloadLibrary() && this.setState({ list: [] }) }
+									delete={ () => this.props.reloadLibrary() && this.actionFetchLibrary() }
 									key={ 'entry' + i }/> 
 								: null }
 						</div>
