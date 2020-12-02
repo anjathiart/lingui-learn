@@ -217,6 +217,7 @@ const WordEntry = class extends React.Component {
 		return (
 			<div className="entry">
 				<h1>{ this.props.entry.word }</h1>
+				<p>hello</p>
 				<p>{ this.props.entry.syllables.list.join('-')}</p>
 				<div>{ list }</div>
 			</div>
@@ -301,6 +302,7 @@ const WordSearch = class extends React.Component {
 			this.setState({ wordId: result.wordId });
 			this.setState({ wordEntry: result.data });
 			this.setState({ showSearchResults: true });
+			console.log(result.data)
 		})
 		.catch(error => {
 			this.setState(() => {

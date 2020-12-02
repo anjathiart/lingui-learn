@@ -41,12 +41,12 @@ def parse_word_entry(entry):
 			"list": [],
 		},
 	}
-
 	if "syllables" in entry:
-		entry_parsed["syllanbles"] = {
+		entry_parsed["syllables"] = {
 			"count": entry["syllables"]["count"] if "count" in entry["syllables"] else 0,
 			"list": entry["syllables"]["list"] if "list" in entry["syllables"] else [],
 		}
+
 
 	singularKeys = ["derivation", "synonym", "antonym", "example"]
 
@@ -146,6 +146,7 @@ def word_search(request):
 			else:
 				ctx["error"] = "Server error. Please try again later"
 				return JsonResponse(ctx, status=500)
+
 
 		Word.objects.filter(id=word.id).update(details=json.dumps(result))
 		ctx["data"] = result
