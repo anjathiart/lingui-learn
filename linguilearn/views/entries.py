@@ -117,14 +117,17 @@ def library(request, user_id):
 	ctx = { "userId": user_id }
 	try:
 		entry_objects = Entry.objects.filter(user_id=user_id).all()
+		count_summary = Entry.objects.count_summary(user_id=user_id)
 	except Entry.DoesNotExist as e:
 		ctx["error"] = "Library does not exist for this user"
 		return JsonResponse(ctx, status=404)
 
 	entries_serialized = [entry.serialize() for entry in entry_objects]
 	ctx["data"] =  {
+		"listSummary": count_summary,
 		"list": entries_serialized
 	}
+
 	return JsonResponse(ctx, status=200)
 
 @http_auth_required

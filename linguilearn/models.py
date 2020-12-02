@@ -102,7 +102,16 @@ class Word(models.Model):
 
 
 class EntryManager(models.Manager):
-	pass
+	def count_summary(self, user_id):
+		qs = super(EntryManager, self).get_queryset().filter(user_id=user_id).all()
+		return {
+			"totalCount": qs.count(),
+			"learningCount": qs.filter(entry_list=1).count(),
+			"masteredCount": qs.filter(entry_list=2).count(),
+			"archivedCount": qs.filter(entry_list=3).count(),
+			"favouritesCount": qs.filter(favourites=True).count()
+		}
+
 
 
 class Entry(models.Model):
@@ -122,6 +131,7 @@ class Entry(models.Model):
 
 	entry_list = models.CharField(max_length=32, choices=LIST_CHOICES, default='0')
 
+	objects = EntryManager()
 
 	def __self__(self):
 		return self.id
@@ -143,7 +153,7 @@ class Entry(models.Model):
 
 
 	def update_entry(self, fields):
-		valid_fields = ["context", "source", "author", "url", "notes", "favourite", "entryList", "entry_list"]
+		valid_fields = ["context", "source", "author", "url", "notes", "favourites", "entryList", "entry_list"]
 
 		for field in fields:
 			if (field in valid_fields):

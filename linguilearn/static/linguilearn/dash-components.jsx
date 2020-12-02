@@ -64,13 +64,13 @@ const SideBar = class extends React.Component {
 			<div className='sideBar'>
 				{ this.state.error && <ErrorBlanket msg={ this.state.error } onClose={ () => this.setState({ 'error': '' }) } /> }
 				{ this.state.msg && <MessageBlanket msg={ this.state.msg } onClose={ () => this.setState({ 'msg': '' }) } /> }
-				<Profile />
+				<h1>{ this.props.userName }</h1>
 				<p onClick={ this.props.view.bind(this, 'library') }>Library</p>
 				<ul>
-					<li>All</li>
-					<li>Favourites</li>
-					<li>Mastered</li>
-					<li>Learning</li>
+					<li>All ({ this.props.listCountSummary.totalCount })</li>
+					<li>Favourites ({ this.props.listCountSummary.favouritesCount })</li>
+					<li>Mastered ({ this.props.listCountSummary.masteredCount })</li>
+					<li>Learning ({ this.props.listCountSummary.learningCount })</li>
 				</ul>
 				<p onClick={ this.props.view.bind(this, 'search') }>Search Words</p>
 			</div>
@@ -359,7 +359,7 @@ const Library = class extends React.Component {
 
 	actionFetchLibrary = async () => {
 		await secureFetch(`v1/users/${this.props.userId}/library`).then(result => {
-			console.log({result})
+			this.props.reloadLibrary()
 			this.setState({ list: result.data.list })
 		}).catch(error => {
 			console.log({error})
@@ -419,6 +419,13 @@ const LibraryEntry = class extends React.Component {
 					<option value="2">Mastered</option>
 					<option value="3">Archived</option>
 				</select>
+
+				{ this.props.entry.favourites
+					? <button onClick={ () => { this.actionUpdateEntry({ favourites: false }) }}>Remove from favourites</button>
+					: <button onClick={ () => { this.actionUpdateEntry({ favourites: true }) }}>Add to favourites</button>
+				 }
+
+
 
 				{ this.state.showEntryForm ? <div className="modal">
 					<div className="modal__content">

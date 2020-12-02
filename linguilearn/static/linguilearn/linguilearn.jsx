@@ -23,9 +23,7 @@ async function myInitCode() {
 	// load current user profile
 	await secureFetch(`v1/users/current`)
 	.then(res => {
-		console.log(res);
 		currentUser = res;
-		// renderUserDash(currentUser);
 		renderPage();
 	})
 	.catch(error => {
@@ -46,25 +44,6 @@ async function userSearch(qs) {
 	return res
 };
 
-	
-function renderUserDash() {
-	// TODO: deal with case where current user is null
-	// TODO: refactor to show all user profiles with same kind of vibe?
-
-
-	class UserDash extends React.component {
-
-		render() {
-			return (
-				<div>
-				</div>
-
-			);
-
-		}
-	}
-
-};
 
 
 
@@ -78,37 +57,36 @@ class App extends React.Component {
 			'error': '',
 			'msg': '',
 			'view': 'search',
+			'currentUser': currentUser
 		}
 	};
 
-/*	async componentDidMount() {
-		// load current user profile
-		await secureFetch(`v1/users/current`)
-		.then(res => {
-			console.log(res);
-			currentUser = res;
-			// renderUserDash(currentUser);
-			// renderPage();
-		})
-		.catch(error => {
-			console.log(error)
-			error = error.error;
-		});
-
-	}*/
 
 	render() {
 		// let errorHandler = this.handleError;
 		return (
 			<div className="body">
-				<SideBar view = { (view) => this.setState({ view: view }) } />
+				<SideBar view = { (view) => this.setState({ view: view }) } listCountSummary={ this.state.currentUser.listCountSummary } userName={ this.state.currentUser.userName }/>
 				<div className = "view">
 					{ this.state.view === 'search' ? <WordSearch /> : null }
-					{ this.state.view === 'library' ? <Library userId = { currentUser.userId }/> : null}
+					{ this.state.view === 'library' ? <Library userId = { this.state.currentUser.userId } reloadLibrary = { () => this.loadUser() }/> : null}
 				</div>
 			</div>
 		)
 	};
+
+	loadUser = async () => {
+		await secureFetch(`v1/users/current`)
+		.then(res => {
+			currentUser = res;
+			this.setState({currentUser: {...res} })
+			console.log(this.state.currentUser)
+		})
+		.catch(error => {
+			console.log(error)
+			error = error.error;
+		});
+	}
 
 }
 
@@ -117,27 +95,5 @@ function renderPage() {
 }
 
 
-
-
-function renderUserList(user) {
-
-	class User extends React.Component {
-		constructor(props) {
-			super(props);
-			this.state = {
-			}
-		}
-
-		render() {
-			return (
-				<div className="userSearchResultCard">
-					<p>Username: { this.props.user.name }</p>
-				</div>
-			)
-		};
-
-	}
-
-}
 
 

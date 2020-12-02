@@ -10,9 +10,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
-from ..models import User, Word
+from ..models import User, Word, Entry
 
-from friendship.models import Friend
 
 from .my_decorators import *
 
@@ -91,21 +90,6 @@ def user_profile(request, user_id):
 def user_current(request):
 
 	ctx = { "userId": request.user.id, "userName": request.user.username }
-
-	friends = Friend.objects.friends(request.user)
-	ctx["friends"] = []
-	for friend in friends:
-		ctx["friends"].append({ "username": friend.username, "userId": friend.id })
-	
-	friend_requests_pending = Friend.objects.unrejected_requests(request.user)
-	ctx["friend_requests_pending"] = []
-	for request_pending in friend_requests_pending:
-		ctx["friendRequestsPending"].append({ "userName": request_pending.from_user.username, "userId": request_pending.from_user.id, "friendRequestId": request_pending.id })
-
-
-	ctx["wordsLearning"] = []
-	ctx["wordsMastered"] =[]
-	ctx["wordsLiked"] = []
-
+	ctx["listCountSummary"] = Entry.objects.count_summary(user_id=request.user.id)
 	return JsonResponse(ctx, status=200)
 
