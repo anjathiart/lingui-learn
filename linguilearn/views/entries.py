@@ -155,6 +155,21 @@ def remove_entry(request, entry_id):
 	# request.user.learning_words.add(entry)
 	return JsonResponse(ctx, status=200)
 
+@http_auth_required
+@require_http_methods(['POST'])
+def delete_entry(request, entry_id):
+
+	ctx = { "entry_id": entry_id }
+
+	try:
+		Entry.objects.get(id=entry_id).delete();
+	except Entry.DoesNotExist:
+		ctx["error"] = "Entry does not exist"
+		return JsonResponse(ctx, status=404)
+
+	# request.user.learning_words.add(entry)
+	return JsonResponse(ctx, status=200)
+
 
 @http_auth_required
 @require_http_methods(['POST'])

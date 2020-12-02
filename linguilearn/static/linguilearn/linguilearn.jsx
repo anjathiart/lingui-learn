@@ -1,9 +1,5 @@
 // Global state
 let csrftoken = Cookies.get('csrftoken');
-let currentUser = null;
-let view = 'main';
-let sideBarState = "currentUser";
-
 
 
 // initialise the page
@@ -19,87 +15,71 @@ if (document.readyState !== 'loading' ) {
 
 // All code that needs to load once the DOM is ready
 async function myInitCode() {
-	view = "main"
-	// load current user profile
+	// load current user profile and mount app
 	await secureFetch(`v1/users/current`)
 	.then(res => {
-		currentUser = res;
-		renderPage();
+		renderPage(res);
 	})
 	.catch(error => {
-		console.log(error)
+		console.log({error})
 		error = error.error;
 	});
 
 };
 
+function renderPage(currentUser) {
+
+	class App extends React.Component {
+		constructor(props) {
+			super(props);
+			this.state = {
+				'error': '',
+				'msg': '',
+				'view': 'search',
+				'currentUser': currentUser,
+				'listFilter': 'all',
+			}
+		};
 
 
-async function userSearch(qs) {
-	let res = await secureFetch(`v1/users?${qs}`, 'GET')
-	.catch(error => {
-		// do something with error
-		console.log(error)
-	})
-	return res
-};
+		render() {
+			return (
+				<div className="body">
+					<SideBar
+						view = { (view) => this.setState({ view: view }) }
+						filterLibrary = { (filter) => this.setState({ "listFilter": filter}) }
+						listCountSummary={ this.state.currentUser.listCountSummary }
+						userName={ this.state.currentUser.userName }
 
-
-
-
-
-
-
-class App extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			'error': '',
-			'msg': '',
-			'view': 'search',
-			'currentUser': currentUser,
-			'listFilter': 'all',
-		}
-	};
-
-
-	render() {
-		// let errorHandler = this.handleError;
-		return (
-			<div className="body">
-				<SideBar
-					view = { (view) => this.setState({ view: view }) }
-					filterLibrary = { (filter) => this.setState({ "listFilter": filter}) }
-					listCountSummary={ this.state.currentUser.listCountSummary }
-					userName={ this.state.currentUser.userName }
-
-				/>
-				<div className = "view">
-					{ this.state.view === 'search' ? <WordSearch /> : null }
-					{ this.state.view === 'library' ? <Library key={ this.state.listFilter } userId = { this.state.currentUser.userId } listFilter={ this.state.listFilter } reloadLibrary = { () => this.loadUser() }/> : null}
+					/>
+					<div className = "view">
+						{ this.state.view === 'search' ? <WordSearch /> : null }
+						{ this.state.view === 'library'
+							? <Library
+								key={ this.state.listFilter }
+								userId = { this.state.currentUser.userId }
+								listFilter={ this.state.listFilter }
+								reloadLibrary = { () => this.loadUser() }
+							 />
+							: null }
+					</div>
 				</div>
-			</div>
-		)
-	};
+			)
+		};
 
-	loadUser = async () => {
-		await secureFetch(`v1/users/current`)
-		.then(res => {
-			currentUser = res;
-			this.setState({currentUser: {...res} })
-			console.log(this.state.currentUser)
-		})
-		.catch(error => {
-			console.log(error)
-			error = error.error;
-		});
+		loadUser = async () => {
+			await secureFetch(`v1/users/current`)
+			.then(res => {
+				currentUser = res;
+				this.setState({currentUser: {...res} })
+			})
+			.catch(error => {
+				console.log({error})
+				error = error.error;
+			});
+		}
 	}
 
-
-
-}
-
-function renderPage() {
 	ReactDOM.render(<App />, document.querySelector("#app"));
 }
 

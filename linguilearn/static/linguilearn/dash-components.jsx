@@ -1,5 +1,4 @@
 
-console.log('hi from components')
 
 const ErrorBlanket = class extends React.Component {
 	render() {
@@ -171,7 +170,7 @@ const WordSearch = class extends React.Component {
 				step: 'form',
 			}
 		});
-	}
+	};
 
 	actionWordSearch = async () => {
 		this.setState(() => { 
@@ -231,8 +230,6 @@ const WordSearch = class extends React.Component {
 		});
 	};
 };
-
-
 
 
 const WordEntryForm = class extends React.Component {
@@ -304,8 +301,6 @@ const Library = class extends React.Component {
 	async componentDidMount() {
 		//  fetch users library
 		await this.actionFetchLibrary()
-
-
 	}
 
 	render() {
@@ -316,11 +311,17 @@ const Library = class extends React.Component {
 					return (
 						<div className="entry" key={ entry.id }>
 							<p onClick={ () => this.setState({ selectedEntry: i })}>{ entry.word }</p>
-							{ this.state.selectedEntry === i ? <LibraryEntry entry={ this.state.list[i] } update={ (event) => this.actionFetchLibrary() } key={ 'entry' + i }/> : null }
+							<button>Delete entry</button>
+
+							{ this.state.selectedEntry === i 
+								? <LibraryEntry
+									entry={ entry }
+									update={ (event) => this.actionFetchLibrary() }
+									delete={ () => this.props.reloadLibrary() && this.setState({ list: [] }) }
+									key={ 'entry' + i }/> 
+								: null }
 						</div>
 					)
-
-
 				})}
 			</div>
 		)
@@ -328,13 +329,12 @@ const Library = class extends React.Component {
 
 	actionFetchLibrary = async () => {
 		await secureFetch(`v1/users/${this.props.userId}/library?filter=${this.props.listFilter}`).then(result => {
-			this.props.reloadLibrary()
-			this.setState({ list: result.data.list })
+			this.props.reloadLibrary();
+			this.setState({ list: result.data.list });
 		}).catch(error => {
 			console.log({error})
 		})
 	}
-
 };
 
 const LibraryEntry = class extends React.Component {
@@ -389,12 +389,12 @@ const LibraryEntry = class extends React.Component {
 					<option value="3">Archived</option>
 				</select>
 
+				<button onClick={ () => this.actionDeleteEntry() }>Delete entry</button>
+
 				{ this.props.entry.favourites
 					? <button onClick={ () => { this.actionUpdateEntry({ favourites: false }) }}>Remove from favourites</button>
 					: <button onClick={ () => { this.actionUpdateEntry({ favourites: true }) }}>Add to favourites</button>
-				 }
-
-
+				}
 
 				{ this.state.showEntryForm ? <div className="modal">
 					<div className="modal__content">
@@ -405,11 +405,10 @@ const LibraryEntry = class extends React.Component {
 					</div>
 				</div> : null }
 
+				{ this.state.showWordDetails && this.state.wordEntryDetails
+					? <div><WordEntry entry={ entry } /></div>
+					: null }
 
-
-				{ this.state.showWordDetails && this.state.wordEntryDetails ? <div>
-					<WordEntry entry={ entry } />
-				</div> : null }
 			</div>
 		)
 	};
@@ -427,7 +426,6 @@ const LibraryEntry = class extends React.Component {
 	actionUpdateEntry = async (event) => {
 		const fields = { ...event };
 		await secureFetch(`v1/entries/${this.props.entry.id}/update`, 'POST', fields).then(result => {
-			// console.log(result)
 			this.setState({ showEntryForm: false });
 			this.props.update();
 		}).catch(error => {
@@ -435,11 +433,14 @@ const LibraryEntry = class extends React.Component {
 		})
 	}
 
+	actionDeleteEntry = async () => {
+		await secureFetch(`v1/entries/${this.props.entry.id}/delete`, 'POST').then(result => {
+			this.setState({ showEntryForm: false });
+			this.props.delete();
+		}).catch(error => {
+			// console.log({error})
+		})
+	}
 };
-
-
-
-
-
 
 
