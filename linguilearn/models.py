@@ -80,6 +80,7 @@ class WordManager(models.Manager):
 class Word(models.Model):
 	text = models.CharField(max_length=255, unique=True)
 	details = models.TextField(blank=True)
+	customWord = models.BooleanField(default=False)
 
 	# objects = WordManager()
 
@@ -90,7 +91,8 @@ class Word(models.Model):
 		return {
 			"id": self.id,
 			"word": self.text,
-			"details": json.load(self.details) if self.details else {}
+			"details": json.load(self.details) if self.details else {},
+			"isCustomWord": self.customWord
 		}
 
 	def master(self, user):
@@ -100,9 +102,6 @@ class Word(models.Model):
 
 
 class EntryManager(models.Manager):
-
-
-
 	pass
 
 

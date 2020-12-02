@@ -31,9 +31,44 @@ def add_entry(request, word_id):
 	notes = data.get('notes', '')
 	try:
 		word = Word.objects.get(id = word_id)
+		print(word)
 	except Word.DoesNotExist:
 		ctx["error"] = "Word does not exist"
 		return JsonResponse(ctx, status=400)
+
+	try:
+		entry = Entry(word=word, user=request.user, context=context, source=source, author=author, url=url, notes=notes)
+		entry.save()
+		ctx["data"] = { "entryId": entry.id }
+		return JsonResponse(ctx, status=200)
+	except ValueError as e:
+		ctx["error"] = "Something went wrong... please try again later"
+		return JsonResponse(ctx, status=500)
+
+@http_auth_required
+@require_http_methods(['POST'])
+def add_custom_entry(request, text):
+
+	ctx = { "userId": request.user.id, "word": text }
+
+	# load post body
+	data = json.loads(request.body)
+
+	context = data.get('context', '')
+	source = data.get('source', '')
+	author = data.get('author', '')
+	url = data.get('url', '')
+	notes = data.get('notes', '')
+
+	try:
+		word = Word.objects.get(text=text.split()[0].strip().lower())
+	except Word.DoesNotExist:
+		try:
+			word = Word(text=text.split()[0].strip().lower(), customWord=True)
+			word.save()
+		except ValueError as e:
+			ctx["error"] = "Something went wrong... please try again later"
+			return JsonResponse(ctx, status=500)
 
 	try:
 		entry = Entry(word=word, user=request.user, context=context, source=source, author=author, url=url, notes=notes)

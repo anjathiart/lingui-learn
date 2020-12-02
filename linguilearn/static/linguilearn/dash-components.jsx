@@ -217,7 +217,6 @@ const WordEntry = class extends React.Component {
 		return (
 			<div className="entry">
 				<h1>{ this.props.entry.word }</h1>
-				<p>hello</p>
 				<p>{ this.props.entry.syllables.list.join('-')}</p>
 				<div>{ list }</div>
 			</div>
@@ -259,7 +258,7 @@ const WordSearch = class extends React.Component {
 				}
 				{ this.state.errorMessage ? <p>{ this.state.errorMessage }</p> : null }
 				{ this.state.warningMessage ? <p>{ this.state.warningMessage }</p> : null }
-				{ this.state.addCustomEntry ? <button>Add Custom Entry?</button> : null }
+				{ this.state.addCustomEntry ? <button onClick={ this.fillOwnDetails }>Add Custom Entry?</button> : null }
 				{ this.state.step === 'form' || this.state.step === 'done' ? 
 					<div className="modal">
 						<div className="modal__content">
@@ -298,11 +297,9 @@ const WordSearch = class extends React.Component {
 
 		await secureFetch(`v1/words/search?q=${this.state.searchInput}`)
 		.then(result => {
-			console.log(result.data)
 			this.setState({ wordId: result.wordId });
 			this.setState({ wordEntry: result.data });
 			this.setState({ showSearchResults: true });
-			console.log(result.data)
 		})
 		.catch(error => {
 			this.setState(() => {
@@ -317,9 +314,13 @@ const WordSearch = class extends React.Component {
 	};
 
 	actionSaveEntry = async (event) => {
-
 		const fields = { ...event };
-		await secureFetch(`v1/entries/${this.state.wordId}/add`, 'POST', fields)
+
+		// TODO validate the word to be a one-word string
+
+		const url = this.state.addCustomEntry && this.state.wordId === '' ? `v1/entries/${this.state.searchInput}/addcustom` : `v1/entries/${this.state.wordId}/add`
+		
+		await secureFetch(url, 'POST', fields)
 		.then(result => {
 			if (result.data && result.data.entryId) {
 				this.setState(() => {
@@ -332,7 +333,6 @@ const WordSearch = class extends React.Component {
 			}
 		})
 		.catch(error => {
-			console.log({error})
 			this.setState(() => {
 				return {
 					errorMessage: error.error,
@@ -391,8 +391,6 @@ const WordEntryForm = class extends React.Component {
 	};
 
 	actionInput = (key, value) => {
-		console.log('x')
-		console.log({key, value})
 		this.setState(prevState => {
 			// make a copy of the previous inputValues object
 			let inputValues = {...prevState.inputValues };
@@ -420,7 +418,6 @@ const Library = class extends React.Component {
 		await this.actionFetchLibrary()
 
 
-		// console.log(this.props.userId)
 	}
 
 	render() {
@@ -443,7 +440,6 @@ const Library = class extends React.Component {
 
 	actionFetchLibrary = async () => {
 		await secureFetch(`v1/users/${this.props.userId}/library`).then(result => {
-			console.log({result})
 			this.setState({ list: result.data.list })
 		}).catch(error => {
 			console.log({error})
