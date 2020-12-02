@@ -108,14 +108,17 @@ def library(request, user_id):
 
 	listFilter = request.GET.get('filter', 'all')
 
-
 	# TODO: validate the query string
-	if listFilter == 'learning':
-		listFilter = '1'
-	elif listFilter == 'mastered':
-		listFilter = '2'
-	elif listFilter == 'archived':
-		listFilter = '3'
+	if listFilter != 'favourites':
+		if listFilter == 'learning':
+			listFilter = '1'
+		elif listFilter == 'mastered':
+			listFilter = '2'
+		elif listFilter == 'archived':
+			listFilter = '3'
+		else:
+			listFilter = 'all'
+
 
 	ctx['filter'] =  listFilter
 
