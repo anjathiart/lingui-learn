@@ -27,49 +27,12 @@ const MessageBlanket = class extends React.Component {
 	}
 };
 
-const AddFriend = class extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			'friendStatus': '',
-			'toUserEmail': '',
-
-		}
-	};
-
-	render() {
-		return (
-			<div>
-				<input type="text" placeholder="user email address"  value={ this.state.toUserEmail } onChange={ this.handleInput.bind(this) } />
-				<button onClick={ this.actionAddFriend.bind(this) } >Search</button>
-			</div>
-
-		)
-	};
-
-	handleInput = (e) => {
-		this.setState({ toUserEmail: e.target.value });
-	};
-
-	actionAddFriend = async () => {
-		await secureFetch(`v1/friendship/${this.state.toUserEmail}/add`, 'POST')
-		.then(res => {
-
-		})
-		.catch(error => {
-			const msg = error.error;
-			this.props.onError(msg);
-		})
-	};
-};
-
-
 const Profile = class extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			'userName': 'Anja',
-			'friendsCount': 2,
+			// 'friendsCount': 2,
 			'learningCount': 3,
 			'masteredCount': 4,
 			'likedCount': 10,
@@ -81,7 +44,7 @@ const Profile = class extends React.Component {
 		return (
 			<div>
 				<h1>Anja</h1>
-				<p><span>{ `${this.state.friendsCount} Friends` }</span><span className="ml-2"><button onClick={ () => this.setState({ addFreind: true }) }>Add Friend</button></span></p>
+				{ /* <p><span>{ `${this.state.friendsCount} Friends` }</span><span className="ml-2"><button onClick={ () => this.setState({ addFreind: true }) }>Add Friend</button></span></p> */}
 				<p>Lingo: <span>{ `${this.state.learningCount} Learning`}</span><span>{ `${this.state.masteredCount} Mastered`}</span><span>{ `${this.state.likedCount} Liked`}</span></p>
 			</div>
 
@@ -105,7 +68,7 @@ const SideBar = class extends React.Component {
 				{ this.state.error && <ErrorBlanket msg={ this.state.error } onClose={ () => this.setState({ 'error': '' }) } /> }
 				{ this.state.msg && <MessageBlanket msg={ this.state.msg } onClose={ () => this.setState({ 'msg': '' }) } /> }
 				<Profile />
-				<AddFriend onError={ this.handleError.bind(this) } />
+				{ /* <AddFriend onError={ this.handleError.bind(this) } /> */ }
 				<p onClick={ this.props.view.bind(this, 'library') }>Library</p>
 				<ul>
 					<li>All</li>
@@ -123,46 +86,6 @@ const SideBar = class extends React.Component {
 	};
 };
 
-
-/*const Nav = class extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-
-		}
-	};
-
-	render() {
-		return (
-			<div className="nav">
-				<ul className="navbar-nav mr-auto">
-					{ currentUser !== null ?
-						<li className="nav-item">
-							<a id="profileLink" className="nav-link" href="#"><strong>{ currentUser.userName }</strong></a>
-						</li> : null }
-					
-					{ currentUser !== null ?
-						<li className="nav-item">
-							<a className="nav-link" href="login">Log Out</a>
-						</li>
-					: <div>
-						<li className="nav-item">
-							<a className="nav-link" href="{% url 'login' %}">Log In</a>
-						</li>
-						<li className="nav-item">
-							<a className="nav-link" href="{% url 'register' %}">Register</a>
-						</li>
-					</div> }
-				</ul>
-			</div>
-		)
-	};
-
-	actionNavClicked = (value) => {
-		window.location.href = '/login.html'
-	};
-
-};*/
 
 
 
