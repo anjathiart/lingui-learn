@@ -32,11 +32,9 @@ const Profile = class extends React.Component {
 		super(props);
 		this.state = {
 			'userName': 'Anja',
-			// 'friendsCount': 2,
 			'learningCount': 3,
 			'masteredCount': 4,
 			'likedCount': 10,
-			'addFriend': false,
 		}
 	};
 
@@ -44,7 +42,6 @@ const Profile = class extends React.Component {
 		return (
 			<div>
 				<h1>Anja</h1>
-				{ /* <p><span>{ `${this.state.friendsCount} Friends` }</span><span className="ml-2"><button onClick={ () => this.setState({ addFreind: true }) }>Add Friend</button></span></p> */}
 				<p>Lingo: <span>{ `${this.state.learningCount} Learning`}</span><span>{ `${this.state.masteredCount} Mastered`}</span><span>{ `${this.state.likedCount} Liked`}</span></p>
 			</div>
 
@@ -68,7 +65,6 @@ const SideBar = class extends React.Component {
 				{ this.state.error && <ErrorBlanket msg={ this.state.error } onClose={ () => this.setState({ 'error': '' }) } /> }
 				{ this.state.msg && <MessageBlanket msg={ this.state.msg } onClose={ () => this.setState({ 'msg': '' }) } /> }
 				<Profile />
-				{ /* <AddFriend onError={ this.handleError.bind(this) } /> */ }
 				<p onClick={ this.props.view.bind(this, 'library') }>Library</p>
 				<ul>
 					<li>All</li>
@@ -363,6 +359,7 @@ const Library = class extends React.Component {
 
 	actionFetchLibrary = async () => {
 		await secureFetch(`v1/users/${this.props.userId}/library`).then(result => {
+			console.log({result})
 			this.setState({ list: result.data.list })
 		}).catch(error => {
 			console.log({error})
@@ -412,8 +409,16 @@ const LibraryEntry = class extends React.Component {
 					<p>Source: { this.props.entry.source }</p>
 					<p>Author: { this.props.entry.author }</p>
 					<p>Notes: { this.props.entry.notes }</p>
-					<button onClick = { () => this.setState({showEntryForm: true}) }>Edit</button>
+					<button onClick = { () => this.setState({ showEntryForm: true }) }>Edit</button>
 				</div>
+
+				<p>Choose which list this entry should be in</p>
+				<select value={ this.props.entry.entry_list } onChange={ (e) => { this.actionUpdateEntry({ entry_list: e.target.value }) }}>
+					<option value="0">None</option>
+					<option value="1">Learning</option>
+					<option value="2">Mastered</option>
+					<option value="3">Archived</option>
+				</select>
 
 				{ this.state.showEntryForm ? <div className="modal">
 					<div className="modal__content">
@@ -444,6 +449,7 @@ const LibraryEntry = class extends React.Component {
 	}
 
 	actionUpdateEntry = async (event) => {
+		console.log({event})
 		console.log("TODO")
 		const fields = { ...event };
 		await secureFetch(`v1/entries/${this.props.entry.id}/update`, 'POST', fields).then(result => {

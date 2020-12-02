@@ -92,12 +92,14 @@ def update_entry(request, entry_id):
 
 	# load post body
 	data = json.loads(request.body)
+	print(data)
 
 	context = data.get('context', '')
 	source = data.get('source', '')
 	author = data.get('author', '')
 	url = data.get('url', '')
 	notes = data.get('notes', '')
+	entry_list = data.get('list', '')
 
 	try:
 		# Entry.objects.filter(id = entry_id).update(context=context, source=source, author=author, url=url, notes=notes)
