@@ -92,19 +92,9 @@ def update_entry(request, entry_id):
 
 	# load post body
 	data = json.loads(request.body)
-	print(data)
-
-	context = data.get('context', '')
-	source = data.get('source', '')
-	author = data.get('author', '')
-	url = data.get('url', '')
-	notes = data.get('notes', '')
-	entry_list = data.get('list', '')
 
 	try:
-		# Entry.objects.filter(id = entry_id).update(context=context, source=source, author=author, url=url, notes=notes)
 		Entry.objects.get(id = entry_id).update_entry(data)
-		# ctx["data"] = { "entryId": entry_id }
 		return JsonResponse(ctx, status=200)
 	except Entry.DoesNotExist:
 		ctx["error"] = "Entry does not exist"
@@ -116,9 +106,10 @@ def update_entry(request, entry_id):
 def library(request, user_id):
 	ctx = { "userId": user_id }
 
-	listFilter = request.GET.get('filter', '0')
-	print(listFilter)
+	listFilter = request.GET.get('filter', 'all')
 
+
+	# TODO: validate the query string
 	if listFilter == 'learning':
 		listFilter = '1'
 	elif listFilter == 'mastered':
@@ -135,15 +126,12 @@ def library(request, user_id):
 			entry_objects = Entry.objects.filter(user_id=user_id).all()
 		else:
 			entry_objects = Entry.objects.filter(user_id=user_id, entry_list=listFilter).all()
-		count_summary = Entry.objects.count_summary(user_id=user_id)
 	except Entry.DoesNotExist as e:
 		ctx["error"] = "Library does not exist for this user"
 		return JsonResponse(ctx, status=404)
 
 	entries_serialized = [entry.serialize() for entry in entry_objects]
-	print(entries_serialized)
 	ctx["data"] =  {
-		"listSummary": count_summary,
 		"list": entries_serialized
 	}
 
