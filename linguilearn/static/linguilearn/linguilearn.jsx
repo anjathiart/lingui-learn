@@ -38,6 +38,7 @@ function renderPage(currentUser) {
 				'view': 'search',
 				'currentUser': currentUser,
 				'listFilter': 'all',
+				'entry': {}
 			}
 		};
 
@@ -60,12 +61,27 @@ function renderPage(currentUser) {
 								userId = { this.state.currentUser.userId }
 								listFilter={ this.state.listFilter }
 								reloadLibrary = { () => this.loadUser() }
+								showEntry = { (event) => this.loadEntry(event) }
 							 />
 							: null }
+						{ this.state.view == 'entry'
+							? <LibraryEntry 
+								entry={ this.state.entry }
+								update={ (event) => this.actionFetchLibrary() }
+								delete={ () => this.loadUser() && this.setState({ view: 'library' }) }
+								key={ this.state.entry.id }
+							/> : null }
 					</div>
 				</div>
 			)
 		};
+
+		loadEntry = async (entry) => {
+			console.log(entry);
+			this.setState({ entry: entry })
+			this.setState({ view: 'entry' })
+		};
+		
 
 		loadUser = async () => {
 			await secureFetch(`v1/users/current`)
@@ -78,6 +94,15 @@ function renderPage(currentUser) {
 				error = error.error;
 			});
 		}
+
+		/*actionFetchLibrary = async () => {
+			await secureFetch(`v1/users/${this.props.userId}/library?filter=${this.props.listFilter}`).then(result => {
+				this.props.reloadLibrary();
+				this.setState({ list: result.data.list });
+			}).catch(error => {
+				console.log({error})
+			})
+		}*/
 	}
 
 	ReactDOM.render(<App />, document.querySelector("#app"));

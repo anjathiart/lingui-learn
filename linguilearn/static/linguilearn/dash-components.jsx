@@ -6,7 +6,7 @@ const ErrorBlanket = class extends React.Component {
 			<div className="modal">
 				<div className="modal__content">
 					<p>{ this.props.msg }</p>
-					<button onClick={ this.props.onClose.bind(this) } className="btn btn-primary btn-lg">OK</button>
+					<button className="btn btn-primary" onClick={ this.props.onClose.bind(this) } className="btn btn-primary btn-lg">OK</button>
 				</div>
 			</div>
 		);
@@ -19,7 +19,7 @@ const MessageBlanket = class extends React.Component {
 			<div className="modal">
 				<div className="modal__content">
 					<p>{ this.props.msg }</p>
-					<button onClick={ this.props.onClose.bind(this) } className="btn btn-primary btn-lg">OK</button>
+					<button className="btn btn-primary" onClick={ this.props.onClose.bind(this) } className="btn btn-primary btn-lg">OK</button>
 				</div>
 			</div>
 		);
@@ -67,12 +67,11 @@ const InputText = class extends React.Component {
 	render() {
 		return (
 			<div className="wordEntry">
-				<input placeholder={ this.props.placeholder } value={ this.props.value } onChange={ (e) => { this.props.update(e.target.value) }}/>
+				<input className="form-control" placeholder={ this.props.placeholder } value={ this.props.value } onChange={ (e) => { this.props.update(e.target.value) }}/>
 			</div>
 		)
 	};
 };
-
 
 // Component to present the search results to the user
 const WordEntry = class extends React.Component {
@@ -134,18 +133,18 @@ const WordSearch = class extends React.Component {
 			<div className="view">
 				<div className="flex">
 					<InputText value={ this.state.searchInput } update={(value) => this.setState({ searchInput: value })} placeholder="Type a word to search"/>
-					<button className="button ml-2" onClick={ this.actionWordSearch }>Search</button>
+					<button className="button ml-2 btn btn-primary" onClick={ this.actionWordSearch }>Search</button>
 				</div>
 				{ this.state.showSearchResults ?
 					<div>
 						<WordEntry entry={ this.state.wordEntry } />
-						<button onClick={ this.fillOwnDetails }>Add to Library</button>
+						<button className="btn btn-primary" onClick={ this.fillOwnDetails }>Add to Library</button>
 					</div>
 					: null
 				}
 				{ this.state.errorMessage ? <p>{ this.state.errorMessage }</p> : null }
 				{ this.state.warningMessage ? <p>{ this.state.warningMessage }</p> : null }
-				{ this.state.addCustomEntry ? <button onClick={ this.fillOwnDetails }>Add Custom Entry?</button> : null }
+				{ this.state.addCustomEntry ? <button className="btn btn-primary" onClick={ this.fillOwnDetails }>Add Custom Entry?</button> : null }
 				{ this.state.step === 'form' || this.state.step === 'done' ? 
 					<div className="modal">
 						<div className="modal__content">
@@ -153,8 +152,8 @@ const WordSearch = class extends React.Component {
 							{ this.state.step === 'done' ? 
 							<div>
 								<p>Entry added to your Library</p>
-								<button onClick={ () => this.setState({ step: "library" }) }>Go to Library</button>
-								<button onClick={ () => this.setState({ step: "search" }) }>Back to search</button>
+								<button className="btn btn-primary" onClick={ () => this.setState({ step: "library" }) }>Go to Library</button>
+								<button className="btn btn-primary" onClick={ () => this.setState({ step: "search" }) }>Back to search</button>
 							</div>
 							: null }
 						</div>
@@ -242,7 +241,7 @@ const WordEntryForm = class extends React.Component {
 				author: 'Franz Kafka',
 				url: 'www.google.com',
 				notes: '',
-				label: '',			
+				label: '',          
 			}
 		};
 	};
@@ -260,17 +259,25 @@ const WordEntryForm = class extends React.Component {
 	render() {
 		return (
 			<div className=''>
-				<div className="wordEntryForm">
-					<p>Context:</p>
-					<InputText value={ this.state.inputValues.context } update={(value) => this.actionInput('context', value)} placeholder="Context"/>
-					<p>Source / Title</p>
-					<InputText value={ this.state.inputValues.source } update={(value) => this.actionInput('source', value)} placeholder="Source"/>
-					<p>Author</p>
-					<InputText value={ this.state.inputValues.author } update={(value) => this.actionInput('author', value)} placeholder="Author"/>
-					<p>Link / Url</p>
-					<InputText value={ this.state.inputValues.url } update={(value) => this.actionInput('url', value)} placeholder="URL link"/>
-					<button onClick={ () => this.props.save(this.state.inputValues) }>Save To Library</button>
-				</div>
+				<form className="wordEntryForm">
+					<div className="form-group">
+						<label>Context:</label>
+						<InputText value={ this.state.inputValues.context } update={(value) => this.actionInput('context', value)} placeholder="Context"/>
+					</div>
+					<div className="form-group">
+						<label>Source / Title</label>
+						<InputText value={ this.state.inputValues.source } update={(value) => this.actionInput('source', value)} placeholder="Source"/>
+					</div>
+					<div className="form-group">
+						<label>Author</label>
+						<InputText value={ this.state.inputValues.author } update={(value) => this.actionInput('author', value)} placeholder="Author"/>
+					</div>
+					<div className="form-group">
+						<label>Link / Url</label>
+						<InputText value={ this.state.inputValues.url } update={(value) => this.actionInput('url', value)} placeholder="URL link"/>
+					</div>
+					<button className="btn btn-primary" onClick={ () => this.props.save(this.state.inputValues) }>Save To Library</button>
+				</form>
 			</div>
 		)
 	};
@@ -307,22 +314,15 @@ const Library = class extends React.Component {
 		return (
 			<div>
 				<h1>Library</h1>
+				<ul className="list-group" >
 				{ this.state.list.map((entry, i) => {
 					return (
-						<div className="entry" key={ entry.id }>
-							<p onClick={ () => this.setState({ selectedEntry: i })}>{ entry.word }</p>
-							<button>Delete entry</button>
-
-							{ this.state.selectedEntry === i 
-								? <LibraryEntry
-									entry={ entry }
-									update={ (event) => this.actionFetchLibrary() }
-									delete={ () => this.props.reloadLibrary() && this.actionFetchLibrary() }
-									key={ 'entry' + i }/> 
-								: null }
-						</div>
+						<li className="list-group-item" key={ entry.id }>
+							<p onClick={ () => this.props.showEntry(entry) }>{ entry.word }</p>
+						</li>
 					)
 				})}
+				</ul>
 			</div>
 		)
 	};
@@ -378,22 +378,27 @@ const LibraryEntry = class extends React.Component {
 					<p>Source: { this.props.entry.source }</p>
 					<p>Author: { this.props.entry.author }</p>
 					<p>Notes: { this.props.entry.notes }</p>
-					<button onClick = { () => this.setState({ showEntryForm: true }) }>Edit</button>
+					<button className="btn btn-primary" onClick = { () => this.setState({ showEntryForm: true }) }>Edit</button>
 				</div>
 
-				<p>Choose which list this entry should be in</p>
-				<select value={ this.props.entry.entry_list } onChange={ (e) => { this.actionUpdateEntry({ entry_list: e.target.value }) }}>
-					<option value="0">None</option>
-					<option value="1">Learning</option>
-					<option value="2">Mastered</option>
-					<option value="3">Archived</option>
-				</select>
 
-				<button onClick={ () => this.actionDeleteEntry() }>Delete entry</button>
+				 <div className="form-group"
+					 	value={ this.props.entry.entry_list }
+					 	onChange={ (e) => { this.actionUpdateEntry({ entry_list: e.target.value }) }}>
+					<label>Choose which list this entry should be in</label>
+					<select className="form-control" >
+						<option value="0">None</option>
+						<option value="1">Learning</option>
+						<option value="2">Mastered</option>
+						<option value="3">Archived</option>
+					</select>
+				</div>
+
+				<button className="btn btn-primary" onClick={ () => this.actionDeleteEntry() }>Delete entry</button>
 
 				{ this.props.entry.favourites
-					? <button onClick={ () => { this.actionUpdateEntry({ favourites: false }) }}>Remove from favourites</button>
-					: <button onClick={ () => { this.actionUpdateEntry({ favourites: true }) }}>Add to favourites</button>
+					? <button className="btn btn-primary" onClick={ () => { this.actionUpdateEntry({ favourites: false }) }}>Remove from favourites</button>
+					: <button className="btn btn-primary" onClick={ () => { this.actionUpdateEntry({ favourites: true }) }}>Add to favourites</button>
 				}
 
 				{ this.state.showEntryForm ? <div className="modal">
@@ -434,6 +439,7 @@ const LibraryEntry = class extends React.Component {
 	}
 
 	actionDeleteEntry = async () => {
+		console.log(this.props.entry)
 		await secureFetch(`v1/entries/${this.props.entry.id}/delete`, 'POST').then(result => {
 			this.setState({ showEntryForm: false });
 			this.props.delete();
