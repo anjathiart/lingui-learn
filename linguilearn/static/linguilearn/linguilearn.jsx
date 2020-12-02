@@ -57,7 +57,8 @@ class App extends React.Component {
 			'error': '',
 			'msg': '',
 			'view': 'search',
-			'currentUser': currentUser
+			'currentUser': currentUser,
+			'listFilter': 'all',
 		}
 	};
 
@@ -66,10 +67,16 @@ class App extends React.Component {
 		// let errorHandler = this.handleError;
 		return (
 			<div className="body">
-				<SideBar view = { (view) => this.setState({ view: view }) } listCountSummary={ this.state.currentUser.listCountSummary } userName={ this.state.currentUser.userName }/>
+				<SideBar
+					view = { (view) => this.setState({ view: view }) }
+					filterLibrary = { (filter) => this.setState({ "listFilter": filter}) }
+					listCountSummary={ this.state.currentUser.listCountSummary }
+					userName={ this.state.currentUser.userName }
+
+				/>
 				<div className = "view">
 					{ this.state.view === 'search' ? <WordSearch /> : null }
-					{ this.state.view === 'library' ? <Library userId = { this.state.currentUser.userId } reloadLibrary = { () => this.loadUser() }/> : null}
+					{ this.state.view === 'library' ? <Library key={ this.state.listFilter } userId = { this.state.currentUser.userId } listFilter={ this.state.listFilter } reloadLibrary = { () => this.loadUser() }/> : null}
 				</div>
 			</div>
 		)
@@ -87,6 +94,8 @@ class App extends React.Component {
 			error = error.error;
 		});
 	}
+
+
 
 }
 

@@ -27,28 +27,6 @@ const MessageBlanket = class extends React.Component {
 	}
 };
 
-const Profile = class extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			'userName': 'Anja',
-			'learningCount': 3,
-			'masteredCount': 4,
-			'likedCount': 10,
-		}
-	};
-
-	render() {
-		return (
-			<div>
-				<h1>Anja</h1>
-				<p>Lingo: <span>{ `${this.state.learningCount} Learning`}</span><span>{ `${this.state.masteredCount} Mastered`}</span><span>{ `${this.state.likedCount} Liked`}</span></p>
-			</div>
-
-		)
-	}
-};
-
 
 const SideBar = class extends React.Component {
 	constructor(props) {
@@ -65,35 +43,26 @@ const SideBar = class extends React.Component {
 				{ this.state.error && <ErrorBlanket msg={ this.state.error } onClose={ () => this.setState({ 'error': '' }) } /> }
 				{ this.state.msg && <MessageBlanket msg={ this.state.msg } onClose={ () => this.setState({ 'msg': '' }) } /> }
 				<h1>{ this.props.userName }</h1>
-				<p onClick={ this.props.view.bind(this, 'library') }>Library</p>
+				<p onClick={ () => this.actionViewLibrary('all') }>Library</p>
 				<ul>
-					<li>All ({ this.props.listCountSummary.totalCount })</li>
-					<li>Favourites ({ this.props.listCountSummary.favouritesCount })</li>
-					<li>Mastered ({ this.props.listCountSummary.masteredCount })</li>
-					<li>Learning ({ this.props.listCountSummary.learningCount })</li>
+					<li onClick={ () => this.actionViewLibrary('all') }>All ({ this.props.listCountSummary.totalCount })</li>
+					<li onClick={ () => this.actionViewLibrary('favourites') }>Favourites ({ this.props.listCountSummary.favouritesCount })</li>
+					<li onClick={ () => this.actionViewLibrary('mastered') }>Mastered ({ this.props.listCountSummary.masteredCount })</li>
+					<li onClick={ () => this.actionViewLibrary('learning') }>Learning ({ this.props.listCountSummary.learningCount })</li>
+					<li onClick={ () => this.actionViewLibrary('archived') }>Archived ({ this.props.listCountSummary.archivedCount })</li>
+
 				</ul>
 				<p onClick={ this.props.view.bind(this, 'search') }>Search Words</p>
 			</div>
 		)
 	};
 
-	handleError = (e) => {
-		this.setState({ 'error': e });
-	};
+	actionViewLibrary = async (filter) => {
+		this.props.view('library');
+		this.props.filterLibrary(filter);
+	}
 };
 
-
-
-
-const Words = class extends React.Component {
-	render() {
-		return (
-			<div className="view">
-				<h1>TODO</h1>
-			</div>
-		)
-	};
-};
 
 const InputText = class extends React.Component {
 	render() {
@@ -358,7 +327,7 @@ const Library = class extends React.Component {
 	};
 
 	actionFetchLibrary = async () => {
-		await secureFetch(`v1/users/${this.props.userId}/library`).then(result => {
+		await secureFetch(`v1/users/${this.props.userId}/library?filter=${this.props.listFilter}`).then(result => {
 			this.props.reloadLibrary()
 			this.setState({ list: result.data.list })
 		}).catch(error => {
@@ -456,8 +425,6 @@ const LibraryEntry = class extends React.Component {
 	}
 
 	actionUpdateEntry = async (event) => {
-		console.log({event})
-		console.log("TODO")
 		const fields = { ...event };
 		await secureFetch(`v1/entries/${this.props.entry.id}/update`, 'POST', fields).then(result => {
 			// console.log(result)

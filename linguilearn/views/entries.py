@@ -115,14 +115,33 @@ def update_entry(request, entry_id):
 @require_http_methods(['GET'])
 def library(request, user_id):
 	ctx = { "userId": user_id }
+
+	listFilter = request.GET.get('filter', '0')
+	print(listFilter)
+
+	if listFilter == 'learning':
+		listFilter = '1'
+	elif listFilter == 'mastered':
+		listFilter = '2'
+	elif listFilter == 'archived':
+		listFilter = '3'
+
+	ctx['filter'] =  listFilter
+
 	try:
-		entry_objects = Entry.objects.filter(user_id=user_id).all()
+		if listFilter == 'favourites':
+			entry_objects = Entry.objects.filter(user_id=user_id, favourites=True).all()
+		elif listFilter == 'all':
+			entry_objects = Entry.objects.filter(user_id=user_id).all()
+		else:
+			entry_objects = Entry.objects.filter(user_id=user_id, entry_list=listFilter).all()
 		count_summary = Entry.objects.count_summary(user_id=user_id)
 	except Entry.DoesNotExist as e:
 		ctx["error"] = "Library does not exist for this user"
 		return JsonResponse(ctx, status=404)
 
 	entries_serialized = [entry.serialize() for entry in entry_objects]
+	print(entries_serialized)
 	ctx["data"] =  {
 		"listSummary": count_summary,
 		"list": entries_serialized
