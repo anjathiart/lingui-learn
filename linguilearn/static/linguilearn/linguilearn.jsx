@@ -3,19 +3,21 @@ let csrftoken = Cookies.get('csrftoken');
 
 
 // initialise the page
-if (document.readyState !== 'loading' ) {
-	console.log( 'document is already ready, just execute code here' );
-	myInitCode();
-} else {
-	document.addEventListener('DOMContentLoaded', function () {
-		console.log( 'document was not ready, place code here' );
-		myInitCode();
-	});
-}
+// if (document.readyState !== 'loading' ) {
+// 	console.log( 'document is already ready, just execute code here' );
+// 	myInitCode();
+// } else {
+// 	document.addEventListener('DOMContentLoaded', function () {
+// 		console.log( 'document was not ready, place code here' );
+// 		myInitCode();
+// 	});
+// }
 
-// All code that needs to load once the DOM is ready
-async function myInitCode() {
-	// load current user profile and mount app
+// // All code that needs to load once the DOM is ready
+// async function myInitCode() {
+// 	// load current user profile and mount app
+const start = async () =>{
+
 	await secureFetch(`v1/users/current`)
 	.then(res => {
 		renderPage(res);
@@ -25,10 +27,14 @@ async function myInitCode() {
 		error = error.error;
 	});
 
-};
+
+}
+
+start();
+// };
 
 function renderPage(currentUser) {
-
+	console.log('why rerendering?')
 	class App extends React.Component {
 		constructor(props) {
 			super(props);
@@ -68,7 +74,7 @@ function renderPage(currentUser) {
 						{ this.state.view == 'entry'
 							? <LibraryEntry 
 								entry={ this.state.entry }
-								update={ (event) => this.actionFetchLibrary() }
+								update={ (event) => this.loadEntry(event) && this.setState({ view: 'entry' })}
 								delete={ () => this.loadUser() && this.setState({ view: 'library' }) }
 								key={ this.state.entry.id }
 							/> : null }
@@ -78,7 +84,7 @@ function renderPage(currentUser) {
 		};
 
 		loadEntry = async (entryId) => {
-			console.log(entryId);
+			console.log({entryId});
 			await secureFetch(`v1/entries/${entryId}`).then(result => {
 				console.log({result})
 				console.log(result.data)

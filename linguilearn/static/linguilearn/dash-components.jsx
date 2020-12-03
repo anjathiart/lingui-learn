@@ -259,7 +259,7 @@ const WordEntryForm = class extends React.Component {
 	render() {
 		return (
 			<div className=''>
-				<form className="wordEntryForm">
+				<div className="wordEntryForm form">
 					<div className="form-group">
 						<label>Context:</label>
 						<InputText value={ this.state.inputValues.context } update={(value) => this.actionInput('context', value)} placeholder="Context"/>
@@ -277,7 +277,7 @@ const WordEntryForm = class extends React.Component {
 						<InputText value={ this.state.inputValues.url } update={(value) => this.actionInput('url', value)} placeholder="URL link"/>
 					</div>
 					<button className="btn btn-primary" onClick={ () => this.props.save(this.state.inputValues) }>Save To Library</button>
-				</form>
+				</div>
 			</div>
 		)
 	};
@@ -413,9 +413,10 @@ const LibraryEntry = class extends React.Component {
 
 	actionUpdateEntry = async (event) => {
 		const fields = { ...event };
+		console.log({fields})
 		await secureFetch(`v1/entries/${this.props.entry.id}/update`, 'POST', fields).then(result => {
 			this.setState({ showEntryForm: false });
-			this.props.update();
+			this.props.update(this.props.entry.id);
 		}).catch(error => {
 			// console.log({error})
 		})

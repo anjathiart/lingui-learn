@@ -7,7 +7,9 @@ const secureFetch = (url, method, data) => {
 			headers: { "X-CSRFToken": csrftoken },
 			credentials: 'same-origin',
 		}).then(async (response) => {
+			console.log(response.status)
 			if (response.ok) {
+				console.log('xx')
 				// All 200 errors will have response === ok
 				resolve( await response.json());
 				return;
@@ -16,6 +18,7 @@ const secureFetch = (url, method, data) => {
 				window.location.replace('/login');
 				return;
 			} else {
+				console.log('yy')
 				console.log({response})
 				// Deal with other errors from the server / api
 				reject(await response.json());
