@@ -28,7 +28,8 @@ function renderPage(currentUser) {
 				'view': 'search',
 				'currentUser': currentUser,
 				'listFilter': 'all',
-				'entryId': ''
+				'entryId': '',
+				'entryUpdateCount': 0
 			}
 		};
 
@@ -57,9 +58,9 @@ function renderPage(currentUser) {
 						{ this.state.view == 'entry'
 							? <LibraryEntry 
 								entry={ this.state.entry }
-								update={ (event) => this.loadEntry(event) && this.setState({ view: 'entry' })}
+								update={ (event) => this.loadEntry(event) }
 								delete={ () => this.loadUser() && this.setState({ view: 'library' }) }
-								key={ this.state.entry.id }
+								key={ `${this.state.entry.id}_${this.state.entryUpdateCount}` }
 							/> : null }
 					</div>
 				</div>
@@ -68,8 +69,12 @@ function renderPage(currentUser) {
 
 		loadEntry = async (entryId) => {
 			await secureFetch(`v1/entries/${entryId}`).then(result => {
+				
 				this.setState({ entry: result.data })
 				this.setState({ view: 'entry' })
+				this.setState({ entryUpdateCount: this.state.entryUpdateCount + 1 })
+				console.log(result.data)
+				this.loadUser();
 			}).catch(error => {
 				console.log({ error });
 			})

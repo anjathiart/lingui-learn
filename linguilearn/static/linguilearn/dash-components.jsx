@@ -356,7 +356,9 @@ const LibraryEntry = class extends React.Component {
 	}
 
 	componentWillUnmount() {
+		console.log('mounting')
 		this.setState(this.initialState)
+		console.log(this.props.entry)
 	}
 
 	render() {
@@ -376,10 +378,11 @@ const LibraryEntry = class extends React.Component {
 
 
 				 <div className="form-group"
-					 	value={ this.props.entry.entry_list }
-					 	onChange={ (e) => { this.actionUpdateEntry({ entry_list: e.target.value }) }}>
-					<label>Choose which list this entry should be in</label>
-					<select className="form-control" >
+					 	
+					 	>
+					<label>Choose which list this entry should be in { this.props.entry.entry_list }</label>
+					<select className="form-control" value={ this.props.entry.entry_list }
+						onChange={ (e) => { this.actionUpdateEntry({ entry_list: e.target.value }) }}>
 						<option value="0">None</option>
 						<option value="1">Learning</option>
 						<option value="2">Mastered</option>

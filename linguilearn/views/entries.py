@@ -81,7 +81,8 @@ def add_custom_entry(request, text):
 @http_auth_required
 @require_http_methods(['POST'])
 def update_entry(request, entry_id):
-
+	print('updating')
+	print(entry_id)
 	ctx = { "userId": request.user.id, "entryId": entry_id }
 
 	entry = Entry.objects.get(id=entry_id)
@@ -91,6 +92,8 @@ def update_entry(request, entry_id):
 
 	# load post body
 	data = json.loads(request.body)
+
+	print(data)
 
 	try:
 		Entry.objects.get(id = entry_id).update_entry(data)
