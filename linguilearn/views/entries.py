@@ -109,34 +109,29 @@ def library(request, user_id):
 	listFilter = request.GET.get('filter', 'all')
 
 	# TODO: validate the query string
-	if listFilter != 'favourites':
-		if listFilter == 'learning':
-			listFilter = '1'
-		elif listFilter == 'mastered':
-			listFilter = '2'
-		elif listFilter == 'archived':
-			listFilter = '3'
-		else:
-			listFilter = 'all'
-
-
 	ctx['filter'] =  listFilter
 
-	try:
-		if listFilter == 'favourites':
-			entry_objects = Entry.objects.filter(user_id=user_id, favourites=True).all()
-		elif listFilter == 'all':
-			entry_objects = Entry.objects.filter(user_id=user_id).all()
-		else:
-			entry_objects = Entry.objects.filter(user_id=user_id, entry_list=listFilter).all()
-	except Entry.DoesNotExist as e:
-		ctx["error"] = "Library does not exist for this user"
+	library = Entry.objects.library(user_id, listFilter)
+	if library is None:
+		ctx["error"] = "The library could not be found or is empty"
 		return JsonResponse(ctx, status=404)
 
-	entries_serialized = [entry.serialize() for entry in entry_objects]
-	ctx["data"] =  {
-		"list": entries_serialized
-	}
+	ctx["data"] =  library
+	return JsonResponse(ctx, status=200)
+
+@http_auth_required
+@require_http_methods(['GET'])
+def get_entry(request, entry_id):
+	ctx = { "entryId": entry_id }
+
+	try:
+		entry = Entry.objects.get(id=entry_id)
+	except Entry.DoesNotExist as e:
+		ctx["error"] = "The entry could not be found"
+		return JsonResponse(ctx, status=404)
+
+	# entries_serialized = [entry.serialize() for entry in entry_objects]
+	ctx["data"] = entry.serialize_long()
 
 	return JsonResponse(ctx, status=200)
 

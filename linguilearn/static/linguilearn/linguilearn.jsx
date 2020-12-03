@@ -38,7 +38,7 @@ function renderPage(currentUser) {
 				'view': 'search',
 				'currentUser': currentUser,
 				'listFilter': 'all',
-				'entry': {}
+				'entryId': ''
 			}
 		};
 
@@ -62,6 +62,7 @@ function renderPage(currentUser) {
 								listFilter={ this.state.listFilter }
 								reloadLibrary = { () => this.loadUser() }
 								showEntry = { (event) => this.loadEntry(event) }
+								selectEntry = { (entryId) => this.loadEntry(entryId) }
 							 />
 							: null }
 						{ this.state.view == 'entry'
@@ -76,10 +77,16 @@ function renderPage(currentUser) {
 			)
 		};
 
-		loadEntry = async (entry) => {
-			console.log(entry);
-			this.setState({ entry: entry })
-			this.setState({ view: 'entry' })
+		loadEntry = async (entryId) => {
+			console.log(entryId);
+			await secureFetch(`v1/entries/${entryId}`).then(result => {
+				console.log({result})
+				console.log(result.data)
+				this.setState({ entry: result.data })
+				this.setState({ view: 'entry' })
+			}).catch(error => {
+				console.log({ error });
+			})
 		};
 		
 

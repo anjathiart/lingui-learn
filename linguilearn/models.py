@@ -1,3 +1,4 @@
+import json
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from linguilearn.exceptions import AlreadyExistsError, DoesNotExistForUser
@@ -32,7 +33,7 @@ class Word(models.Model):
 		return {
 			"id": self.id,
 			"word": self.text,
-			"details": json.load(self.details) if self.details else {},
+			"details": json.loads(self.details) if self.details else {},
 			"isCustomWord": self.customWord
 		}
 
@@ -52,6 +53,34 @@ class EntryManager(models.Manager):
 			"archivedCount": qs.filter(entry_list=3).count(),
 			"favouritesCount": qs.filter(favourites=True).count()
 		}
+
+	def library(self, user_id, listFilter):
+		print(user_id)
+
+		if listFilter == 'favourites':
+			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, favourites=True).all()
+		elif listFilter == 'all':
+			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id).all()
+		elif listFilter == 'customWord':
+			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, word_customEntry=True).all()
+		else:
+			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, entry_list=listFilter).all()
+
+		if entries.count() == 0:
+			return None
+
+		
+		result = {
+			"totalCount": entries.count(),
+			"learningCount": entries.filter(entry_list=1).count(),
+			"masteredCount": entries.filter(entry_list=2).count(),
+			"archivedCount": entries.filter(entry_list=3).count(),
+			"favouritesCount": entries.filter(favourites=True).count()
+		}
+
+		entries_serialized = [entry.serialize_short() for entry in entries]
+		result["list"] = entries_serialized
+		return result
 
 
 class Entry(models.Model):
@@ -76,7 +105,8 @@ class Entry(models.Model):
 	def __self__(self):
 		return self.id
 
-	def serialize(self):
+	def serialize_short(self):
+		customWord = Word.objects.get(id=self.word_id).customWord
 		return {
 			"id": self.id,
 			"word": self.word.text,
@@ -86,9 +116,21 @@ class Entry(models.Model):
 			"url": self.url,
 			"notes": self.notes,
 			"favourites": self.favourites,
+			"isCustomWord": customWord,
 			"created": self.created_at,
 			"entry_list": self.entry_list,
 		}
+
+	def serialize_long(self):
+		try:
+			wordDetails = Word.objects.get(id=self.word_id)
+		except Word.DoesNotExist as e:
+			raise ValueError(e)
+		result = self.serialize_short()
+		wordDetails_serialized = wordDetails.serialize()
+		result["details"] = wordDetails_serialized['details']
+		return result
+
 
 
 	def update_entry(self, fields):

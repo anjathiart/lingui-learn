@@ -318,7 +318,7 @@ const Library = class extends React.Component {
 				{ this.state.list.map((entry, i) => {
 					return (
 						<li className="list-group-item" key={ entry.id }>
-							<p onClick={ () => this.props.showEntry(entry) }>{ entry.word }</p>
+							<p onClick={ () => this.props.selectEntry(entry.id) }>{ entry.word }</p>
 						</li>
 					)
 				})}
@@ -352,13 +352,7 @@ const LibraryEntry = class extends React.Component {
 		userId: '',
 		list: [],
 		showWordDetails: true,
-		wordEntryDetails: null,
 		showEntryForm: false,
-	}
-
-	async componentDidMount() {
-		//  fetch users library
-		await this.loadWordDetails();
 	}
 
 	componentWillUnmount() {
@@ -366,7 +360,6 @@ const LibraryEntry = class extends React.Component {
 	}
 
 	render() {
-		let entry = this.state.wordEntryDetails;
 		return (
 			<div className="libraryEntry">
 
@@ -404,29 +397,19 @@ const LibraryEntry = class extends React.Component {
 				{ this.state.showEntryForm ? <div className="modal">
 					<div className="modal__content">
 						<WordEntryForm 
-							inputValues={ { context: this.props.entry.context, source: this.props.entry.source} }
+							inputValues={ { context: this.props.entry.details.context, source: this.props.entry.details.source} }
 							save={ (event) => this.actionUpdateEntry(event) }
 						/>
 					</div>
 				</div> : null }
 
-				{ this.state.showWordDetails && this.state.wordEntryDetails
-					? <div><WordEntry entry={ entry } /></div>
+				{ this.state.showWordDetails
+					? <div><WordEntry entry={ this.props.entry.details } /></div>
 					: null }
 
 			</div>
 		)
 	};
-
-	loadWordDetails = async () => {
-		const wordKey =`entryDetails${this.props.entry.word}`
-		await secureFetch(`v1/words/search?q=${ this.props.entry.word }`).then(result => {
-				this.setState({ wordEntryDetails: result.data });
-			}).catch(error => {
-				console.log({ error });
-			})
-		this.setState({ showWordDetails: true });
-	}
 
 	actionUpdateEntry = async (event) => {
 		const fields = { ...event };
@@ -439,7 +422,6 @@ const LibraryEntry = class extends React.Component {
 	}
 
 	actionDeleteEntry = async () => {
-		console.log(this.props.entry)
 		await secureFetch(`v1/entries/${this.props.entry.id}/delete`, 'POST').then(result => {
 			this.setState({ showEntryForm: false });
 			this.props.delete();
