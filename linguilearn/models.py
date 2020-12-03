@@ -55,7 +55,10 @@ class EntryManager(models.Manager):
 		}
 
 	def library(self, user_id, listFilter):
-		print(user_id)
+		if listFilter == 'learning':
+			listFilter = 1
+		elif listFilter == 'mastered':
+			listFilter = 2
 
 		if listFilter == 'favourites':
 			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, favourites=True).all()
@@ -66,10 +69,6 @@ class EntryManager(models.Manager):
 		else:
 			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, entry_list=listFilter).all()
 
-		if entries.count() == 0:
-			return None
-
-		
 		result = {
 			"totalCount": entries.count(),
 			"learningCount": entries.filter(entry_list=1).count(),
@@ -78,7 +77,7 @@ class EntryManager(models.Manager):
 			"favouritesCount": entries.filter(favourites=True).count()
 		}
 
-		entries_serialized = [entry.serialize_short() for entry in entries]
+		entries_serialized = [entry.serialize_short() for entry in entries] if entries.count() > 0 else []
 		result["list"] = entries_serialized
 		return result
 

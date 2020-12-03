@@ -31,7 +31,6 @@ def add_entry(request, word_id):
 	notes = data.get('notes', '')
 	try:
 		word = Word.objects.get(id = word_id)
-		print(word)
 	except Word.DoesNotExist:
 		ctx["error"] = "Word does not exist"
 		return JsonResponse(ctx, status=400)
@@ -111,8 +110,9 @@ def library(request, user_id):
 	# TODO: validate the query string
 	ctx['filter'] =  listFilter
 
-	library = Entry.objects.library(user_id, listFilter)
-	if library is None:
+
+	library = Entry.objects.library(request.user.id, listFilter)
+	if not library:
 		ctx["error"] = "The library could not be found or is empty"
 		return JsonResponse(ctx, status=404)
 

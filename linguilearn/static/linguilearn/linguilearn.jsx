@@ -1,22 +1,7 @@
 // Global state
 let csrftoken = Cookies.get('csrftoken');
 
-
-// initialise the page
-// if (document.readyState !== 'loading' ) {
-// 	console.log( 'document is already ready, just execute code here' );
-// 	myInitCode();
-// } else {
-// 	document.addEventListener('DOMContentLoaded', function () {
-// 		console.log( 'document was not ready, place code here' );
-// 		myInitCode();
-// 	});
-// }
-
-// // All code that needs to load once the DOM is ready
-// async function myInitCode() {
-// 	// load current user profile and mount app
-const start = async () =>{
+const start = async () => {
 
 	await secureFetch(`v1/users/current`)
 	.then(res => {
@@ -29,9 +14,8 @@ const start = async () =>{
 
 
 }
-
 start();
-// };
+
 
 function renderPage(currentUser) {
 	console.log('why rerendering?')
@@ -47,7 +31,6 @@ function renderPage(currentUser) {
 				'entryId': ''
 			}
 		};
-
 
 		render() {
 			return (
@@ -84,10 +67,7 @@ function renderPage(currentUser) {
 		};
 
 		loadEntry = async (entryId) => {
-			console.log({entryId});
 			await secureFetch(`v1/entries/${entryId}`).then(result => {
-				console.log({result})
-				console.log(result.data)
 				this.setState({ entry: result.data })
 				this.setState({ view: 'entry' })
 			}).catch(error => {
