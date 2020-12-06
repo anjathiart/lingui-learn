@@ -27,13 +27,16 @@ p
 
 .body
 	display: flex
+	flex-direction: column
 	flex-wrap: wrap
 	border: 1px solid black
 	justify-content: center
+	max-width: 1024px
+	margin: auto
 
 .view
 	border: 1px solid pink
-	width: 1028px
+	widt: 100%
 	padding: 1rem
 
 /* UTILITIES */
@@ -88,10 +91,43 @@ p
 .sideBar
 	border: 1px solid blue
 	min-width: 280px
-	max-width: 320px
-	padding: 1rem
+	max-width: 1028px
+	padding: 0.6rem
+
+.wordGrid
+	&__item
+		padding: 0.3rem 1rem
+		margin: 0.6rem
+		background-color: white
+		border: 1px solid grey
+		border-radius: 3px
+		cursor: pointer
+		transition: all 0.3s
+		&:hover
+			opacity: 0.3
+			color: white
+			background-color: grey
+
+	
+.navTabs
+	display: flex
+	flex-direction: row
+	flex-wrap: wrap
+	justify-content: space-around
+	&__item
+		border-bottom: 4px solid pink
+		color: #77aaee
+		padding: 0.2rem 0.2rem
+		text-decoration: none
+		margin-left: 0.4rem
+		margin-right: 0.4rem
+		margin-bottom: 0.2rem
 
 
+
+@media only screen and (max-width: 1024px)
+	.view
+		width: auto
 
 
 

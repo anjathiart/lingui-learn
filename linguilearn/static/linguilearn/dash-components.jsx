@@ -41,16 +41,13 @@ const SideBar = class extends React.Component {
 			<div className='sideBar'>
 				{ this.state.error && <ErrorBlanket msg={ this.state.error } onClose={ () => this.setState({ 'error': '' }) } /> }
 				{ this.state.msg && <MessageBlanket msg={ this.state.msg } onClose={ () => this.setState({ 'msg': '' }) } /> }
-				<h1>{ this.props.userName }</h1>
-				<p onClick={ () => this.actionViewLibrary('all') }>Library ({ this.props.listCountSummary.totalCount })</p>
-				<p>Lists</p>
-				<ul>
-					<li onClick={ () => this.actionViewLibrary('learning') }>Learning ({ this.props.listCountSummary.learningCount })</li>
-					<li onClick={ () => this.actionViewLibrary('mastered') }>Mastered ({ this.props.listCountSummary.masteredCount })</li>
-					<li onClick={ () => this.actionViewLibrary('archived') }>Archived ({ this.props.listCountSummary.archivedCount })</li>
-				</ul>
-				<p onClick={ () => this.actionViewLibrary('favourites') }>Favourites ({ this.props.listCountSummary.favouritesCount })</p>
-				<p onClick={ this.props.view.bind(this, 'search') }>Search Words</p>
+				<div className="navTabs">
+					<div className="navTabs__item" onClick={ () => this.actionViewLibrary('all') }>All ({ this.props.listCountSummary.totalCount })</div>
+					<div className="navTabs__item" onClick={ () => this.actionViewLibrary('learning') }>Learning ({ this.props.listCountSummary.learningCount })</div>
+					<div className="navTabs__item" onClick={ () => this.actionViewLibrary('mastered') }>Mastered ({ this.props.listCountSummary.masteredCount })</div>
+					<div className="navTabs__item" onClick={ () => this.actionViewLibrary('archived') }>Archived ({ this.props.listCountSummary.archivedCount })</div>
+					<div className="navTabs__item" onClick={ () => this.actionViewLibrary('favourites') }>Favourites ({ this.props.listCountSummary.favouritesCount })</div>
+				</div>
 			</div>
 		)
 	};
@@ -116,7 +113,7 @@ const WordSearch = class extends React.Component {
 		super(props);
 		this.state = {
 			searchInput: '',
-			showSearchResults: false,
+			showSearchResults: true,
 			wordId: '',
 			wordEntry: '',
 			addCustomEntry: false,
@@ -128,16 +125,13 @@ const WordSearch = class extends React.Component {
 		}
 	};
 
+
 	render() {
 		return (
 			<div className="view">
-				<div className="flex">
-					<InputText value={ this.state.searchInput } update={(value) => this.setState({ searchInput: value })} placeholder="Type a word to search"/>
-					<button className="button ml-2 btn btn-primary" onClick={ this.actionWordSearch }>Search</button>
-				</div>
 				{ this.state.showSearchResults ?
 					<div>
-						<WordEntry entry={ this.state.wordEntry } />
+						<WordEntry entry={ this.props.wordEntry } />
 						<button className="btn btn-primary" onClick={ this.fillOwnDetails }>Add to Library</button>
 					</div>
 					: null
@@ -152,7 +146,7 @@ const WordSearch = class extends React.Component {
 							{ this.state.step === 'done' ? 
 							<div>
 								<p>Entry added to your Library</p>
-								<button className="btn btn-primary" onClick={ () => this.setState({ step: "library" }) }>Go to Library</button>
+								<button className="btn btn-primary" onClick={ () => this.props.done() }>Go to Library</button>
 								<button className="btn btn-primary" onClick={ () => this.setState({ step: "search" }) }>Back to search</button>
 							</div>
 							: null }
@@ -171,40 +165,12 @@ const WordSearch = class extends React.Component {
 		});
 	};
 
-	actionWordSearch = async () => {
-		this.setState(() => { 
-			return {
-				showSearchResults: false,
-				errorMessage: '',
-				warningMessage: '',
-			}
-		});
-
-
-		await secureFetch(`v1/words/search?q=${this.state.searchInput}`)
-		.then(result => {
-			this.setState({ wordId: result.wordId });
-			this.setState({ wordEntry: result.data });
-			this.setState({ showSearchResults: true });
-		})
-		.catch(error => {
-			this.setState(() => {
-				return {
-					errorMessage: error.error,
-					warningMessage: error.warning,
-					addCustomEntry: error.allow || false
-				};
-
-			});
-		});
-	};
-
 	actionSaveEntry = async (event) => {
 		const fields = { ...event };
 
 		// TODO validate the word to be a one-word string
 
-		const url = this.state.addCustomEntry && this.state.wordId === '' ? `v1/entries/${this.state.searchInput}/addcustom` : `v1/entries/${this.state.wordId}/add`
+		const url = this.state.addCustomEntry && this.props.wordId === '' ? `v1/entries/${this.state.searchInput}/addcustom` : `v1/entries/${this.props.wordId}/add`
 		
 		await secureFetch(url, 'POST', fields)
 		.then(result => {
@@ -312,17 +278,16 @@ const Library = class extends React.Component {
 
 	render() {
 		return (
-			<div>
-				<h1>Library</h1>
-				<ul className="list-group" >
+			<div className="container">
+				<div className="row wordGrid" >
 				{ this.state.list.map((entry, i) => {
 					return (
-						<li className="list-group-item" key={ entry.id }>
+						<div className="col-sm-auto wordGrid__item" key={ entry.id }>
 							<p onClick={ () => this.props.selectEntry(entry.id) }>{ entry.word }</p>
-						</li>
+						</div>
 					)
 				})}
-				</ul>
+				</div>
 			</div>
 		)
 	};
