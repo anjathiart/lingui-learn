@@ -63,9 +63,7 @@ const SideBar = class extends React.Component {
 const InputText = class extends React.Component {
 	render() {
 		return (
-			<div className="wordEntry">
-				<input className="form-control" placeholder={ this.props.placeholder } value={ this.props.value } onChange={ (e) => { this.props.update(e.target.value) }}/>
-			</div>
+			<input className="form-control" placeholder={ this.props.placeholder } value={ this.props.value } onChange={ (e) => { this.props.update(e.target.value) }}/>
 		)
 	};
 };
@@ -328,11 +326,7 @@ const LibraryEntry = class extends React.Component {
 
 	render() {
 		return (
-			<div className="libraryEntry">
-
-				<div className="libraryEntry__tabs">
-				</div>
-
+			<div className="">
 				<div className="libraryEntry__content">
 					<p>Context: { this.props.entry.context }</p>
 					<p>Source: { this.props.entry.source }</p>

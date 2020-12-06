@@ -11,6 +11,8 @@ a {
 body {
   background-color: #dbedf3;
   color: #283149;
+  width: 100vw;
+  height: 100vh;
 }
 
 p {
@@ -19,19 +21,26 @@ p {
 }
 
 .body {
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
+  flex-direction: row;
   flex-wrap: wrap;
-  border: 1px solid black;
+  border: 3px solid black;
   justify-content: center;
-  max-width: 1024px;
+  width: 100vw;
   margin: auto;
 }
 
-.view {
+.view__side {
   border: 1px solid pink;
-  widt: 100%;
-  padding: 1rem;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.view__main {
+  border: 1px solid red;
+  width: 100%;
+  max-width: 1024px;
 }
 
 /* UTILITIES */
@@ -89,13 +98,23 @@ p {
   font-weight: 200;
 }
 
-.sideBar {
-  border: 1px solid blue;
-  min-width: 280px;
-  max-width: 1028px;
+.searchForm {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   padding: 0.6rem;
 }
 
+.sideBar {
+  border: 1px solid blue;
+  min-width: 280px;
+  max-width: 1024px;
+  padding: 0.6rem;
+}
+
+.wordGrid {
+  display: flex;
+}
 .wordGrid__item {
   padding: 0.3rem 1rem;
   margin: 0.6rem;
@@ -113,7 +132,7 @@ p {
 
 .navTabs {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: wrap;
   justify-content: space-around;
 }
@@ -127,9 +146,13 @@ p {
   margin-bottom: 0.2rem;
 }
 
-@media only screen and (max-width: 1024px) {
-  .view {
-    width: auto;
+@media only screen and (max-width: 1300px) {
+  .view__side {
+    width: 100%;
+  }
+
+  .navTabs {
+    flex-direction: row;
   }
 }
 

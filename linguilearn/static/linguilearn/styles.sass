@@ -18,6 +18,8 @@ a
 body 
 	background-color: $cBackground
 	color: $cText
+	width: 100vw
+	height: 100vh
 
 // p, h1, h2, h3, h4, h5, h6
 p
@@ -26,18 +28,25 @@ p
 	// font-size: 12px
 
 .body
-	display: flex
-	flex-direction: column
+	display: inline-flex
+	flex-direction: row
 	flex-wrap: wrap
-	border: 1px solid black
+	border: 3px solid black
 	justify-content: center
-	max-width: 1024px
+	width: 100vw
 	margin: auto
 
-.view
+.view__side
 	border: 1px solid pink
-	widt: 100%
-	padding: 1rem
+	width: 320px
+	// padding: 1rem
+	display: flex
+	flex-direction: column
+
+.view__main
+	border: 1px solid red
+	width: 100%
+	max-width: 1024px
 
 /* UTILITIES */
 .flex
@@ -88,13 +97,22 @@ p
 			font-weight: 200
 
 
+.searchForm
+	display: flex
+	flex-direction: row
+	align-items: center
+	padding: 0.6rem
+
+
 .sideBar
 	border: 1px solid blue
 	min-width: 280px
-	max-width: 1028px
+	max-width: 1024px
 	padding: 0.6rem
 
 .wordGrid
+	display: flex
+	// justify-content: space-around
 	&__item
 		padding: 0.3rem 1rem
 		margin: 0.6rem
@@ -111,7 +129,7 @@ p
 	
 .navTabs
 	display: flex
-	flex-direction: row
+	flex-direction: column
 	flex-wrap: wrap
 	justify-content: space-around
 	&__item
@@ -125,9 +143,16 @@ p
 
 
 
-@media only screen and (max-width: 1024px)
-	.view
-		width: auto
+@media only screen and (max-width: 1300px)
+	// .view
+	// 	width: auto
+
+	.view__side
+		width: 100%
+	.navTabs
+		// width: 100%
+		flex-direction: row
+
 
 
 

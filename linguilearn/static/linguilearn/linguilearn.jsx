@@ -45,38 +45,42 @@ function renderPage(currentUser) {
 		render() {
 			return (
 				<div className="body">
-					<div className="view flex">
-						<InputText value={ this.state.searchInput } update={(value) => this.setState({ searchInput: value })} placeholder="Type a word to search"/>
-						<button className="button ml-2 btn btn-primary" onClick={ this.actionWordSearch }>Search</button>
-					</div> 
-					<SideBar
-						view = { (view) => this.setState({ view: view }) }
-						filterLibrary = { (filter) => this.setState({ "listFilter": filter}) }
-						listCountSummary={ this.state.currentUser.listCountSummary }
-						userName={ this.state.currentUser.userName }
-					/>
-					{ this.state.view === 'wordEntry'
-						? <WordSearch
-							wordEntry={ this.state.wordEntry }
-							wordId={ this.state.wordId }
-							done={ () => { this.setState({ view: 'main' }) } }
-						 />
-						: null }
-					{ this.state.view === 'library' ? <Library
-						key={ this.state.listFilter }
-						userId = { this.state.currentUser.userId }
-						listFilter={ this.state.listFilter }
-						reloadLibrary = { () => this.loadUser() }
-						showEntry = { (event) => this.loadEntry(event) }
-						selectEntry = { (entryId) => this.loadEntry(entryId) }
-					 /> : null }
-					{ this.state.view == 'entry'
-						? <LibraryEntry 
-							entry={ this.state.entry }
-							update={ (event) => this.loadEntry(event) }
-							delete={ () => this.loadUser() && this.setState({ view: 'library' }) }
-							key={ `${this.state.entry.id}_${this.state.entryUpdateCount}` }
-						/> : null }
+					<div className="view__side">
+						<div className="searchForm">
+							<InputText value={ this.state.searchInput } update={(value) => this.setState({ searchInput: value })} placeholder="Type a word to search"/>
+							<button className="ml-2 btn btn-primary" onClick={ this.actionWordSearch }>Search</button>
+						</div>
+						<SideBar
+							view = { (view) => this.setState({ view: view }) }
+							filterLibrary = { (filter) => this.setState({ "listFilter": filter}) }
+							listCountSummary={ this.state.currentUser.listCountSummary }
+							userName={ this.state.currentUser.userName }
+						/>
+					</div>
+					<div className="view__main">
+						{ this.state.view === 'wordEntry'
+							? <WordSearch
+								wordEntry={ this.state.wordEntry }
+								wordId={ this.state.wordId }
+								done={ () => { this.setState({ view: 'main' }) } }
+							 />
+							: null }
+						{ this.state.view === 'library' ? <Library
+							key={ this.state.listFilter }
+							userId = { this.state.currentUser.userId }
+							listFilter={ this.state.listFilter }
+							reloadLibrary = { () => this.loadUser() }
+							showEntry = { (event) => this.loadEntry(event) }
+							selectEntry = { (entryId) => this.loadEntry(entryId) }
+						 /> : null }
+						{ this.state.view == 'entry'
+							? <LibraryEntry 
+								entry={ this.state.entry }
+								update={ (event) => this.loadEntry(event) }
+								delete={ () => this.loadUser() && this.setState({ view: 'library' }) }
+								key={ `${this.state.entry.id}_${this.state.entryUpdateCount}` }
+							/> : null }
+						</div>
 					</div>
 			)
 		};
