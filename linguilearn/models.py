@@ -2,6 +2,8 @@ import json
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from linguilearn.exceptions import AlreadyExistsError, DoesNotExistForUser
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 class User(AbstractUser):
 
@@ -54,7 +56,7 @@ class EntryManager(models.Manager):
 			"favouritesCount": qs.filter(favourites=True).count()
 		}
 
-	def library(self, user_id, listFilter):
+	def library(self, user_id, listFilter, page, limit):
 		if listFilter == 'learning':
 			listFilter = 1
 		elif listFilter == 'mastered':
@@ -69,7 +71,25 @@ class EntryManager(models.Manager):
 		else:
 			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, entry_list=listFilter).all()
 
+		paginator = Paginator(entries, limit)
+		try:
+			print('trying')
+			entry_objects = paginator.page(page)
+		except PageNotAnInteger:
+			print('x')
+			entry_objects = paginator.page(1)
+			page = 1
+		except EmptyPage:
+			print('y')
+			entry_objects = paginator.page(paginator.num_pages)
+			page = paginator.num_pages
+
 		result = {
+			"prev": entry_objects.has_previous(),
+			"next": entry_objects.has_next(),
+			"num_pages": paginator.num_pages,
+			"page": page,
+			"limit": limit,
 			"totalCount": entries.count(),
 			"learningCount": entries.filter(entry_list=1).count(),
 			"masteredCount": entries.filter(entry_list=2).count(),
@@ -77,7 +97,7 @@ class EntryManager(models.Manager):
 			"favouritesCount": entries.filter(favourites=True).count()
 		}
 
-		entries_serialized = [entry.serialize_short() for entry in entries] if entries.count() > 0 else []
+		entries_serialized = [entry.serialize_short() for entry in entry_objects]
 		result["list"] = entries_serialized
 		return result
 

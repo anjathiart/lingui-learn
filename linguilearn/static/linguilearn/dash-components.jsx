@@ -258,6 +258,44 @@ const WordEntryForm = class extends React.Component {
 	}
 };
 
+function renderPagination(page, num_pages, prev, next) {
+
+	class Pagination extends React.Component {
+		constructor(props) {
+			super(props);
+			this.state = {
+				"page": parseInt(page, 10),
+				"num_pages": parseInt(num_pages, 10),
+				"prevClass": prev ? null : 'disabled',
+				"nextClass": next ? null : 'disabled',
+			};
+		}
+		render() {
+			return (
+				<div className="paginationWrapper">
+					<h3 className="contextHeading">{ contextHeading }</h3>
+					<ul className="pagination">
+						<li onClick={ prev ? this.actionPagination.bind(this, 1) : null } className={ `page-item ${this.state.prevClass}` }><a className="page-link">first</a></li>
+						<li onClick={ prev ? this.actionPagination.bind(this, this.state.page - 1) : null } className={ `page-item ${this.state.prevClass}` }><a className="page-link">previous</a></li>
+						<li className="page-item active"><a className="page-link">{ `Page ${this.state.page} of ${this.state.num_pages}` }</a></li>
+						<li onClick={ next ? this.actionPagination.bind(this, this.state.page + 1) : null } className={ `page-item ${this.state.nextClass}` }><a className="page-link">next</a></li>
+						<li onClick={ next ? this.actionPagination.bind(this, this.state.num_pages) : null } className={ `page-item ${this.state.nextClass}` }><a className="page-link">last</a></li>
+					</ul>
+				</div>
+			)
+		}
+
+		actionPagination = (selected_page) => {
+			if (selected_page !== this.state.page) {
+				load_posts(`page=${selected_page}`)
+			}
+		}
+	}
+
+	ReactDOM.render(<Pagination />, document.querySelector("#pagination"));
+
+}
+
 
 const Library = class extends React.Component {
 	constructor(props) {
@@ -266,17 +304,43 @@ const Library = class extends React.Component {
 			userId: '',
 			list: [],
 			selectedEntry: -1,
+			page: 1,
+			limit: 50,
+			numPages: '',
+			prev: '',
+			next: '',
+			prevClass: '',
+			nextClass: '',
 		}
 	};
 
 	async componentDidMount() {
 		//  fetch users library
-		await this.actionFetchLibrary()
+		await this.actionFetchLibrary(`page=${this.state.page}&limit=${this.state.limit}`)
 	}
 
 	render() {
 		return (
 			<div className="container">
+				<div className="container">
+					<ul className="pagination">
+						<li onClick={ this.state.prev ? this.actionPagination.bind(this, 1, this.state.limit) : null } className={ `page-item ${this.state.prevClass}` }><a className="page-link">first</a></li>
+						<li onClick={ this.state.prev ? this.actionPagination.bind(this, this.state.page - 1, this.state.limit) : null } className={ `page-item ${this.state.prevClass}` }><a className="page-link">prev</a></li>
+						<li className="page-item active"><a className="page-link">{ `Page ${this.state.page} of ${this.state.numPages}` }</a></li>
+						<li onClick={ this.state.next ? this.actionPagination.bind(this, this.state.page + 1, this.state.limit) : null } className={ `page-item ${this.state.nextClass}` }><a className="page-link">next</a></li>
+						<li onClick={ this.state.next ? this.actionPagination.bind(this, this.state.numPages, this.state.limit) : null } className={ `page-item ${this.state.nextClass}` }><a className="page-link">last</a></li>
+						<p className="ml-3 mr-2">Limit:</p>
+						<select className="" value={ this.state.limit } onChange={ (e) => this.actionPagination(this.state.page, e.target.value) }>
+							<option value="5">5</option>
+							<option value="10">10</option>
+							<option value="20">20</option>
+							<option value="50">50</option>
+							<option value="100">100</option>
+							<option value="200">200</option>
+						</select>
+					</ul>
+					
+				</div>
 				<div className="row wordGrid" >
 				{ this.state.list.map((entry, i) => {
 					return (
@@ -290,13 +354,34 @@ const Library = class extends React.Component {
 		)
 	};
 
-	actionFetchLibrary = async () => {
-		await secureFetch(`v1/users/${this.props.userId}/library?filter=${this.props.listFilter}`).then(result => {
+	actionFetchLibrary = async (query = '') => {
+		await secureFetch(`v1/users/${this.props.userId}/library?filter=${this.props.listFilter}&${query}`).then(result => {
+			console.log('fetched')
+			console.log(result)
 			this.props.reloadLibrary();
+			
+			this.setState({ page: parseInt(result.data.page, 10) });
+			this.setState({ limit: parseInt(result.data.limit, 10) });
+			this.setState({ numPages: parseInt(result.data.num_pages, 10) });
+			this.setState({ prev: result.data.prev });
+			this.setState({ next: result.data.next });
+			this.setState({ prevClass: result.data.prev ? null : 'disabled' });
+			this.setState({ nextClass: result.data.next ? null : 'disabled' });
 			this.setState({ list: result.data.list });
+
 		}).catch(error => {
 			console.log({error})
-		})
+		});
+	};
+
+	actionPagination = (selected_page, limit) => {
+		limit = parseInt(limit, 10);
+		selected_page = parseInt(selected_page)
+		console.log({selected_page, limit})
+		if (selected_page !== this.state.page || limit !== this.state.limit) {
+			this.actionFetchLibrary(`page=${selected_page}&limit=${limit}`)
+			// load_posts(`page=${selected_page}`)
+		}
 	}
 };
 

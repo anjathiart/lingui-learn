@@ -31,20 +31,18 @@ p
 	display: inline-flex
 	flex-direction: row
 	flex-wrap: wrap
-	border: 3px solid black
 	justify-content: center
 	width: 100vw
 	margin: auto
 
 .view__side
-	border: 1px solid pink
 	width: 320px
 	// padding: 1rem
 	display: flex
 	flex-direction: column
 
 .view__main
-	border: 1px solid red
+	padding: 0.6rem
 	width: 100%
 	max-width: 1024px
 
@@ -105,10 +103,20 @@ p
 
 
 .sideBar
-	border: 1px solid blue
 	min-width: 280px
 	max-width: 1024px
 	padding: 0.6rem
+
+.pagination
+	display: flex
+	justify-content: center
+	flex-wrap: wrap
+	align-items: center
+	.active
+		cursor: default
+		> a
+			pointer-events: none
+
 
 .wordGrid
 	display: flex
