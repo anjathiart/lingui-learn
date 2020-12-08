@@ -42,21 +42,16 @@ const SideBar = class extends React.Component {
 				{ this.state.error && <ErrorBlanket msg={ this.state.error } onClose={ () => this.setState({ 'error': '' }) } /> }
 				{ this.state.msg && <MessageBlanket msg={ this.state.msg } onClose={ () => this.setState({ 'msg': '' }) } /> }
 				<div className="navTabs">
-					<div className="navTabs__item" onClick={ () => this.actionViewLibrary('all') }>All ({ this.props.listCountSummary.totalCount })</div>
-					<div className="navTabs__item" onClick={ () => this.actionViewLibrary('learning') }>Learning ({ this.props.listCountSummary.learningCount })</div>
-					<div className="navTabs__item" onClick={ () => this.actionViewLibrary('mastered') }>Mastered ({ this.props.listCountSummary.masteredCount })</div>
-					<div className="navTabs__item" onClick={ () => this.actionViewLibrary('archived') }>Archived ({ this.props.listCountSummary.archivedCount })</div>
-					<div className="navTabs__item" onClick={ () => this.actionViewLibrary('favourites') }>Favourites ({ this.props.listCountSummary.favouritesCount })</div>
+					<div className="navTabs__item" onClick={ () => this.props.filterLibrary('all') }>All ({ this.props.listCountSummary.totalCount })</div>
+					<div className="navTabs__item" onClick={ () => this.props.filterLibrary('learning') }>Learning ({ this.props.listCountSummary.learningCount })</div>
+					<div className="navTabs__item" onClick={ () => this.props.filterLibrary('mastered') }>Mastered ({ this.props.listCountSummary.masteredCount })</div>
+					<div className="navTabs__item" onClick={ () => this.props.filterLibrary('archived') }>Archived ({ this.props.listCountSummary.archivedCount })</div>
+					<div className="navTabs__item" onClick={ () => this.props.filterLibrary('favourites') }>Favourites ({ this.props.listCountSummary.favouritesCount })</div>
 				</div>
 			</div>
 		)
 	};
 
-	actionViewLibrary = async (filter) => {
-		this.props.filterLibrary(filter);
-		this.props.view('library');
-		
-	}
 };
 
 
@@ -258,132 +253,43 @@ const WordEntryForm = class extends React.Component {
 	}
 };
 
-function renderPagination(page, num_pages, prev, next) {
-
-	class Pagination extends React.Component {
-		constructor(props) {
-			super(props);
-			this.state = {
-				"page": parseInt(page, 10),
-				"num_pages": parseInt(num_pages, 10),
-				"prevClass": prev ? null : 'disabled',
-				"nextClass": next ? null : 'disabled',
-			};
-		}
-		render() {
-			return (
-				<div className="paginationWrapper">
-					<h3 className="contextHeading">{ contextHeading }</h3>
-					<ul className="pagination">
-						<li onClick={ prev ? this.actionPagination.bind(this, 1) : null } className={ `page-item ${this.state.prevClass}` }><a className="page-link">first</a></li>
-						<li onClick={ prev ? this.actionPagination.bind(this, this.state.page - 1) : null } className={ `page-item ${this.state.prevClass}` }><a className="page-link">previous</a></li>
-						<li className="page-item active"><a className="page-link">{ `Page ${this.state.page} of ${this.state.num_pages}` }</a></li>
-						<li onClick={ next ? this.actionPagination.bind(this, this.state.page + 1) : null } className={ `page-item ${this.state.nextClass}` }><a className="page-link">next</a></li>
-						<li onClick={ next ? this.actionPagination.bind(this, this.state.num_pages) : null } className={ `page-item ${this.state.nextClass}` }><a className="page-link">last</a></li>
-					</ul>
-				</div>
-			)
-		}
-
-		actionPagination = (selected_page) => {
-			if (selected_page !== this.state.page) {
-				load_posts(`page=${selected_page}`)
-			}
-		}
-	}
-
-	ReactDOM.render(<Pagination />, document.querySelector("#pagination"));
-
-}
 
 
-const Library = class extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			userId: '',
-			list: [],
-			selectedEntry: -1,
-			page: 1,
-			limit: 50,
-			numPages: '',
-			prev: '',
-			next: '',
-			prevClass: '',
-			nextClass: '',
-		}
-	};
-
-	async componentDidMount() {
-		//  fetch users library
-		await this.actionFetchLibrary(`page=${this.state.page}&limit=${this.state.limit}`)
-	}
+const Pagination = class extends React.Component {
 
 	render() {
 		return (
-			<div className="container">
-				<div className="container">
-					<ul className="pagination">
-						<li onClick={ this.state.prev ? this.actionPagination.bind(this, 1, this.state.limit) : null } className={ `page-item ${this.state.prevClass}` }><a className="page-link">first</a></li>
-						<li onClick={ this.state.prev ? this.actionPagination.bind(this, this.state.page - 1, this.state.limit) : null } className={ `page-item ${this.state.prevClass}` }><a className="page-link">prev</a></li>
-						<li className="page-item active"><a className="page-link">{ `Page ${this.state.page} of ${this.state.numPages}` }</a></li>
-						<li onClick={ this.state.next ? this.actionPagination.bind(this, this.state.page + 1, this.state.limit) : null } className={ `page-item ${this.state.nextClass}` }><a className="page-link">next</a></li>
-						<li onClick={ this.state.next ? this.actionPagination.bind(this, this.state.numPages, this.state.limit) : null } className={ `page-item ${this.state.nextClass}` }><a className="page-link">last</a></li>
-						<p className="ml-3 mr-2">Limit:</p>
-						<select className="" value={ this.state.limit } onChange={ (e) => this.actionPagination(this.state.page, e.target.value) }>
-							<option value="5">5</option>
-							<option value="10">10</option>
-							<option value="20">20</option>
-							<option value="50">50</option>
-							<option value="100">100</option>
-							<option value="200">200</option>
-						</select>
-					</ul>
-					
-				</div>
-				<div className="row wordGrid" >
-				{ this.state.list.map((entry, i) => {
-					return (
-						<div className="col-sm-auto wordGrid__item" key={ entry.id }>
-							<p onClick={ () => this.props.selectEntry(entry.id) }>{ entry.word }</p>
-						</div>
-					)
-				})}
-				</div>
+			<div className="paginationWrapper">
+				<ul className="pagination">
+					<li onClick={ () => this.actionPageUpdate(1, this.props.prev) } className={ `page-item ${this.props.prev ? null : 'disabled'}` }><a className="page-link">1st</a></li>
+					<li onClick={ () => this.actionPageUpdate(this.props.page - 1, this.props.prev) } className={ `page-item ${this.props.prev ? null : 'disabled'}` }><a className="page-link">prev</a></li>
+					<li className="page-item active"><a className="page-link">{ `Page ${this.props.page} of ${this.props.numPages}` }</a></li>
+					<li onClick={ () => this.actionPageUpdate(this.props.page + 1, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link">next</a></li>
+					<li onClick={ () => this.actionPageUpdate(this.props.numPages, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link">end</a></li>
+					<p className="ml-3 mr-2">Limit:</p>
+					<select className="" value={ this.props.limit } onChange={ (e) => this.actionLimitUpdate(parseInt(e.target.value, 10)) }>
+						<option value="5">5</option>
+						<option value="10">10</option>
+						<option value="20">20</option>
+						<option value="50">50</option>
+						<option value="100">100</option>
+						<option value="200">200</option>
+					</select>
+				</ul>
 			</div>
 		)
 	};
 
-	actionFetchLibrary = async (query = '') => {
-		await secureFetch(`v1/users/${this.props.userId}/library?filter=${this.props.listFilter}&${query}`).then(result => {
-			console.log('fetched')
-			console.log(result)
-			this.props.reloadLibrary();
-			
-			this.setState({ page: parseInt(result.data.page, 10) });
-			this.setState({ limit: parseInt(result.data.limit, 10) });
-			this.setState({ numPages: parseInt(result.data.num_pages, 10) });
-			this.setState({ prev: result.data.prev });
-			this.setState({ next: result.data.next });
-			this.setState({ prevClass: result.data.prev ? null : 'disabled' });
-			this.setState({ nextClass: result.data.next ? null : 'disabled' });
-			this.setState({ list: result.data.list });
-
-		}).catch(error => {
-			console.log({error})
-		});
+	actionPageUpdate = (page, canUpdate) => {
+		if (page !== this.props.page && canUpdate) this.props.updatePagination({ page, limit: this.props.limit  });
 	};
 
-	actionPagination = (selected_page, limit) => {
-		limit = parseInt(limit, 10);
-		selected_page = parseInt(selected_page)
-		console.log({selected_page, limit})
-		if (selected_page !== this.state.page || limit !== this.state.limit) {
-			this.actionFetchLibrary(`page=${selected_page}&limit=${limit}`)
-			// load_posts(`page=${selected_page}`)
-		}
-	}
+	actionLimitUpdate = (limit) => {
+		if (limit !== this.props.limit) this.props.updatePagination({ page: this.props.page, limit });
+	};
+
 };
+
 
 const LibraryEntry = class extends React.Component {
 	constructor(props) {
@@ -404,9 +310,7 @@ const LibraryEntry = class extends React.Component {
 	}
 
 	componentWillUnmount() {
-		console.log('mounting')
 		this.setState(this.initialState)
-		console.log(this.props.entry)
 	}
 
 	render() {
@@ -421,9 +325,7 @@ const LibraryEntry = class extends React.Component {
 				</div>
 
 
-				 <div className="form-group"
-					 	
-					 	>
+				 <div className="form-group">
 					<label>Choose which list this entry should be in { this.props.entry.entry_list }</label>
 					<select className="form-control" value={ this.props.entry.entry_list }
 						onChange={ (e) => { this.actionUpdateEntry({ entry_list: e.target.value }) }}>
@@ -460,14 +362,13 @@ const LibraryEntry = class extends React.Component {
 
 	actionUpdateEntry = async (event) => {
 		const fields = { ...event };
-		console.log({fields})
 		await secureFetch(`v1/entries/${this.props.entry.id}/update`, 'POST', fields).then(result => {
 			this.setState({ showEntryForm: false });
 			this.props.update(this.props.entry.id);
 		}).catch(error => {
 			// console.log({error})
 		})
-	}
+	};
 
 	actionDeleteEntry = async () => {
 		await secureFetch(`v1/entries/${this.props.entry.id}/delete`, 'POST').then(result => {

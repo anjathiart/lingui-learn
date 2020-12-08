@@ -23,24 +23,34 @@ function renderPage(currentUser) {
 		constructor(props) {
 			super(props);
 			this.state = {
-				'error': '',
-				'msg': '',
-				'view': 'library',
-				'currentUser': currentUser,
-				'listFilter': 'all',
-				'entryId': '',
-				'entryUpdateCount': 0,
-				'searchInput': '',
-				'wordId': '',
-				'wordEntry': '',
-				'showSearchResults': false,
-				'errorMessage': '',
-				'warningMessage': '',
-				'wordEntry': {},
-				'wordId': '',
+				errorMessage: '',
+				warningMessage: '',
+				error: '',
+				msg: '',
+				view: 'library',
+				currentUser: currentUser,
+				listFilter: 'all',
+				entryUpdateCount: 0,
+				searchInput: '',
+				showSearchResults: false,
+				errorMessage: '',
+				warningMessage: '',
+				wordEntry: {},
+				wordId: '',
+				list: [],
+				page: 2,
+				limit: 5,
+				numPages: '',
+				prev: '',
+				next: '',
 
 			}
 		};
+
+		async componentDidMount() {
+			//  fetch users library
+			await this.actionFetchLibrary(`page=${this.state.page}&limit=${this.state.limit}`)
+		}
 
 		render() {
 			return (
@@ -52,7 +62,7 @@ function renderPage(currentUser) {
 						</div>
 						<SideBar
 							view = { (view) => this.setState({ view: view }) }
-							filterLibrary = { (filter) => this.setState({ "listFilter": filter}) }
+							filterLibrary={ (filter) => this.filterLibrary(filter) }
 							listCountSummary={ this.state.currentUser.listCountSummary }
 							userName={ this.state.currentUser.userName }
 						/>
@@ -65,14 +75,27 @@ function renderPage(currentUser) {
 								done={ () => { this.setState({ view: 'main' }) } }
 							 />
 							: null }
-						{ this.state.view === 'library' ? <Library
-							key={ this.state.listFilter }
-							userId = { this.state.currentUser.userId }
-							listFilter={ this.state.listFilter }
-							reloadLibrary = { () => this.loadUser() }
-							showEntry = { (event) => this.loadEntry(event) }
-							selectEntry = { (entryId) => this.loadEntry(entryId) }
-						 /> : null }
+						 { this.state.view === 'library' ?
+							<div>
+								<Pagination
+									page={ this.state.page }
+									limit={ this.state.limit }
+									numPages={ this.state.numPages }
+									next={ this.state.next }
+									prev={ this.state.prev }
+									updatePagination={ ({ page, limit}) => this.actionPagination(page, limit) }
+								/>
+								<div className="row wordGrid" >
+									{ this.state.list.map((entry, i) => {
+										return (
+											<div className="col-sm-auto wordGrid__item" key={ entry.id }>
+												<p onClick={ () => this.loadEntry(entry.id) }>{ entry.word }</p>
+											</div>
+										)
+									})}
+								</div>
+							</div>
+						: null }
 						{ this.state.view == 'entry'
 							? <LibraryEntry 
 								entry={ this.state.entry }
@@ -85,13 +108,53 @@ function renderPage(currentUser) {
 			)
 		};
 
+		actionFetchLibrary = async () => {
+			let query = `filter=${this.state.listFilter}&page=${this.state.page}&limit=${this.state.limit}`
+			await secureFetch(`v1/users/${currentUser.userId}/library?${query}`).then(result => {
+
+				this.setState(() => {
+					return {
+						page: parseInt(result.data.page, 10),
+						limit: parseInt(result.data.limit, 10),
+						numPages: parseInt(result.data.num_pages, 10),
+						prev: result.data.prev,
+						next: result.data.next,
+						list: result.data.list,
+						view: 'library'
+					}
+				})
+			}).catch(error => {
+				console.log({error})
+			});
+		};
+
+		actionPagination = async (page, limit) => {
+			await this.setState(() => {
+				return {
+					page: page,
+					limit: limit,
+				};
+			});
+			this.actionFetchLibrary();
+
+		};
+
+		filterLibrary = async (filter) => {
+			await this.setState(() => {
+				return { listFilter: filter }
+			});
+			this.actionFetchLibrary();
+		};
+
 		loadEntry = async (entryId) => {
 			await secureFetch(`v1/entries/${entryId}`).then(result => {
-				
-				this.setState({ entry: result.data })
-				this.setState({ view: 'entry' })
-				this.setState({ entryUpdateCount: this.state.entryUpdateCount + 1 })
-				console.log(result.data)
+				this.setState(() => {
+					return {
+						entry: result.data,
+						view: 'entry',
+						entryUpdateCount: this.state.entryUpdateCount + 1
+					}
+				});
 				this.loadUser();
 			}).catch(error => {
 				console.log({ error });
@@ -123,12 +186,17 @@ function renderPage(currentUser) {
 
 			await secureFetch(`v1/words/search?q=${this.state.searchInput}`)
 			.then(result => {
-				this.setState({ wordId: result.wordId });
-				this.setState({ wordEntry: result.data });
-				this.setState({ view: 'wordEntry' });
-				this.setState({ showSearchResults: true });
+				this.setState(() => {
+					return {
+						wordId: result.wordId,
+						wordEntry: result.data,
+						view: 'wordEntry',
+						showSearchResults: true
+					}
+				});
 			})
 			.catch(error => {
+				console.log({error})
 				this.setState(() => {
 					return {
 						errorMessage: error.error,
@@ -139,15 +207,6 @@ function renderPage(currentUser) {
 				});
 			});
 		};
-
-		/*actionFetchLibrary = async () => {
-			await secureFetch(`v1/users/${this.props.userId}/library?filter=${this.props.listFilter}`).then(result => {
-				this.props.reloadLibrary();
-				this.setState({ list: result.data.list });
-			}).catch(error => {
-				console.log({error})
-			})
-		}*/
 	}
 
 	ReactDOM.render(<App />, document.querySelector("#app"));
