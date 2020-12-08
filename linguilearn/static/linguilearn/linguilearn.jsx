@@ -30,6 +30,7 @@ function renderPage(currentUser) {
 				view: 'library',
 				currentUser: currentUser,
 				listFilter: 'all',
+				entry: {},
 				entryUpdateCount: 0,
 				searchInput: '',
 				showSearchResults: false,
