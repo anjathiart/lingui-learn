@@ -42,11 +42,11 @@ const SideBar = class extends React.Component {
 				{ this.state.error && <ErrorBlanket msg={ this.state.error } onClose={ () => this.setState({ 'error': '' }) } /> }
 				{ this.state.msg && <MessageBlanket msg={ this.state.msg } onClose={ () => this.setState({ 'msg': '' }) } /> }
 				<div className="navTabs">
-					<div className="navTabs__item" onClick={ () => this.props.filterLibrary('all') }>All ({ this.props.listCountSummary.totalCount })</div>
-					<div className="navTabs__item" onClick={ () => this.props.filterLibrary('learning') }>Learning ({ this.props.listCountSummary.learningCount })</div>
-					<div className="navTabs__item" onClick={ () => this.props.filterLibrary('mastered') }>Mastered ({ this.props.listCountSummary.masteredCount })</div>
-					<div className="navTabs__item" onClick={ () => this.props.filterLibrary('archived') }>Archived ({ this.props.listCountSummary.archivedCount })</div>
-					<div className="navTabs__item" onClick={ () => this.props.filterLibrary('favourites') }>Favourites ({ this.props.listCountSummary.favouritesCount })</div>
+					<div className={`navTabs__item ${this.props.active === 'all' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('all') }>All ({ this.props.listCountSummary.totalCount })</div>
+					<div className={`navTabs__item ${this.props.active === 'learning' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('learning') }>Learning ({ this.props.listCountSummary.learningCount })</div>
+					<div className={`navTabs__item ${this.props.active === 'mastered' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('mastered') }>Mastered ({ this.props.listCountSummary.masteredCount })</div>
+					<div className={`navTabs__item ${this.props.active === 'archived' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('archived') }>Archived ({ this.props.listCountSummary.archivedCount })</div>
+					<div className={`navTabs__item ${this.props.active === 'favourites' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('favourites') }>Favourites ({ this.props.listCountSummary.favouritesCount })</div>
 				</div>
 			</div>
 		)
@@ -256,16 +256,19 @@ const WordEntryForm = class extends React.Component {
 
 
 const Pagination = class extends React.Component {
-
+	componentDidMount() {
+		feather.replace()
+	}
 	render() {
+		feather.replace()
 		return (
 			<div className="paginationWrapper">
 				<ul className="pagination">
-					<li onClick={ () => this.actionPageUpdate(1, this.props.prev) } className={ `page-item ${this.props.prev ? null : 'disabled'}` }><a className="page-link">1st</a></li>
-					<li onClick={ () => this.actionPageUpdate(this.props.page - 1, this.props.prev) } className={ `page-item ${this.props.prev ? null : 'disabled'}` }><a className="page-link">prev</a></li>
+					<li onClick={ () => this.actionPageUpdate(1, this.props.prev) } className={ `page-item ${this.props.prev ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevrons-left" className=""></i></a></li>
+					<li onClick={ () => this.actionPageUpdate(this.props.page - 1, this.props.prev) } className={ `page-item ${this.props.prev ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevron-left" className=""></i></a></li>
 					<li className="page-item active"><a className="page-link">{ `Page ${this.props.page} of ${this.props.numPages}` }</a></li>
-					<li onClick={ () => this.actionPageUpdate(this.props.page + 1, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link">next</a></li>
-					<li onClick={ () => this.actionPageUpdate(this.props.numPages, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link">end</a></li>
+					<li onClick={ () => this.actionPageUpdate(this.props.page + 1, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevron-right" className=""></i></a></li>
+					<li onClick={ () => this.actionPageUpdate(this.props.numPages, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevrons-right" className=""></i></a></li>
 					<p className="ml-3 mr-2">Limit:</p>
 					<select className="" value={ this.props.limit } onChange={ (e) => this.actionLimitUpdate(parseInt(e.target.value, 10)) }>
 						<option value="5">5</option>
@@ -311,37 +314,58 @@ const LibraryEntry = class extends React.Component {
 
 	componentWillUnmount() {
 		this.setState(this.initialState)
+		feather.replace()
 	}
 
 	render() {
 		return (
 			<div className="">
 				<div className="libraryEntry__content">
-					<p>Context: { this.props.entry.context }</p>
-					<p>Source: { this.props.entry.source }</p>
-					<p>Author: { this.props.entry.author }</p>
-					<p>Notes: { this.props.entry.notes }</p>
-					<button className="btn btn-primary" onClick = { () => this.setState({ showEntryForm: true }) }>Edit</button>
+				<div className="contaner flex mb-2">
+					<h3 className="flex mr-auto">
+						{ this.props.entry.favourites
+							? <span onClick={ () => { this.actionUpdateEntry({ favourites: false }) }} className="icon icon__heart">&#9829;</span>
+							: <span onClick={ () => { this.actionUpdateEntry({ favourites: true }) }} className="icon icon__heart">&#9825;</span>
+						}
+						<span className="ml-2">TODO: WORD</span>
+						</h3>
+					
+						<select className="form-control" value={ this.props.entry.entry_list }
+							onChange={ (e) => { this.actionUpdateEntry({ entry_list: e.target.value }) }}>
+							<option value="0">None</option>
+							<option value="1">Learning</option>
+							<option value="2">Mastered</option>
+							<option value="3">Archived</option>
+						</select>
+						<button className="btn btn-primary ml-3" onClick = { () => this.setState({ showEntryForm: true }) }>Edit</button>
+						<button className="btn btn-primary ml-3" onClick={ () => this.actionDeleteEntry() }>
+							<i data-feather="trash-2" className=""></i>
+						</button>
+					</div>
+					<ul className="infoBox__group">
+						<li className="infoBox">
+							<p><i data-feather="anchor"></i><span>Context</span></p>
+							<p className=""> { this.props.entry.context }</p>
+						</li>
+						<li className="infoBox">
+							<p><i data-feather="bookmark"></i><span>Source</span></p>
+							<p className=""> { this.props.entry.source }</p>
+						</li>
+						<li className="infoBox">
+							<p><i data-feather="user"></i><span>Author</span></p>
+							<p className=""> { this.props.entry.author }</p>
+						</li>
+						<li className="infoBox">
+							<p><i data-feather="edit-2"></i><span>Notes</span></p>
+							<p className=""> { this.props.entry.notes }</p>
+						</li>
+					</ul>
+
 				</div>
 
+				
 
-				 <div className="form-group">
-					<label>Choose which list this entry should be in { this.props.entry.entry_list }</label>
-					<select className="form-control" value={ this.props.entry.entry_list }
-						onChange={ (e) => { this.actionUpdateEntry({ entry_list: e.target.value }) }}>
-						<option value="0">None</option>
-						<option value="1">Learning</option>
-						<option value="2">Mastered</option>
-						<option value="3">Archived</option>
-					</select>
-				</div>
-
-				<button className="btn btn-primary" onClick={ () => this.actionDeleteEntry() }>Delete entry</button>
-
-				{ this.props.entry.favourites
-					? <button className="btn btn-primary" onClick={ () => { this.actionUpdateEntry({ favourites: false }) }}>Remove from favourites</button>
-					: <button className="btn btn-primary" onClick={ () => { this.actionUpdateEntry({ favourites: true }) }}>Add to favourites</button>
-				}
+				
 
 				{ this.state.showEntryForm ? <div className="modal">
 					<div className="modal__content">

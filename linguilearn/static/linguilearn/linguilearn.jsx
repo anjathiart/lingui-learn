@@ -59,13 +59,14 @@ function renderPage(currentUser) {
 					<div className="view__side">
 						<div className="searchForm">
 							<InputText value={ this.state.searchInput } update={(value) => this.setState({ searchInput: value })} placeholder="Type a word to search"/>
-							<button className="ml-2 btn btn-primary" onClick={ this.actionWordSearch }>Search</button>
+							<button className="ml-2 btn btn-primary" onClick={ this.actionWordSearch }><i data-feather="search" className=""></i></button>
 						</div>
 						<SideBar
 							view = { (view) => this.setState({ view: view }) }
 							filterLibrary={ (filter) => this.filterLibrary(filter) }
 							listCountSummary={ this.state.currentUser.listCountSummary }
 							userName={ this.state.currentUser.userName }
+							active={ this.state.listFilter }
 						/>
 					</div>
 					<div className="view__main">
@@ -157,6 +158,7 @@ function renderPage(currentUser) {
 					}
 				});
 				this.loadUser();
+				feather.replace();
 			}).catch(error => {
 				console.log({ error });
 			})

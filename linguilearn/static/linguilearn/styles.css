@@ -3,6 +3,10 @@ p, h1, h2, h3, h4, h5, h6 {
   margin: 0px;
 }
 
+.user {
+  color: pink;
+}
+
 a {
   cursor: pointer;
 }
@@ -20,6 +24,56 @@ p {
   margin-bottom: 0.25rem;
 }
 
+select {
+  max-width: 200px;
+}
+
+.infoBox__group {
+  list-style: none;
+  padding-left: 0px;
+}
+.infoBox__group li {
+  display: inline-block;
+  margin-right: 3rem;
+  margin-bottom: 1rem;
+}
+.infoBox__group li > p {
+  display: flex;
+  align-items: center;
+}
+.infoBox__group li > p:first-child {
+  font-weight: 600;
+  font-size: 110%;
+}
+.infoBox__group li > p:last-child {
+  margin-left: 22px;
+}
+.infoBox__group li .feather {
+  stroke-width: 3;
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+}
+.infoBox__group li:last-child {
+  display: block;
+}
+
+.page-link {
+  line-height: 1.5;
+}
+
+.icon {
+  font-size: 30px !important;
+}
+.icon__heart {
+  color: red;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.icon__heart:hover {
+  transform: scale(1.2);
+}
+
 .body {
   display: inline-flex;
   flex-direction: row;
@@ -33,12 +87,20 @@ p {
   width: 320px;
   display: flex;
   flex-direction: column;
+  background-color: white;
+  margin-right: 1rem;
+}
+.view__side .feather {
+  width: 20px;
+  height: 20px;
+  stroke-width: 3;
 }
 
 .view__main {
   padding: 0.6rem;
   width: 100%;
   max-width: 1024px;
+  background-color: white;
 }
 
 /* UTILITIES */
@@ -46,6 +108,7 @@ p {
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 /* COMPONENTS */
@@ -147,13 +210,25 @@ p {
   justify-content: space-around;
 }
 .navTabs__item {
-  border-bottom: 4px solid pink;
-  color: #77aaee;
-  padding: 0.2rem 0.2rem;
+  border-left: 4px solid transparent;
+  padding: 0rem 0.2rem;
+  padding-left: 0.5rem;
   text-decoration: none;
-  margin-left: 0.4rem;
   margin-right: 0.4rem;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.6rem;
+  cursor: pointer;
+  transition: all 0.1s;
+  transform: scale(1);
+  opacity: 0.8;
+}
+.navTabs__item:hover {
+  border-left: 4px solid black;
+  opacity: 0.6;
+}
+.navTabs--active {
+  border-left: 4px solid black;
+  opacity: 1;
+  font-weight: 600;
 }
 
 @media only screen and (max-width: 1300px) {
