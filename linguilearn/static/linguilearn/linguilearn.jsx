@@ -78,23 +78,27 @@ function renderPage(currentUser) {
 							 />
 							: null }
 						 { this.state.view === 'library' ?
-							<div>
-								<Pagination
-									page={ this.state.page }
-									limit={ this.state.limit }
-									numPages={ this.state.numPages }
-									next={ this.state.next }
-									prev={ this.state.prev }
-									updatePagination={ ({ page, limit}) => this.actionPagination(page, limit) }
-								/>
-								<div className="row wordGrid" >
-									{ this.state.list.map((entry, i) => {
-										return (
-											<div className="col-sm-auto wordGrid__item" key={ entry.id }>
-												<p onClick={ () => this.loadEntry(entry.id) }>{ entry.word }</p>
-											</div>
-										)
-									})}
+							<div className="card text-center border-dark">
+								<div className="card-body">
+									<Pagination
+										page={ this.state.page }
+										limit={ this.state.limit }
+										numPages={ this.state.numPages }
+										next={ this.state.next }
+										prev={ this.state.prev }
+										updatePagination={ ({ page, limit}) => this.actionPagination(page, limit) }
+									/>
+								</div>
+								<div className="card-footer">
+									<div className="row wordGrid" >
+										{ this.state.list.map((entry, i) => {
+											return (
+												<div className="col-sm-auto wordGrid__item" key={ entry.id }>
+													<p onClick={ () => this.loadEntry(entry.id) }>{ entry.word }</p>
+												</div>
+											)
+										})}
+									</div>
 								</div>
 							</div>
 						: null }

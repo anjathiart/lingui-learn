@@ -75,7 +75,7 @@ const WordEntry = class extends React.Component {
 		// Build out all the result 'cards/rows'
 		let list = [];
 		this.props.entry.list.forEach((item, index) => {
-			list.push(<div className="entry__item" key={ index }>
+			list.push(<li className="list-group-item" key={ index }>
 				<p><em className="mr-1">{ item.partOfSpeech }.</em><strong>{ item.definition }</strong></p>
 				{ item.examples.length > 0 ?
 					<div>
@@ -87,14 +87,15 @@ const WordEntry = class extends React.Component {
 				{ item.synonyms.length > 0 ? <p>Synonyms: { item.synonyms.join(', ') } </p> : null }
 				{ item.similarTo.length > 0 ? <p>Similar: { item.similarTo.join(', ') }</p> : null }
 				{ item.usageOf.length > 0 ? <p>Usage: { item.usageOf.join(', ') }</p> : null }
-			</div>)
+			</li>)
 		});
 
 		return (
-			<div className="entry">
-				<h1>{ this.props.entry.word }</h1>
-				<p>{ this.props.entry.syllables.list.join('-')}</p>
-				<div>{ list }</div>
+			<div className="card">
+				<div className="card-header">
+					<p className="card-text">{ this.props.entry.syllables.list.join('-')}</p>
+				</div>
+				<ul className="list-group list-group-flush">{ list }</ul>
 			</div>
 		)
 	};
@@ -263,14 +264,14 @@ const Pagination = class extends React.Component {
 		feather.replace()
 		return (
 			<div className="paginationWrapper">
-				<ul className="pagination">
+				<ul className="pagination pagination-sm mb-0">
 					<li onClick={ () => this.actionPageUpdate(1, this.props.prev) } className={ `page-item ${this.props.prev ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevrons-left" className=""></i></a></li>
 					<li onClick={ () => this.actionPageUpdate(this.props.page - 1, this.props.prev) } className={ `page-item ${this.props.prev ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevron-left" className=""></i></a></li>
 					<li className="page-item active"><a className="page-link">{ `Page ${this.props.page} of ${this.props.numPages}` }</a></li>
 					<li onClick={ () => this.actionPageUpdate(this.props.page + 1, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevron-right" className=""></i></a></li>
 					<li onClick={ () => this.actionPageUpdate(this.props.numPages, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevrons-right" className=""></i></a></li>
 					<p className="ml-3 mr-2">Limit:</p>
-					<select className="" value={ this.props.limit } onChange={ (e) => this.actionLimitUpdate(parseInt(e.target.value, 10)) }>
+					<select className="form-conrol" value={ this.props.limit } onChange={ (e) => this.actionLimitUpdate(parseInt(e.target.value, 10)) }>
 						<option value="5">5</option>
 						<option value="10">10</option>
 						<option value="20">20</option>
@@ -320,14 +321,14 @@ const LibraryEntry = class extends React.Component {
 	render() {
 		return (
 			<div className="">
-				<div className="libraryEntry__content">
-				<div className="contaner flex mb-2">
+				<div className="libraryEntry__content card mb-2">
+				<div className="container flex card-header">
 					<h3 className="flex mr-auto">
 						{ this.props.entry.favourites
 							? <span onClick={ () => { this.actionUpdateEntry({ favourites: false }) }} className="icon icon__heart">&#9829;</span>
 							: <span onClick={ () => { this.actionUpdateEntry({ favourites: true }) }} className="icon icon__heart">&#9825;</span>
 						}
-						<span className="ml-2">TODO: WORD</span>
+						<span className="ml-2">{ this.props.entry.word }</span>
 						</h3>
 					
 						<select className="form-control" value={ this.props.entry.entry_list }
@@ -342,25 +343,28 @@ const LibraryEntry = class extends React.Component {
 							<i data-feather="trash-2" className=""></i>
 						</button>
 					</div>
-					<ul className="infoBox__group">
-						<li className="infoBox">
-							<p><i data-feather="anchor"></i><span>Context</span></p>
-							<p className=""> { this.props.entry.context }</p>
-						</li>
-						<li className="infoBox">
-							<p><i data-feather="bookmark"></i><span>Source</span></p>
-							<p className=""> { this.props.entry.source }</p>
-						</li>
-						<li className="infoBox">
-							<p><i data-feather="user"></i><span>Author</span></p>
-							<p className=""> { this.props.entry.author }</p>
-						</li>
-						<li className="infoBox">
-							<p><i data-feather="edit-2"></i><span>Notes</span></p>
-							<p className=""> { this.props.entry.notes }</p>
-						</li>
-					</ul>
-
+					<div className="card-body">
+						<ul className="infoBox__group container">
+							<li className="card">
+								<p className="card-header"><i data-feather="anchor"></i><span>Context</span></p>
+								<p className="card-body"> { this.props.entry.context }</p>
+							</li>
+							<li className="card">
+								<p className="card-header"><i data-feather="bookmark"></i><span>Source</span></p>
+								<p className="card-body"> { this.props.entry.source }</p>
+							</li>
+							<li className="card">
+								<p className="card-header"><i data-feather="user"></i><span>Author</span></p>
+								<p className="card-body"> { this.props.entry.author }</p>
+							</li>
+						</ul>
+						<ul className="infoBox__group container">
+							<li className="card">
+								<p className="card-header"><i data-feather="edit-2"></i><span>Notes</span></p>
+								<p className="card-body"> { this.props.entry.notes }</p>
+							</li>
+						</ul>
+					</div>
 				</div>
 
 				

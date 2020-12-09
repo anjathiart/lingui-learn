@@ -7,6 +7,10 @@ $pink: #f1129c
 $orange: #fbb02d
 $greyTeal: #364b59
 
+
+html
+	font-size: 100% !important
+
 p, h1, h2, h3, h4, h5, h6
 	margin: 0px
 
@@ -20,45 +24,42 @@ a
 
 /* Layout / typography */
 body 
-	background-color: $cBackground
+	// background-color: $cBackground
 	color: $cText
 	width: 100vw
 	height: 100vh
+	font-size: 1em
 
-// p, h1, h2, h3, h4, h5, h6
 p
 	margin-top: 0.25rem
 	margin-bottom: 0.25rem
-	// font-size: 12px
 
 select
 	max-width: 200px
 
 .infoBox__group
+	display: flex
+	justify-content: space-between
 	list-style: none
-	padding-left: 0px
+	padding: 0px !important
 	li
-		display: inline-block
-		margin-right: 3rem
-		margin-bottom: 1rem
+		// min-width: 280px
+		width: 100%
+		margin: 0.5rem
 		> p
 			display: flex
 			align-items: center
-			&:first-child
-				font-weight: 600
-				font-size: 110%
-			&:last-child
-				margin-left: 22px
+			margin-top: 0px
 		.feather
 			stroke-width: 3
 			width: 16px
 			height: 16px
 			margin-right: 6px
-		&:last-child
-			display: block
 
-.page-link
-	line-height: 1.5
+.feather
+	stroke-width: 3
+	width: 16px
+	height: 16px
 
 .icon
 	font-size: 30px !important
@@ -81,11 +82,9 @@ select
 
 .view__side
 	width: 320px
-	// padding: 1rem
 	display: flex
 	flex-direction: column
-	background-color: rgba(white, 0.7)
-	// padding: 0.5rem
+	// background-color: rgba(white, 0.7)
 	margin-right: 1rem
 	.feather
 		width: 20px
@@ -96,7 +95,7 @@ select
 	padding: 0.6rem
 	width: 100%
 	max-width: 1024px
-	background-color: white
+	// background-color: white
 
 /* UTILITIES */
 .flex
@@ -111,7 +110,6 @@ select
 	background-color: pink
 
 .entry
-	border: 1px solid white
 	padding: 1rem
 	&__item
 		border: 1px solid white
@@ -169,11 +167,14 @@ select
 		cursor: default
 		> a
 			pointer-events: none
+	.feather
+		width: 18px
+		height: 18px
 
 
 .wordGrid
 	display: flex
-	// justify-content: space-around
+	justify-content: space-between
 	&__item
 		padding: 0.3rem 1rem
 		margin: 0.6rem
@@ -198,7 +199,6 @@ select
 		padding: 0rem 0.2rem
 		padding-left: 0.5rem
 		text-decoration: none
-		// margin-left: 0.4rem
 		margin-right: 0.4rem
 		margin-bottom: 0.6rem
 		cursor: pointer
@@ -215,14 +215,51 @@ select
 
 
 @media only screen and (max-width: 1300px)
-	// .view
-	// 	width: auto
-
+	.view__main
+		padding-left: 0px
+		padding-right: 0px
 	.view__side
 		width: 100%
+		margin: 0px
 	.navTabs
 		// width: 100%
 		flex-direction: row
+		font-size: 14px
+		&__item
+			border-left: none
+			border-bottom: 3px solid transparent
+			padding-bottom: 4px
+			&:hover
+				border-left: none
+				border-bottom: 3px solid black
+		&--active
+			border-left: none
+			border-bottom: 3px solid black
+
+	.infoBox__group
+		flex-direction: column
+		align-items: stretch
+		justify-content: flex-start
+		margin-bottom: 0px
+		> li
+			margin-left: auto
+			margin-right: auto
+			min-width: 200px
+			max-width: 100%
+
+	.card
+		&-body
+			padding: 10px
+			margin: 0px
+		&-header
+			padding: 10px
+			margin: 0px
+		&-footer
+			padding: 10px
+			margin: 0px
+
+
+
 
 
 

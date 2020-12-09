@@ -1,4 +1,8 @@
 /* GLOBAL VAIRABLES */
+html {
+  font-size: 100% !important;
+}
+
 p, h1, h2, h3, h4, h5, h6 {
   margin: 0px;
 }
@@ -13,10 +17,10 @@ a {
 
 /* Layout / typography */
 body {
-  background-color: #dbedf3;
   color: #283149;
   width: 100vw;
   height: 100vh;
+  font-size: 1em;
 }
 
 p {
@@ -29,24 +33,19 @@ select {
 }
 
 .infoBox__group {
+  display: flex;
+  justify-content: space-between;
   list-style: none;
-  padding-left: 0px;
+  padding: 0px !important;
 }
 .infoBox__group li {
-  display: inline-block;
-  margin-right: 3rem;
-  margin-bottom: 1rem;
+  width: 100%;
+  margin: 0.5rem;
 }
 .infoBox__group li > p {
   display: flex;
   align-items: center;
-}
-.infoBox__group li > p:first-child {
-  font-weight: 600;
-  font-size: 110%;
-}
-.infoBox__group li > p:last-child {
-  margin-left: 22px;
+  margin-top: 0px;
 }
 .infoBox__group li .feather {
   stroke-width: 3;
@@ -54,12 +53,11 @@ select {
   height: 16px;
   margin-right: 6px;
 }
-.infoBox__group li:last-child {
-  display: block;
-}
 
-.page-link {
-  line-height: 1.5;
+.feather {
+  stroke-width: 3;
+  width: 16px;
+  height: 16px;
 }
 
 .icon {
@@ -89,7 +87,6 @@ select {
   width: 320px;
   display: flex;
   flex-direction: column;
-  background-color: rgba(255, 255, 255, 0.7);
   margin-right: 1rem;
 }
 .view__side .feather {
@@ -102,7 +99,6 @@ select {
   padding: 0.6rem;
   width: 100%;
   max-width: 1024px;
-  background-color: white;
 }
 
 /* UTILITIES */
@@ -120,7 +116,6 @@ select {
 }
 
 .entry {
-  border: 1px solid white;
   padding: 1rem;
 }
 .entry__item {
@@ -186,9 +181,14 @@ select {
 .pagination .active > a {
   pointer-events: none;
 }
+.pagination .feather {
+  width: 18px;
+  height: 18px;
+}
 
 .wordGrid {
   display: flex;
+  justify-content: space-between;
 }
 .wordGrid__item {
   padding: 0.3rem 1rem;
@@ -234,12 +234,58 @@ select {
 }
 
 @media only screen and (max-width: 1300px) {
+  .view__main {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
   .view__side {
     width: 100%;
+    margin: 0px;
   }
 
   .navTabs {
     flex-direction: row;
+    font-size: 14px;
+  }
+  .navTabs__item {
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    padding-bottom: 4px;
+  }
+  .navTabs__item:hover {
+    border-left: none;
+    border-bottom: 3px solid black;
+  }
+  .navTabs--active {
+    border-left: none;
+    border-bottom: 3px solid black;
+  }
+
+  .infoBox__group {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    margin-bottom: 0px;
+  }
+  .infoBox__group > li {
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 200px;
+    max-width: 100%;
+  }
+
+  .card-body {
+    padding: 10px;
+    margin: 0px;
+  }
+  .card-header {
+    padding: 10px;
+    margin: 0px;
+  }
+  .card-footer {
+    padding: 10px;
+    margin: 0px;
   }
 }
 
