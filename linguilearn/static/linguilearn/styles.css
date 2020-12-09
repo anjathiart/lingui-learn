@@ -80,14 +80,16 @@ select {
   flex-wrap: wrap;
   justify-content: center;
   width: 100vw;
-  margin: auto;
+  height: 95%;
+  margin: 0.5rem auto;
+  align-items: stretch;
 }
 
 .view__side {
   width: 320px;
   display: flex;
   flex-direction: column;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.7);
   margin-right: 1rem;
 }
 .view__side .feather {

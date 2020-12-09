@@ -9,9 +9,6 @@ urlpatterns = [
 	path("register", views.register, name="register"),
 
 	# API
-
-	path('v1/users', views.users),
-	path('v1/users/<int:user_id>/profile', views.user_profile),
 	path('v1/users/current', views.user_current),
 	path('v1/users/<int:user_id>/library', views.library),
 	path('v1/entries/<int:word_id>/add', views.add_entry),

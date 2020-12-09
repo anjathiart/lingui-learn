@@ -1,16 +1,8 @@
 import json
 import requests
 
-from django.contrib.auth import authenticate, login, logout
-from django.core.paginator import Paginator
-from django.db import IntegrityError
 from django.http import JsonResponse
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
-
-from linguilearn.exceptions import AlreadyExistsError, DoesNotExistForUser
-
 from ..models import User, Word
 
 # import and get api service settings
@@ -151,8 +143,4 @@ def word_search(request):
 		Word.objects.filter(id=word.id).update(details=json.dumps(result))
 		ctx["data"] = result
 		return JsonResponse(ctx, status=200)
-
-
-
-
 

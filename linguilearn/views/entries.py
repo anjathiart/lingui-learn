@@ -1,19 +1,9 @@
 import json
-import requests
-
-from django.contrib.auth import authenticate, login, logout
-from django.core.paginator import Paginator
-from django.db import IntegrityError
 from django.http import JsonResponse
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods
-
-from linguilearn.exceptions import AlreadyExistsError, DoesNotExistForUser
-
 from .my_decorators import *
-
 from ..models import User, Entry, Word
+
 
 @http_auth_required
 @require_http_methods(['POST'])
@@ -43,6 +33,7 @@ def add_entry(request, word_id):
 	except ValueError as e:
 		ctx["error"] = "Something went wrong... please try again later"
 		return JsonResponse(ctx, status=500)
+
 
 @http_auth_required
 @require_http_methods(['POST'])
@@ -78,6 +69,7 @@ def add_custom_entry(request, text):
 		ctx["error"] = "Something went wrong... please try again later"
 		return JsonResponse(ctx, status=500)
 
+
 @http_auth_required
 @require_http_methods(['POST'])
 def update_entry(request, entry_id):
@@ -105,27 +97,6 @@ def update_entry(request, entry_id):
 
 @http_auth_required
 @require_http_methods(['GET'])
-def library(request, user_id):
-	ctx = { "userId": user_id }
-
-	listFilter = request.GET.get('filter', 'all')
-	page = request.GET.get('page', 1)
-	limit = request.GET.get('limit', 2)
-
-	# TODO: validate the query string
-	ctx['filter'] =  listFilter
-
-
-	library = Entry.objects.library(request.user.id, listFilter, page, limit)
-	if not library:
-		ctx["error"] = "The library could not be found or is empty"
-		return JsonResponse(ctx, status=404)
-
-	ctx["data"] =  library
-	return JsonResponse(ctx, status=200)
-
-@http_auth_required
-@require_http_methods(['GET'])
 def get_entry(request, entry_id):
 	ctx = { "entryId": entry_id }
 
@@ -140,20 +111,6 @@ def get_entry(request, entry_id):
 
 	return JsonResponse(ctx, status=200)
 
-@http_auth_required
-@require_http_methods(['POST'])
-def remove_entry(request, entry_id):
-
-	ctx = { "entry_id": entry_id }
-
-	try:
-		request.user.remove_entry(entry_id)
-	except Entry.DoesNotExist:
-		ctx["error"] = "Word does not exist"
-		return JsonResponse(ctx, status=404)
-
-	# request.user.learning_words.add(entry)
-	return JsonResponse(ctx, status=200)
 
 @http_auth_required
 @require_http_methods(['POST'])
@@ -169,59 +126,4 @@ def delete_entry(request, entry_id):
 
 	# request.user.learning_words.add(entry)
 	return JsonResponse(ctx, status=200)
-
-
-@http_auth_required
-@require_http_methods(['POST'])
-def update_entry_list(request, entry_id):
-	ctx = { "userId": request.user.id, "entryId": entry_id }
-
-	# load post body
-	data = json.loads(request.body)
-	entry_list = data.get('entryList', '')
-
-	# validate entry_list field
-
-	try:
-		Entry.objects.filter(id=entry_id).update(entry_list=entry_list)
-		ctx['success'] = True
-		return JsonResponse(ctx, status=200)
-	except Entry.DoesNotExist:
-		ctx["error"] = "Entry does not exist"
-		return JsonResponse(ctx, status=404)
-
-
-@http_auth_required
-@require_http_methods(['POST'])
-def master_entry(request, entry_id):
-
-	ctx = { "entry_id": entry_id }
-
-	try:
-		request.user.master_entry(entry_id)
-	except DoesNotExistForUser as e:
-		ctx["error"] = "%s" % e
-		return JsonResponse(ctx, status=404)
-
-	# request.user.learning_words.add(entry)
-	return JsonResponse(ctx, status=200)
-
-
-@http_auth_required
-@require_http_methods(['POST'])
-def star_entry(request, entry_id):
-
-	ctx = { "entry_id": entry_id }
-
-	try:
-		entry = Entry.objects.get(id=entry_id)
-	except Entry.DoesNotExist:
-		ctx["error"] = "Word does not exist"
-		return JsonResponse(ctx, status=404)
-
-	request.user.entries_starred.add(entry)
-	return JsonResponse(ctx, status=200)
-
-
-
 
