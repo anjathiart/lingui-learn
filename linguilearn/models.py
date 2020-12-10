@@ -57,16 +57,12 @@ class EntryManager(models.Manager):
 			"favouritesCount": qs.filter(favourites=True).count()
 		}
 
-	def library(self, user_id, listFilter, page, limit, order='created_at', direction='-'):
+	def library(self, user_id, listFilter, page, limit, order='-created_at'):
 
 		if order == 'random':
 			my_order = '?'
-		elif order == 'alpha':
-			my_order = direction + 'word__text'
 		else:
-			my_order = direction + 'created_at'
-
-		print(my_order)
+			my_order = order
 
 		if listFilter == 'learning':
 			listFilter = 1

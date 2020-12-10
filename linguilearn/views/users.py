@@ -19,11 +19,12 @@ def library(request, user_id):
 	listFilter = request.GET.get('filter', 'all')
 	page = request.GET.get('page', 1)
 	limit = request.GET.get('limit', 2)
+	order = request.GET.get('order', '-created_at')
 
 	# TODO: validate the query string
 	ctx['filter'] =  listFilter
 
-	library = Entry.objects.library(request.user.id, listFilter, page, limit)
+	library = Entry.objects.library(request.user.id, listFilter, page, limit, order)
 	if not library:
 		ctx["error"] = "The library could not be found or is empty"
 		return JsonResponse(ctx, status=404)
