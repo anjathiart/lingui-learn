@@ -279,6 +279,11 @@ const Pagination = class extends React.Component {
 						<option value="100">100</option>
 						<option value="200">200</option>
 					</select>
+					<select className="form-conrol" value={ this.props.order.replace('-', '') } onChange={ (e) => this.actionOrderUpdate(parseInt(e.target.value, 10)) }>
+						<option value="word__text">Alphabetically</option>
+						<option value="created_at">Date added</option>
+						<option value="random">Shuffle</option>
+					</select>
 				</ul>
 			</div>
 		)
@@ -290,6 +295,10 @@ const Pagination = class extends React.Component {
 
 	actionLimitUpdate = (limit) => {
 		if (limit !== this.props.limit) this.props.updatePagination({ page: this.props.page, limit });
+	};
+
+	actionOrderUpdate = (order) => {
+
 	};
 
 };

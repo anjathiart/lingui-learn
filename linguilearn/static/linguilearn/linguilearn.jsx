@@ -41,6 +41,7 @@ function renderPage(currentUser) {
 				list: [],
 				page: 1,
 				limit: 6,
+				order: '-created_at', // options: { alpha: 'word__text'}, { random: '?' } || direction is the '-' thingy
 				numPages: '',
 				prev: '',
 				next: '',
@@ -83,10 +84,11 @@ function renderPage(currentUser) {
 									<Pagination
 										page={ this.state.page }
 										limit={ this.state.limit }
+										order={ this.state.order }
 										numPages={ this.state.numPages }
 										next={ this.state.next }
 										prev={ this.state.prev }
-										updatePagination={ ({ page, limit}) => this.actionPagination(page, limit) }
+										updatePagination={ ({ page, limit, order}) => this.actionPagination(page, limit, order || this.state.order) }
 									/>
 								</div>
 								<div className="card-footer">
@@ -115,7 +117,7 @@ function renderPage(currentUser) {
 		};
 
 		actionFetchLibrary = async () => {
-			let query = `filter=${this.state.listFilter}&page=${this.state.page}&limit=${this.state.limit}`
+			let query = `filter=${this.state.listFilter}&page=${this.state.page}&limit=${this.state.limit}&order=${this.state.order}`
 			await secureFetch(`v1/users/${currentUser.userId}/library?${query}`).then(result => {
 
 				this.setState(() => {
@@ -134,11 +136,12 @@ function renderPage(currentUser) {
 			});
 		};
 
-		actionPagination = async (page, limit) => {
+		actionPagination = async (page, limit, order) => {
 			await this.setState(() => {
 				return {
 					page: page,
 					limit: limit,
+					order: order,
 				};
 			});
 			this.actionFetchLibrary();
