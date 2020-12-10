@@ -1,4 +1,5 @@
 import json
+import random
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from linguilearn.exceptions import AlreadyExistsError, DoesNotExistForUser
@@ -56,31 +57,39 @@ class EntryManager(models.Manager):
 			"favouritesCount": qs.filter(favourites=True).count()
 		}
 
-	def library(self, user_id, listFilter, page, limit):
+	def library(self, user_id, listFilter, page, limit, order='created_at', direction='-'):
+
+		if order == 'random':
+			my_order = '?'
+		elif order == 'alpha':
+			my_order = direction + 'word__text'
+		else:
+			my_order = direction + 'created_at'
+
+		print(my_order)
+
 		if listFilter == 'learning':
 			listFilter = 1
 		elif listFilter == 'mastered':
 			listFilter = 2
 
 		if listFilter == 'favourites':
-			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, favourites=True).all()
+			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, favourites=True).order_by(my_order).all()
 		elif listFilter == 'all':
-			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id).all()
+			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id).order_by(my_order).all()
 		elif listFilter == 'customWord':
-			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, word_customEntry=True).all()
+			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, word_customEntry=True).order_by(my_order).all()
 		else:
-			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, entry_list=listFilter).all()
+			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, entry_list=listFilter).order_by(my_order).all()
 
 		paginator = Paginator(entries, limit)
+
 		try:
-			print('trying')
 			entry_objects = paginator.page(page)
 		except PageNotAnInteger:
-			print('x')
 			entry_objects = paginator.page(1)
 			page = 1
 		except EmptyPage:
-			print('y')
 			entry_objects = paginator.page(paginator.num_pages)
 			page = paginator.num_pages
 
@@ -90,6 +99,7 @@ class EntryManager(models.Manager):
 			"num_pages": paginator.num_pages,
 			"page": page,
 			"limit": limit,
+			"order": my_order,
 			"totalCount": entries.count(),
 			"learningCount": entries.filter(entry_list=1).count(),
 			"masteredCount": entries.filter(entry_list=2).count(),
@@ -105,14 +115,13 @@ class EntryManager(models.Manager):
 class Entry(models.Model):
 	user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="user_entries")
 	word =  models.ForeignKey("Word", on_delete=models.CASCADE, related_name="word_entries")
+	created_at = models.DateTimeField(auto_now_add=True)
 	# optional entries
 	context = models.CharField(max_length=1024, blank=True)
 	source = models.CharField(max_length=255, blank=True)
 	author = models.CharField(max_length=255, blank=True)
 	url = models.TextField(blank=True)
 	notes = models.TextField(blank=True)
-	created_at = models.DateTimeField(auto_now_add=True)
-	starred_by = models.ManyToManyField('User', blank=True, related_name="starred_entries" )
 	favourites = models.BooleanField(default=False)
 
 	LIST_CHOICES = [('1', 'Learning'), ('2', 'Mastered'), ('3', 'Archived'), ('0', None)]
@@ -153,17 +162,14 @@ class Entry(models.Model):
 
 
 	def update_entry(self, fields):
-		valid_fields = ["context", "source", "author", "url", "notes", "favourites", "entryList", "entry_list"]
+		valid_fields = ["context", "source", "author", "url", "notes", "favourites", "entryList", "entry_list", "isCustomWord"]
 
 		for field in fields:
 			if (field in valid_fields):
 				setattr(self, field, fields[field])
 
 		self.save()
-				
 
-	class Meta:
-		ordering= ["-created_at"]
 
 
 	
