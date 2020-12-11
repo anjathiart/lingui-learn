@@ -408,7 +408,7 @@ const LibraryEntry = class extends React.Component {
 					</div>
 				</div>
 
-				{ this.state.showWordDetails
+				{ this.state.showWordDetails && this.props.entry.details && this.props.entry.details.length > 0
 					? <div><WordEntry entry={ this.props.entry.details } /></div>
 					: null }
 

@@ -23,10 +23,6 @@ function renderPage(currentUser) {
 		constructor(props) {
 			super(props);
 			this.state = {
-				errorMessage: '',
-				warningMessage: '',
-				error: '',
-				msg: '',
 				view: 'library',
 				currentUser: currentUser,
 				listFilter: 'all',
@@ -36,6 +32,7 @@ function renderPage(currentUser) {
 				showSearchResults: false,
 				errorMessage: '',
 				warningMessage: '',
+				customWord: false,
 				wordEntry: {},
 				wordId: '',
 				list: [],
@@ -74,6 +71,13 @@ function renderPage(currentUser) {
 					<div className="view__main">
 						{ this.state.loading ? 
 							<div className="loader">Searching...</div>
+							: null }
+						{ this.state.view === 'customWord'
+							? <div>
+								<h3 className="mb-2">{ this.state.searchInput.trim().toLowerCase().split(' ')[0] }</h3>
+								<p className="alert alert-danger"> This word could not be found in the conventional places! Add it anyway?</p>
+								<button className="btn btn-primary" onClick={ () => { this.addCustomEntry() } }>Add it anyway!</button>
+								</div>
 							: null }
 						{ this.state.view === 'wordEntry' && !this.state.loading
 							? <WordSearch
@@ -170,6 +174,17 @@ function renderPage(currentUser) {
 			this.actionFetchLibrary();
 		};
 
+		addCustomEntry = async () => {
+			let word = this.state.searchInput.trim().toLowerCase().split(' ')[0];
+			await secureFetch(`v1/entries/${word}/addcustom`, 'POST').then(async result => {
+				console.log({result})
+				await this.loadEntry(result.data.entryId)
+
+			}).catch(error => {
+
+			})
+		};
+
 		loadEntry = async (entryId) => {
 			await secureFetch(`v1/entries/${entryId}`).then(result => {
 				this.setState(() => {
@@ -197,7 +212,7 @@ function renderPage(currentUser) {
 				names = names.replace('dark', 'secondary');
 			}
 			return names;
-		}
+		};
 		
 
 		loadUser = async () => {
@@ -236,15 +251,14 @@ function renderPage(currentUser) {
 				});
 			})
 			.catch(error => {
-				console.log({error})
-				this.setState(() => {
-					return {
-						errorMessage: error.error,
-						warningMessage: error.warning,
-						addCustomEntry: error.allow || false
-					};
 
-				});
+				if (error.allow === true) {
+					this.setState({ view: 'customWord'});
+					this.setState({ loading: false });
+				} else {
+					this.setState({ errorMessage: error.error });
+				}
+
 			});
 		};
 	}

@@ -40,15 +40,11 @@ def add_entry(request, word_id):
 def add_custom_entry(request, text):
 
 	ctx = { "userId": request.user.id, "word": text }
-
-	# load post body
-	data = json.loads(request.body)
-
-	context = data.get('context', '')
-	source = data.get('source', '')
-	author = data.get('author', '')
-	url = data.get('url', '')
-	notes = data.get('notes', '')
+	context = ''
+	source = ''
+	author = ''
+	url = ''
+	notes = ''
 
 	try:
 		word = Word.objects.get(text=text.split()[0].strip().lower())
