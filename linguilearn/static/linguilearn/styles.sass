@@ -37,6 +37,12 @@ p
 select
 	max-width: 200px
 
+.navbar-nav
+	display: flex
+	flex-direction: row !important
+	> li
+		margin-right: 1rem
+
 .infoBox__group
 	display: flex
 	justify-content: space-between
@@ -162,6 +168,11 @@ select
 	max-width: 1024px
 	padding: 0.6rem
 
+.paginationWrapper
+	display: flex
+	justify-content: space-between
+	align-items: center
+
 .pagination
 	display: flex
 	justify-content: center
@@ -225,12 +236,12 @@ select
 	.view__side
 		width: 100%
 		margin: 0px
-		max-height: 3rem !important
+		// max-height: 3rem !important
 
 	.navTabs
-		// width: 100%
+		width: 95vw
 		flex-direction: row
-		font-size: 14px
+		align-items: center
 		padding-top: 0px
 		padding-bottom: 0px
 		&__item
@@ -273,9 +284,18 @@ select
 @media only screen and (max-width: 620px)
 	.btn
 		font-size: 14px
+	.paginationWrapper
+		flex-direction: column
+		justify-content: flex-start
+		align-items: flex-end
+		> ul:first-of-type
+			padding-bottom: 1rem
 
+	p
+		font-size: 12px
 
-
+	.navTabs
+		font-size: 14px
 
 
 

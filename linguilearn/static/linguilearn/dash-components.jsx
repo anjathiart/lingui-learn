@@ -16,9 +16,8 @@ const SideBar = class extends React.Component {
 					<div className={`navTabs__item ${this.props.active === 'all' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('all') }>All ({ this.props.listCountSummary.totalCount })</div>
 					<div className={`navTabs__item ${this.props.active === 'learning' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('learning') }>Learning ({ this.props.listCountSummary.learningCount })</div>
 					<div className={`navTabs__item ${this.props.active === 'mastered' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('mastered') }>Mastered ({ this.props.listCountSummary.masteredCount })</div>
-					<div className={`navTabs__item ${this.props.active === 'custom' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('custom') }>Custom Entries ({ this.props.listCountSummary.customCount })</div>
+					<div className={`navTabs__item ${this.props.active === 'custom' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('custom') }>Custom ({ this.props.listCountSummary.customCount })</div>
 					<div className={`navTabs__item ${this.props.active === 'favourites' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('favourites') }>Favourites ({ this.props.listCountSummary.favouritesCount })</div>
-					<div className={`navTabs__item ${this.props.active === 'archived' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('archived') }>Archived ({ this.props.listCountSummary.archivedCount })</div>
 				</div>
 			</div>
 		)
@@ -138,11 +137,6 @@ const Pagination = class extends React.Component {
 		return (
 			<div className="paginationWrapper">
 				<ul className="pagination pagination-sm mb-0">
-					<li onClick={ () => this.actionPageUpdate(1, this.props.prev) } className={ `page-item ${this.props.prev ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevrons-left" className=""></i></a></li>
-					<li onClick={ () => this.actionPageUpdate(this.props.page - 1, this.props.prev) } className={ `page-item ${this.props.prev ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevron-left" className=""></i></a></li>
-					<li className="page-item active"><a className="page-link">{ `Page ${this.props.page} of ${this.props.numPages}` }</a></li>
-					<li onClick={ () => this.actionPageUpdate(this.props.page + 1, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevron-right" className=""></i></a></li>
-					<li onClick={ () => this.actionPageUpdate(this.props.numPages, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevrons-right" className=""></i></a></li>
 					<p className="ml-3 mr-2">Limit:</p>
 					<select className="form-control form-control-sm" value={ this.props.limit } onChange={ (e) => this.actionLimitUpdate(parseInt(e.target.value, 10)) }>
 						<option value="5">5</option>
@@ -161,6 +155,13 @@ const Pagination = class extends React.Component {
 						<button className="btn btn-sm btn-primary"
 							onClick={ () => this.actionOrderUpdate((this.props.direction === '-' ? '' : '-') + this.props.order.replace('-', '')) }>Reverse</button>
 					: <button className="btn btn-sm btn-primary" onClick={ () => this.actionOrderUpdate('?') }>Shuffle</button> }
+				</ul>
+				<ul className="pagination pagination-sm mb-0">
+					<li onClick={ () => this.actionPageUpdate(1, this.props.prev) } className={ `page-item ${this.props.prev ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevrons-left" className=""></i></a></li>
+					<li onClick={ () => this.actionPageUpdate(this.props.page - 1, this.props.prev) } className={ `page-item ${this.props.prev ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevron-left" className=""></i></a></li>
+					<li className="page-item active"><a className="page-link">{ `Page ${this.props.page} of ${this.props.numPages}` }</a></li>
+					<li onClick={ () => this.actionPageUpdate(this.props.page + 1, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevron-right" className=""></i></a></li>
+					<li onClick={ () => this.actionPageUpdate(this.props.numPages, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevrons-right" className=""></i></a></li>
 				</ul>
 			</div>
 		)
@@ -295,7 +296,7 @@ const LibraryEntry = class extends React.Component {
 					</div>
 				</div>
 
-				{ this.state.showWordDetails && this.props.entry.details && this.props.entry.details.length > 0
+				{ this.state.showWordDetails && this.props.entry.details && !this.props.entry.isCustomWord
 					? <div><WordEntry entry={ this.props.entry.details } /></div>
 					: null }
 
