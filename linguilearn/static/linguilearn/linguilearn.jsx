@@ -96,9 +96,15 @@ function renderPage(currentUser) {
 								<div className="card-footer">
 									<div className="row wordGrid" >
 										{ this.state.list.map((entry, i) => {
+											let classes = 'btn btn-lg ' + 'btn-outline-' + (entry.entry_list == 1 ? 'primary' : (entry.entry_list == 2 ? 'success': 'secondary' ))
+											console.log(classes)
 											return (
 												<div className="col-sm-auto wordGrid__item" key={ entry.id }>
-													<p onClick={ () => this.loadEntry(entry.id) }>{ entry.word }</p>
+													<button onClick={ () => this.loadEntry(entry.id) }
+														key={ entry.id }
+														className={ classes }
+													>{ entry.word }
+													</button>
 												</div>
 											)
 										})}
@@ -120,9 +126,9 @@ function renderPage(currentUser) {
 
 		actionFetchLibrary = async () => {
 			let query = `filter=${this.state.listFilter}&page=${this.state.page}&limit=${this.state.limit}&order=${this.state.order}`
-			await secureFetch(`v1/users/library?${query}`).then(result => {
+			await secureFetch(`v1/users/library?${query}`).then(async result => {
 
-				this.setState(() => {
+				await this.setState(() => {
 					return {
 						page: parseInt(result.data.page, 10),
 						limit: parseInt(result.data.limit, 10),
@@ -133,6 +139,7 @@ function renderPage(currentUser) {
 						view: 'library'
 					}
 				})
+				// this.loadUser();
 
 				feather.replace()
 			}).catch(error => {
@@ -174,6 +181,19 @@ function renderPage(currentUser) {
 				console.log({ error });
 			})
 		};
+
+		getClassNames = (list) => {
+			console.log({ list })
+			let names = 'btn btn-outline-dark';
+			if (list === '1') {
+				names = names.replace('dark', 'primary');
+			} else if (list === '2') {
+				names = names.replace('dark', 'success');
+			} else if (list === 'archived') {
+				names = names.replace('dark', 'secondary');
+			}
+			return names;
+		}
 		
 
 		loadUser = async () => {

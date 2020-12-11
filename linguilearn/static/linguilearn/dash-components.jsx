@@ -416,9 +416,12 @@ const LibraryEntry = class extends React.Component {
 		)
 	};
 
-	actionUpdateEntry = async () => {
+	actionUpdateEntry = async ({ entry_list }) => {
 		const { context, source, author, notes } = this.state;
 		const fields = { context, source, author, notes };
+		if (entry_list !== undefined) {
+			fields['entry_list'] = entry_list;
+		}
 		await secureFetch(`v1/entries/${this.props.entry.id}/update`, 'POST', fields).then(result => {
 			this.setState({ showEntryForm: false });
 			this.props.update(this.props.entry.id);
