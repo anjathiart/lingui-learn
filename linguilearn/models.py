@@ -55,7 +55,8 @@ class EntryManager(models.Manager):
 			"learningCount": qs.filter(entry_list=1).count(),
 			"masteredCount": qs.filter(entry_list=2).count(),
 			"archivedCount": qs.filter(entry_list=3).count(),
-			"favouritesCount": qs.filter(favourites=True).count()
+			"favouritesCount": qs.filter(favourites=True).count(),
+			"customCount": qs.filter(word__customWord=True).count(),
 		}
 
 	def library(self, user_id, listFilter, page, limit, order='-created_at'):
@@ -74,8 +75,8 @@ class EntryManager(models.Manager):
 			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, favourites=True).order_by(my_order).all()
 		elif listFilter == 'all':
 			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id).order_by(my_order).all()
-		elif listFilter == 'customWord':
-			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, word_customEntry=True).order_by(my_order).all()
+		elif listFilter == 'custom':
+			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, word__customWord=True).order_by(my_order).all()
 		else:
 			entries = super(EntryManager, self).get_queryset().filter(user_id=user_id, entry_list=listFilter).order_by(my_order).all()
 
@@ -101,7 +102,8 @@ class EntryManager(models.Manager):
 			"learningCount": entries.filter(entry_list=1).count(),
 			"masteredCount": entries.filter(entry_list=2).count(),
 			"archivedCount": entries.filter(entry_list=3).count(),
-			"favouritesCount": entries.filter(favourites=True).count()
+			"favouritesCount": entries.filter(favourites=True).count(),
+			"customCount": entries.filter(word__customWord=True).count(),
 		}
 
 		entries_serialized = [entry.serialize_short() for entry in entry_objects]

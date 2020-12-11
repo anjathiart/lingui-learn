@@ -16,8 +16,9 @@ const SideBar = class extends React.Component {
 					<div className={`navTabs__item ${this.props.active === 'all' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('all') }>All ({ this.props.listCountSummary.totalCount })</div>
 					<div className={`navTabs__item ${this.props.active === 'learning' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('learning') }>Learning ({ this.props.listCountSummary.learningCount })</div>
 					<div className={`navTabs__item ${this.props.active === 'mastered' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('mastered') }>Mastered ({ this.props.listCountSummary.masteredCount })</div>
-					<div className={`navTabs__item ${this.props.active === 'archived' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('archived') }>Archived ({ this.props.listCountSummary.archivedCount })</div>
+					<div className={`navTabs__item ${this.props.active === 'custom' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('custom') }>Custom Entries ({ this.props.listCountSummary.customCount })</div>
 					<div className={`navTabs__item ${this.props.active === 'favourites' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('favourites') }>Favourites ({ this.props.listCountSummary.favouritesCount })</div>
+					<div className={`navTabs__item ${this.props.active === 'archived' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('archived') }>Archived ({ this.props.listCountSummary.archivedCount })</div>
 				</div>
 			</div>
 		)
