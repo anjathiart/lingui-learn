@@ -1,5 +1,6 @@
 import json
 import random
+from markdown2 import Markdown
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from linguilearn.exceptions import AlreadyExistsError, DoesNotExistForUser
@@ -130,6 +131,7 @@ class Entry(models.Model):
 		return self.id
 
 	def serialize_short(self):
+		markdowner = Markdown()
 		customWord = Word.objects.get(id=self.word_id).customWord
 		return {
 			"id": self.id,
@@ -146,6 +148,7 @@ class Entry(models.Model):
 		}
 
 	def serialize_long(self):
+		
 		try:
 			wordDetails = Word.objects.get(id=self.word_id)
 		except Word.DoesNotExist as e:
@@ -159,10 +162,13 @@ class Entry(models.Model):
 
 	def update_entry(self, fields):
 		valid_fields = ["context", "source", "author", "url", "notes", "favourites", "entryList", "entry_list", "isCustomWord"]
-
+		markdowner = Markdown()
 		for field in fields:
 			if (field in valid_fields):
-				setattr(self, field, fields[field])
+				if field == "notes":
+					setattr(self, field, markdowner.convert(fields[field]))
+				else:
+					setattr(self, field, fields[field])
 
 		self.save()
 

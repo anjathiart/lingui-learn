@@ -85,6 +85,8 @@ select
 	width: 320px
 	display: flex
 	flex-direction: column
+	align-items: flex-start
+	// max-height: 1rem !important
 	// background-color: rgba(white, 0.7)
 	margin-right: 1rem
 	.feather
@@ -152,6 +154,7 @@ select
 	flex-direction: row
 	align-items: center
 	padding: 0.6rem
+	width: 100%
 
 
 .sideBar
@@ -183,7 +186,7 @@ select
 
 .wordGrid
 	display: flex
-	justify-content: space-between
+	justify-content: space-around
 	&__item
 		padding: 0.3rem 1rem
 		margin: 0.6rem
@@ -214,6 +217,7 @@ select
 		font-weight: 600
 
 
+
 @media only screen and (max-width: 1300px)
 	.view__main
 		padding-left: 0px
@@ -221,14 +225,18 @@ select
 	.view__side
 		width: 100%
 		margin: 0px
+		max-height: 3rem !important
+
 	.navTabs
 		// width: 100%
 		flex-direction: row
 		font-size: 14px
+		padding-top: 0px
+		padding-bottom: 0px
 		&__item
 			border-left: none
 			border-bottom: 3px solid transparent
-			padding-bottom: 4px
+			padding-bottom: 0px
 			&:hover
 				border-left: none
 				border-bottom: 3px solid black
@@ -258,6 +266,13 @@ select
 			padding: 10px
 			margin: 0px
 
+	.body
+		align-items: flex-start
+		margin-bottom: auto
+
+@media only screen and (max-width: 620px)
+	.btn
+		font-size: 14px
 
 
 

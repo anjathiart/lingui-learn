@@ -87,6 +87,7 @@ select {
   width: 320px;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   margin-right: 1rem;
 }
 .view__side .feather {
@@ -161,6 +162,7 @@ select {
   flex-direction: row;
   align-items: center;
   padding: 0.6rem;
+  width: 100%;
 }
 
 .sideBar {
@@ -195,7 +197,7 @@ select {
 
 .wordGrid {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 .wordGrid__item {
   padding: 0.3rem 1rem;
@@ -239,16 +241,19 @@ select {
   .view__side {
     width: 100%;
     margin: 0px;
+    max-height: 3rem !important;
   }
 
   .navTabs {
     flex-direction: row;
     font-size: 14px;
+    padding-top: 0px;
+    padding-bottom: 0px;
   }
   .navTabs__item {
     border-left: none;
     border-bottom: 3px solid transparent;
-    padding-bottom: 4px;
+    padding-bottom: 0px;
   }
   .navTabs__item:hover {
     border-left: none;
@@ -283,6 +288,16 @@ select {
   .card-footer {
     padding: 10px;
     margin: 0px;
+  }
+
+  .body {
+    align-items: flex-start;
+    margin-bottom: auto;
+  }
+}
+@media only screen and (max-width: 620px) {
+  .btn {
+    font-size: 14px;
   }
 }
 

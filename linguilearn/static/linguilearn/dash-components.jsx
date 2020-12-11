@@ -350,7 +350,7 @@ const LibraryEntry = class extends React.Component {
 						</h3>
 					
 						<select className="form-control" value={ this.props.entry.entry_list }
-							onChange={ (e) => { this.actionUpdateEntry({ entry_list: e.target.value }) }}>
+							onChange={ (e) => { this.actionUpdateEntry(e.target.value) }}>
 							<option value="0">None</option>
 							<option value="1">Learning</option>
 							<option value="2">Mastered</option>
@@ -399,9 +399,9 @@ const LibraryEntry = class extends React.Component {
 								<p className="card-header"><i data-feather="edit-2"></i><span>Notes</span></p>
 								{ this.state.showEntryForm
 									? <p className="card-body">
-										<textarea className="form-control" type="text" value={ this.state.notes } onChange={ (e) => this.setState({ notes: e.target.value }) }/>
+										<textarea className="form-control" type="text" value={ this.state.notes } onChange={ (e) => this.setState({ notes: e.target.value }) }></textarea>
 									  </p>
-									: <p className="card-body"> { this.props.entry.notes }</p>
+									: <p className="card-body" dangerouslySetInnerHTML={{ __html: this.props.entry.notes }}></p>
 								}
 							</li>
 						</ul>
@@ -416,7 +416,7 @@ const LibraryEntry = class extends React.Component {
 		)
 	};
 
-	actionUpdateEntry = async ({ entry_list }) => {
+	actionUpdateEntry = async (entry_list) => {
 		const { context, source, author, notes } = this.state;
 		const fields = { context, source, author, notes };
 		if (entry_list !== undefined) {

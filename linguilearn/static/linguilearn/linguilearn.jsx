@@ -80,7 +80,7 @@ function renderPage(currentUser) {
 							 />
 							: null }
 						 { this.state.view === 'library' ?
-							<div className="card text-center border-dark">
+							<div className="card text-center">
 								<div className="card-body">
 									<Pagination
 										page={ this.state.page }
@@ -99,7 +99,7 @@ function renderPage(currentUser) {
 											let classes = 'btn btn-lg ' + 'btn-outline-' + (entry.entry_list == 1 ? 'primary' : (entry.entry_list == 2 ? 'success': 'secondary' ))
 											console.log(classes)
 											return (
-												<div className="col-sm-auto wordGrid__item" key={ entry.id }>
+												<div className="wordGrid__item" key={ entry.id }>
 													<button onClick={ () => this.loadEntry(entry.id) }
 														key={ entry.id }
 														className={ classes }
