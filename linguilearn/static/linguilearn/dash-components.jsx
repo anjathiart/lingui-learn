@@ -77,14 +77,7 @@ const WordSearch = class extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			searchInput: '',
 			showSearchResults: true,
-			wordId: '',
-			wordEntry: '',
-			addCustomEntry: false,
-			step: 'search',
-			entryId: '',
-			fillOwnDetails: false,
 			error: '',
 		}
 	};
@@ -98,25 +91,14 @@ const WordSearch = class extends React.Component {
 					<div>
 						<h3 className="mb-3">{ this.props.wordEntry.word }</h3>
 						<WordEntry entry={ this.props.wordEntry } />
-						<button className="btn btn-primary" onClick={ () =>  this.actionSaveEntry() }>Add to Library</button>
+						<button className="btn btn-primary mt-3" onClick={ () =>  this.actionSaveEntry() }>Add to Library</button>
 					</div>
 					: null
 				}
-				{ this.state.errorMessage ? <p>{ this.state.errorMessage }</p> : null }
-				{ this.state.warningMessage ? <p>{ this.state.warningMessage }</p> : null }
-				{ this.state.addCustomEntry ? <button className="btn btn-primary" onClick={ this.fillOwnDetails }>Add Custom Entry?</button> : null }
 			</div>
 		)
 	};
 
-	fillOwnDetails = () => {
-		this.setState(() => {
-			return {
-				fillOwnDetails: true,
-				step: 'form',
-			}
-		});
-	};
 
 	actionSaveEntry = async (event) => {
 
