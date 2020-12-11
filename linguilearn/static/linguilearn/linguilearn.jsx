@@ -45,6 +45,7 @@ function renderPage(currentUser) {
 				numPages: '',
 				prev: '',
 				next: '',
+				loading: false,
 
 			}
 		};
@@ -71,7 +72,10 @@ function renderPage(currentUser) {
 						/>
 					</div>
 					<div className="view__main">
-						{ this.state.view === 'wordEntry'
+						{ this.state.loading ? 
+							<div className="loader">Searching...</div>
+							: null }
+						{ this.state.view === 'wordEntry' && !this.state.loading
 							? <WordSearch
 								wordEntry={ this.state.wordEntry }
 								wordId={ this.state.wordId }
@@ -79,7 +83,7 @@ function renderPage(currentUser) {
 								done={ () => { this.setState({ view: 'main' }) } }
 							 />
 							: null }
-						 { this.state.view === 'library' ?
+						 { this.state.view === 'library' && !this.state.loading ?
 							<div className="card text-center">
 								<div className="card-body">
 									<Pagination
@@ -112,7 +116,7 @@ function renderPage(currentUser) {
 								</div>
 							</div>
 						: null }
-						{ this.state.view == 'entry'
+						{ this.state.view == 'entry' && !this.state.loading
 							? <LibraryEntry 
 								entry={ this.state.entry }
 								update={ (event) => this.loadEntry(event) }
@@ -214,6 +218,7 @@ function renderPage(currentUser) {
 					showSearchResults: false,
 					errorMessage: '',
 					warningMessage: '',
+					loading: true,
 				}
 			});
 
@@ -225,7 +230,8 @@ function renderPage(currentUser) {
 						wordId: result.wordId,
 						wordEntry: result.data,
 						view: 'wordEntry',
-						showSearchResults: true
+						showSearchResults: true,
+						loading: false,
 					}
 				});
 			})
