@@ -1,32 +1,5 @@
 
 
-const ErrorBlanket = class extends React.Component {
-	render() {
-		return (
-			<div className="modal">
-				<div className="modal__content">
-					<p>{ this.props.msg }</p>
-					<button className="btn btn-primary" onClick={ this.props.onClose.bind(this) } className="btn btn-primary btn-lg">OK</button>
-				</div>
-			</div>
-		);
-	}
-};
-
-const MessageBlanket = class extends React.Component {
-	render() {
-		return (
-			<div className="modal">
-				<div className="modal__content">
-					<p>{ this.props.msg }</p>
-					<button className="btn btn-primary" onClick={ this.props.onClose.bind(this) } className="btn btn-primary btn-lg">OK</button>
-				</div>
-			</div>
-		);
-	}
-};
-
-
 const SideBar = class extends React.Component {
 	constructor(props) {
 		super(props);
@@ -39,8 +12,6 @@ const SideBar = class extends React.Component {
 	render() {
 		return (
 			<div className='sideBar'>
-				{ this.state.error && <ErrorBlanket msg={ this.state.error } onClose={ () => this.setState({ 'error': '' }) } /> }
-				{ this.state.msg && <MessageBlanket msg={ this.state.msg } onClose={ () => this.setState({ 'msg': '' }) } /> }
 				<div className="navTabs">
 					<div className={`navTabs__item ${this.props.active === 'all' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('all') }>All ({ this.props.listCountSummary.totalCount })</div>
 					<div className={`navTabs__item ${this.props.active === 'learning' ? 'navTabs--active' : null}`} onClick={ () => this.props.filterLibrary('learning') }>Learning ({ this.props.listCountSummary.learningCount })</div>
@@ -113,9 +84,8 @@ const WordSearch = class extends React.Component {
 			addCustomEntry: false,
 			step: 'search',
 			entryId: '',
-			errorMessage: '',
-			warningMessage: '',
 			fillOwnDetails: false,
+			error: '',
 		}
 	};
 
@@ -123,8 +93,10 @@ const WordSearch = class extends React.Component {
 	render() {
 		return (
 			<div className="view">
+				{ this.state.error ? <p className="alert alert-danger">{ this.state.error }</p> : null }
 				{ this.state.showSearchResults ?
 					<div>
+						<h3 className="mb-3">{ this.props.wordEntry.word }</h3>
 						<WordEntry entry={ this.props.wordEntry } />
 						<button className="btn btn-primary" onClick={ () =>  this.actionSaveEntry() }>Add to Library</button>
 					</div>
@@ -147,7 +119,6 @@ const WordSearch = class extends React.Component {
 	};
 
 	actionSaveEntry = async (event) => {
-		// const fields = { ...event };
 
 		// TODO validate the word to be a one-word string
 
@@ -155,94 +126,24 @@ const WordSearch = class extends React.Component {
 		
 		await secureFetch(url, 'POST')
 		.then(async (result) => {
-			console.log({result})
 			if (result.data && result.data.entryId) {
 				await this.setState(() => {
 					return {
 						success: true,
 						step: 'done',
 						entryId: result.data.entryId,
+						error: 'dfd',
 					}
 				});
 				this.props.add(result.data.entryId)
 			}
 		})
 		.catch(error => {
-			this.setState(() => {
-				return {
-					errorMessage: error.error,
-					warningMessage: error.warning,
-					addCustomEntry: error.allow || false
-				};
-			});
+			this.state.setState({ error: error.error });
+			
 		});
 	};
 };
-
-
-const WordEntryForm = class extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			inputValues: {
-				context: 'He ate a poisonous apple',
-				source: 'The Trial',
-				author: 'Franz Kafka',
-				url: 'www.google.com',
-				notes: '',
-				label: '',          
-			}
-		};
-	};
-
-	componentDidMount() {
-		if (this.props.inputValues) {
-
-			for (let i = 0; i < Object.keys(this.props.inputValues).length; i += 1) {
-				let key = Object.keys(this.props.inputValues)[i]
-				this.actionInput(key, this.props.inputValues[key] )
-			}
-		}
-	}
-
-	render() {
-		return (
-			<div className=''>
-				<div className="wordEntryForm form">
-					<div className="form-group">
-						<label>Context:</label>
-						<InputText value={ this.state.inputValues.context } update={(value) => this.actionInput('context', value)} placeholder="Context"/>
-					</div>
-					<div className="form-group">
-						<label>Source / Title</label>
-						<InputText value={ this.state.inputValues.source } update={(value) => this.actionInput('source', value)} placeholder="Source"/>
-					</div>
-					<div className="form-group">
-						<label>Author</label>
-						<InputText value={ this.state.inputValues.author } update={(value) => this.actionInput('author', value)} placeholder="Author"/>
-					</div>
-					<div className="form-group">
-						<label>Link / Url</label>
-						<InputText value={ this.state.inputValues.url } update={(value) => this.actionInput('url', value)} placeholder="URL link"/>
-					</div>
-					<button className="btn btn-primary" onClick={ () => this.props.save(this.state.inputValues) }>Save To Library</button>
-				</div>
-			</div>
-		)
-	};
-
-	actionInput = (key, value) => {
-		this.setState(prevState => {
-			// make a copy of the previous inputValues object
-			let inputValues = {...prevState.inputValues };
-			// update the key/value pair
-			inputValues[key] = value;
-			// return new state
-			return { inputValues };
-		})
-	}
-};
-
 
 
 const Pagination = class extends React.Component {
@@ -310,6 +211,7 @@ const LibraryEntry = class extends React.Component {
 			author: '',
 			source: '',
 			notes: '',
+			error: '',
 		}
 	};
 
@@ -322,6 +224,7 @@ const LibraryEntry = class extends React.Component {
 		author: '',
 		source: '',
 		notes: '',
+		error: '',
 
 	}
 	componentDidMount() {
@@ -339,6 +242,7 @@ const LibraryEntry = class extends React.Component {
 	render() {
 		return (
 			<div className="">
+				{ this.state.error ? <p className="alert alert-danger">{ this.state.error || 'Something went wrong' }</p> : null }
 				<div className="libraryEntry__content card mb-2">
 				<div className="container flex card-header">
 					<h3 className="flex mr-auto">
@@ -424,18 +328,20 @@ const LibraryEntry = class extends React.Component {
 		}
 		await secureFetch(`v1/entries/${this.props.entry.id}/update`, 'POST', fields).then(result => {
 			this.setState({ showEntryForm: false });
+			this.setState({ error: '' });
 			this.props.update(this.props.entry.id);
 		}).catch(error => {
-			// console.log({error})
+			this.state.setState({ error: error.error });
 		})
 	};
 
 	actionDeleteEntry = async () => {
 		await secureFetch(`v1/entries/${this.props.entry.id}/delete`, 'POST').then(result => {
 			this.setState({ showEntryForm: false });
+			this.setState({ error: '' });
 			this.props.delete();
 		}).catch(error => {
-			// console.log({error})
+			this.state.setState({ error: error.error });
 		})
 	}
 };

@@ -30,7 +30,7 @@ function renderPage(currentUser) {
 				entryUpdateCount: 0,
 				searchInput: '',
 				showSearchResults: false,
-				errorMessage: '',
+				errorMessage: 'ERROR',
 				warningMessage: '',
 				customWord: false,
 				wordEntry: {},
@@ -72,7 +72,10 @@ function renderPage(currentUser) {
 						{ this.state.loading ? 
 							<div className="loader">Searching...</div>
 							: null }
-						{ this.state.view === 'customWord'
+						{ this.state.view === 'error' && !this.state.loading
+							? <p className="alert alert-danger">{ this.state.errorMessage }</p>
+							: null }
+						{ this.state.view === 'customWord' && !this.state.loading
 							? <div>
 								<h3 className="mb-2">{ this.state.searchInput.trim().toLowerCase().split(' ')[0] }</h3>
 								<p className="alert alert-danger"> This word could not be found in the conventional places! Add it anyway?</p>
@@ -152,6 +155,8 @@ function renderPage(currentUser) {
 				feather.replace()
 			}).catch(error => {
 				console.log({error})
+				this.setState({ view: 'error'});
+				this.setState({ errorMessage: error.error || 'ERROR' })
 			});
 		};
 
@@ -181,7 +186,8 @@ function renderPage(currentUser) {
 				await this.loadEntry(result.data.entryId)
 
 			}).catch(error => {
-
+				this.setState({ view: 'error'});
+				this.setState({ errorMessage: error.error || 'ERROR' })
 			})
 		};
 
@@ -198,6 +204,8 @@ function renderPage(currentUser) {
 				feather.replace();
 			}).catch(error => {
 				console.log({ error });
+				this.setState({ view: 'error'});
+				this.setState({ errorMessage: error.error || 'ERROR' })
 			})
 		};
 
@@ -223,7 +231,8 @@ function renderPage(currentUser) {
 			})
 			.catch(error => {
 				console.log({error})
-				error = error.error;
+				this.setState({ view: 'error'});
+				this.setState({ errorMessage: error.error || 'ERROR' })
 			});
 		};
 
@@ -247,6 +256,7 @@ function renderPage(currentUser) {
 						view: 'wordEntry',
 						showSearchResults: true,
 						loading: false,
+						searchInput: '',
 					}
 				});
 			})
@@ -256,7 +266,8 @@ function renderPage(currentUser) {
 					this.setState({ view: 'customWord'});
 					this.setState({ loading: false });
 				} else {
-					this.setState({ errorMessage: error.error });
+					this.setState({ view: 'error'});
+					this.setState({ errorMessage: error.error || 'ERROR' })
 				}
 
 			});
