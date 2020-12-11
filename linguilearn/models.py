@@ -141,6 +141,7 @@ class Entry(models.Model):
 			"author": self.author,
 			"url": self.url,
 			"notes": self.notes,
+			"notesMarkdown": markdowner.convert(self.notes),
 			"favourites": self.favourites,
 			"isCustomWord": customWord,
 			"created": self.created_at,
@@ -162,13 +163,9 @@ class Entry(models.Model):
 
 	def update_entry(self, fields):
 		valid_fields = ["context", "source", "author", "url", "notes", "favourites", "entryList", "entry_list", "isCustomWord"]
-		markdowner = Markdown()
 		for field in fields:
 			if (field in valid_fields):
-				if field == "notes":
-					setattr(self, field, markdowner.convert(fields[field]))
-				else:
-					setattr(self, field, fields[field])
+				setattr(self, field, fields[field])
 
 		self.save()
 

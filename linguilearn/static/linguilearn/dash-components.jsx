@@ -243,7 +243,7 @@ const LibraryEntry = class extends React.Component {
 							<option value="3">Archived</option>
 						</select>
 						{ this.state.showEntryForm
-							? <button className="btn btn-primary ml-3" onClick = { () => this.actionUpdateEntry() }>Save</button>
+							? <button className="btn btn-primary ml-3" onClick = { () => this.actionUpdateEntry({}) }>Save</button>
 							: <button className="btn btn-primary ml-3" onClick = { () => this.setState({ showEntryForm: true }) }>Edit</button>
 						}
 						<button className="btn btn-primary ml-3" onClick={ () => this.actionDeleteEntry() }>
@@ -287,7 +287,7 @@ const LibraryEntry = class extends React.Component {
 									? <p className="card-body">
 										<textarea className="form-control" type="text" value={ this.state.notes } onChange={ (e) => this.setState({ notes: e.target.value }) }></textarea>
 									  </p>
-									: <p className="card-body" dangerouslySetInnerHTML={{ __html: this.props.entry.notes }}></p>
+									: <p className="card-body" dangerouslySetInnerHTML={{ __html: this.props.entry.notesMarkdown }}></p>
 								}
 							</li>
 						</ul>
