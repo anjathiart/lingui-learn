@@ -126,26 +126,13 @@ const WordSearch = class extends React.Component {
 				{ this.state.showSearchResults ?
 					<div>
 						<WordEntry entry={ this.props.wordEntry } />
-						<button className="btn btn-primary" onClick={ this.fillOwnDetails }>Add to Library</button>
+						<button className="btn btn-primary" onClick={ () =>  this.actionSaveEntry() }>Add to Library</button>
 					</div>
 					: null
 				}
 				{ this.state.errorMessage ? <p>{ this.state.errorMessage }</p> : null }
 				{ this.state.warningMessage ? <p>{ this.state.warningMessage }</p> : null }
 				{ this.state.addCustomEntry ? <button className="btn btn-primary" onClick={ this.fillOwnDetails }>Add Custom Entry?</button> : null }
-				{ this.state.step === 'form' || this.state.step === 'done' ? 
-					<div className="modal">
-						<div className="modal__content">
-							{ this.state.step === 'form' ? <WordEntryForm key="x" save={ (event) => this.actionSaveEntry(event) }/> : null }
-							{ this.state.step === 'done' ? 
-							<div>
-								<p>Entry added to your Library</p>
-								<button className="btn btn-primary" onClick={ () => this.props.done() }>Go to Library</button>
-								<button className="btn btn-primary" onClick={ () => this.setState({ step: "search" }) }>Back to search</button>
-							</div>
-							: null }
-						</div>
-				</div> : null }
 			</div>
 		)
 	};
@@ -160,22 +147,24 @@ const WordSearch = class extends React.Component {
 	};
 
 	actionSaveEntry = async (event) => {
-		const fields = { ...event };
+		// const fields = { ...event };
 
 		// TODO validate the word to be a one-word string
 
 		const url = this.state.addCustomEntry && this.props.wordId === '' ? `v1/entries/${this.state.searchInput}/addcustom` : `v1/entries/${this.props.wordId}/add`
 		
-		await secureFetch(url, 'POST', fields)
-		.then(result => {
+		await secureFetch(url, 'POST')
+		.then(async (result) => {
+			console.log({result})
 			if (result.data && result.data.entryId) {
-				this.setState(() => {
+				await this.setState(() => {
 					return {
 						success: true,
 						step: 'done',
 						entryId: result.data.entryId,
 					}
 				});
+				this.props.add(result.data.entryId)
 			}
 		})
 		.catch(error => {
@@ -271,7 +260,7 @@ const Pagination = class extends React.Component {
 					<li onClick={ () => this.actionPageUpdate(this.props.page + 1, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevron-right" className=""></i></a></li>
 					<li onClick={ () => this.actionPageUpdate(this.props.numPages, this.props.next) } className={ `page-item ${this.props.next ? null : 'disabled'}` }><a className="page-link"><i data-feather="chevrons-right" className=""></i></a></li>
 					<p className="ml-3 mr-2">Limit:</p>
-					<select className="form-conrol" value={ this.props.limit } onChange={ (e) => this.actionLimitUpdate(parseInt(e.target.value, 10)) }>
+					<select className="form-control form-control-sm" value={ this.props.limit } onChange={ (e) => this.actionLimitUpdate(parseInt(e.target.value, 10)) }>
 						<option value="5">5</option>
 						<option value="10">10</option>
 						<option value="20">20</option>
@@ -279,11 +268,15 @@ const Pagination = class extends React.Component {
 						<option value="100">100</option>
 						<option value="200">200</option>
 					</select>
-					<select className="form-conrol" value={ this.props.order.replace('-', '') } onChange={ (e) => this.actionOrderUpdate(parseInt(e.target.value, 10)) }>
-						<option value="word__text">Alphabetically</option>
-						<option value="created_at">Date added</option>
-						<option value="random">Shuffle</option>
+					<select className="form-control form-control-sm" value={ this.props.order.replace('-', '') } onChange={ (e) => this.actionOrderUpdate(this.props.direction + e.target.value) }>
+						<option value="word__text">abc</option>
+						<option value="created_at">date</option>
+						<option value="?">random</option>
 					</select>
+					{ this.props.order !== '?' ?
+						<button className="btn btn-sm btn-primary"
+							onClick={ () => this.actionOrderUpdate((this.props.direction === '-' ? '' : '-') + this.props.order.replace('-', '')) }>Reverse</button>
+					: <button className="btn btn-sm btn-primary" onClick={ () => this.actionOrderUpdate('?') }>Shuffle</button> }
 				</ul>
 			</div>
 		)
@@ -298,7 +291,7 @@ const Pagination = class extends React.Component {
 	};
 
 	actionOrderUpdate = (order) => {
-
+		this.props.updatePagination({ page: this.props.page, limit: this.props.limit, order: order })
 	};
 
 };
@@ -312,6 +305,11 @@ const LibraryEntry = class extends React.Component {
 			list: [],
 			showWordDetails: true,
 			wordEntryDetails: null,
+			showEntryForm: false,
+			context: '',
+			author: '',
+			source: '',
+			notes: '',
 		}
 	};
 
@@ -320,10 +318,21 @@ const LibraryEntry = class extends React.Component {
 		list: [],
 		showWordDetails: true,
 		showEntryForm: false,
+		context: '',
+		author: '',
+		source: '',
+		notes: '',
+
+	}
+	componentDidMount() {
+		const { context, source, author, notes } = this.props.entry;
+		this.setState({ context, source, author, notes });
 	}
 
 	componentWillUnmount() {
-		this.setState(this.initialState)
+		this.setState(this.initialState);
+		const { context, source, author, notes } = this.props.entry.details;
+		
 		feather.replace()
 	}
 
@@ -347,7 +356,10 @@ const LibraryEntry = class extends React.Component {
 							<option value="2">Mastered</option>
 							<option value="3">Archived</option>
 						</select>
-						<button className="btn btn-primary ml-3" onClick = { () => this.setState({ showEntryForm: true }) }>Edit</button>
+						{ this.state.showEntryForm
+							? <button className="btn btn-primary ml-3" onClick = { () => this.actionUpdateEntry() }>Save</button>
+							: <button className="btn btn-primary ml-3" onClick = { () => this.setState({ showEntryForm: true }) }>Edit</button>
+						}
 						<button className="btn btn-primary ml-3" onClick={ () => this.actionDeleteEntry() }>
 							<i data-feather="trash-2" className=""></i>
 						</button>
@@ -356,38 +368,45 @@ const LibraryEntry = class extends React.Component {
 						<ul className="infoBox__group container">
 							<li className="card">
 								<p className="card-header"><i data-feather="anchor"></i><span>Context</span></p>
-								<p className="card-body"> { this.props.entry.context }</p>
+								{ this.state.showEntryForm
+									? <p className="card-body">
+										<input className="form-control" type="text" value={ this.state.context } onChange={ (e) => this.setState({ context: e.target.value }) }/>
+									  </p>
+									: <p className="card-body"> { this.props.entry.context }</p>
+								}
 							</li>
 							<li className="card">
 								<p className="card-header"><i data-feather="bookmark"></i><span>Source</span></p>
-								<p className="card-body"> { this.props.entry.source }</p>
+								{ this.state.showEntryForm
+									? <p className="card-body">
+										<input className="form-control" type="text" value={ this.state.source } onChange={ (e) => this.setState({ source: e.target.value }) }/>
+									  </p>
+									: <p className="card-body"> { this.props.entry.source }</p>
+								}
 							</li>
 							<li className="card">
 								<p className="card-header"><i data-feather="user"></i><span>Author</span></p>
-								<p className="card-body"> { this.props.entry.author }</p>
+								{ this.state.showEntryForm
+									? <p className="card-body">
+										<input className="form-control" type="text" value={ this.state.author } onChange={ (e) => this.setState({ author: e.target.value }) }/>
+									  </p>
+									: <p className="card-body"> { this.props.entry.author }</p>
+								}
 							</li>
 						</ul>
 						<ul className="infoBox__group container">
 							<li className="card">
 								<p className="card-header"><i data-feather="edit-2"></i><span>Notes</span></p>
-								<p className="card-body"> { this.props.entry.notes }</p>
+								{ this.state.showEntryForm
+									? <p className="card-body">
+										<textarea className="form-control" type="text" value={ this.state.notes } onChange={ (e) => this.setState({ notes: e.target.value }) }/>
+									  </p>
+									: <p className="card-body"> { this.props.entry.notes }</p>
+								}
 							</li>
 						</ul>
 					</div>
 				</div>
-
-				
-
-				
-
-				{ this.state.showEntryForm ? <div className="modal">
-					<div className="modal__content">
-						<WordEntryForm 
-							inputValues={ { context: this.props.entry.details.context, source: this.props.entry.details.source} }
-							save={ (event) => this.actionUpdateEntry(event) }
-						/>
-					</div>
-				</div> : null }
 
 				{ this.state.showWordDetails
 					? <div><WordEntry entry={ this.props.entry.details } /></div>
@@ -397,8 +416,9 @@ const LibraryEntry = class extends React.Component {
 		)
 	};
 
-	actionUpdateEntry = async (event) => {
-		const fields = { ...event };
+	actionUpdateEntry = async () => {
+		const { context, source, author, notes } = this.state;
+		const fields = { context, source, author, notes };
 		await secureFetch(`v1/entries/${this.props.entry.id}/update`, 'POST', fields).then(result => {
 			this.setState({ showEntryForm: false });
 			this.props.update(this.props.entry.id);

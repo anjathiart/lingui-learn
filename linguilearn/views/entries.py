@@ -12,13 +12,13 @@ def add_entry(request, word_id):
 	ctx = { "userId": request.user.id, "wordId": word_id }
 
 	# load post body
-	data = json.loads(request.body)
+	# data = json.loads(request.body)
+	context = ''
+	source = ''
+	author = ''
+	url = ''
+	notes = ''
 
-	context = data.get('context', '')
-	source = data.get('source', '')
-	author = data.get('author', '')
-	url = data.get('url', '')
-	notes = data.get('notes', '')
 	try:
 		word = Word.objects.get(id = word_id)
 	except Word.DoesNotExist:

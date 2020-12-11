@@ -61,15 +61,15 @@ select {
 }
 
 .icon {
-  font-size: 30px !important;
-}
-.icon__heart {
-  color: red;
   cursor: pointer;
   transition: all 0.3s;
 }
-.icon__heart:hover {
-  transform: scale(1.2);
+.icon:hover {
+  transform: scale(1.4);
+}
+.icon__heart {
+  color: red;
+  font-size: 30px !important;
 }
 
 .body {
@@ -184,6 +184,13 @@ select {
 .pagination .feather {
   width: 18px;
   height: 18px;
+}
+
+.pagination > select {
+  width: 100px;
+}
+.pagination > select:first-of-type {
+  width: 65px;
 }
 
 .wordGrid {

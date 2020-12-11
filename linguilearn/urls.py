@@ -10,7 +10,7 @@ urlpatterns = [
 
 	# API
 	path('v1/users/current', views.user_current),
-	path('v1/users/<int:user_id>/library', views.library),
+	path('v1/users/library', views.library),
 	path('v1/entries/<int:word_id>/add', views.add_entry),
 	path('v1/entries/<int:entry_id>', views.get_entry),
 	path('v1/entries/<str:text>/addcustom', views.add_custom_entry),

@@ -62,13 +62,14 @@ select
 	height: 16px
 
 .icon
-	font-size: 30px !important
+	cursor: pointer
+	transition: all 0.3s
+	&:hover
+		transform: scale(1.4)
 	&__heart
 		color: red
-		cursor: pointer
-		transition: all 0.3s
-		&:hover
-			transform: scale(1.2)
+		font-size: 30px !important
+
 
 .body
 	display: inline-flex
@@ -170,6 +171,14 @@ select
 	.feather
 		width: 18px
 		height: 18px
+
+
+.pagination
+	> select
+		width: 100px
+	> select:first-of-type
+		width: 65px
+
 
 
 .wordGrid

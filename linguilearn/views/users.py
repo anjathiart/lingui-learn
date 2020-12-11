@@ -13,13 +13,15 @@ def user_current(request):
 
 @http_auth_required
 @require_http_methods(['GET'])
-def library(request, user_id):
-	ctx = { "userId": user_id }
+def library(request):
+	ctx = { "userId": request.user.id }
 
 	listFilter = request.GET.get('filter', 'all')
 	page = request.GET.get('page', 1)
 	limit = request.GET.get('limit', 2)
 	order = request.GET.get('order', '-created_at')
+	print(order)
+	order = '?' if order == '-?' else order
 
 	# TODO: validate the query string
 	ctx['filter'] =  listFilter

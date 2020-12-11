@@ -51,7 +51,7 @@ function renderPage(currentUser) {
 
 		async componentDidMount() {
 			//  fetch users library
-			await this.actionFetchLibrary(`page=${this.state.page}&limit=${this.state.limit}`)
+			await this.actionFetchLibrary();
 		}
 
 		render() {
@@ -60,7 +60,7 @@ function renderPage(currentUser) {
 					<div className="view__side">
 						<div className="searchForm">
 							<InputText value={ this.state.searchInput } update={(value) => this.setState({ searchInput: value })} placeholder="Type a word to search"/>
-							<button className="ml-2 btn btn-primary" onClick={ this.actionWordSearch }><i data-feather="search" className=""></i></button>
+							<div className="ml-2 icon" onClick={ this.actionWordSearch }><i data-feather="search" className=""></i></div>
 						</div>
 						<SideBar
 							view = { (view) => this.setState({ view: view }) }
@@ -75,6 +75,7 @@ function renderPage(currentUser) {
 							? <WordSearch
 								wordEntry={ this.state.wordEntry }
 								wordId={ this.state.wordId }
+								add={ (entryId) => { this.loadEntry(entryId) } }
 								done={ () => { this.setState({ view: 'main' }) } }
 							 />
 							: null }
@@ -84,7 +85,8 @@ function renderPage(currentUser) {
 									<Pagination
 										page={ this.state.page }
 										limit={ this.state.limit }
-										order={ this.state.order }
+										order={ this.state.order.replace('-', '') }
+										direction={ this.state.order[0] === '-' ? '-' : '' }
 										numPages={ this.state.numPages }
 										next={ this.state.next }
 										prev={ this.state.prev }
@@ -108,7 +110,7 @@ function renderPage(currentUser) {
 							? <LibraryEntry 
 								entry={ this.state.entry }
 								update={ (event) => this.loadEntry(event) }
-								delete={ () => this.loadUser() && this.setState({ view: 'library' }) }
+								delete={ () => this.actionFetchLibrary() && this.loadUser() && this.setState({ view: 'library' }) }
 								key={ `${this.state.entry.id}_${this.state.entryUpdateCount}` }
 							/> : null }
 						</div>
@@ -118,7 +120,7 @@ function renderPage(currentUser) {
 
 		actionFetchLibrary = async () => {
 			let query = `filter=${this.state.listFilter}&page=${this.state.page}&limit=${this.state.limit}&order=${this.state.order}`
-			await secureFetch(`v1/users/${currentUser.userId}/library?${query}`).then(result => {
+			await secureFetch(`v1/users/library?${query}`).then(result => {
 
 				this.setState(() => {
 					return {
@@ -131,6 +133,8 @@ function renderPage(currentUser) {
 						view: 'library'
 					}
 				})
+
+				feather.replace()
 			}).catch(error => {
 				console.log({error})
 			});
