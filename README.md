@@ -93,12 +93,12 @@ These files are very similar to previous projects (`login.html`, `register.html`
 
 
 ## Dev mode
-python3 manage.py runserver
+`python3 manage.py runserver`
 
 ## CSS / Sass
 And in `lingiulearn/static/linguilearn`:
 `sass --watch styles.sass styles.css`
 
 ## Testing
-python3 manage.py test -s
+`python3 manage.py test -s`
 
