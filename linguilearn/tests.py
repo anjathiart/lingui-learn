@@ -4,7 +4,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory, TestCase
 from .models import User, Entry, Word
 
-from .views import search_entry, add_entry, remove_entry, star_entry, master_entry
+from .views import *
 
 # SOME NOTES / INFO
 '''
@@ -22,127 +22,88 @@ response = MyView.as_view()(request)
 '''
 
 
-
-
-
-"""
-class EntriessApi(TestCase):
+class WordsAPI(TestCase):
 	def setUp(self):
 		self.factory = RequestFactory()
 		self.user_anja = User.objects.create_user(
 			username='anja', email='anja@anja.com', password='anja')
-		entry = Entry(word="dog", definition="woof woof ...")
-		entry.save()
-		self.user_anja.entries.add(entry)
-		self.entry = entry
-		unadded_entry =  Entry(word="test", definition="this entry does not exist in users list")
-		unadded_entry.save()
-		self.unadded_entry_id = unadded_entry.id
 
-	def test_entry_search(self):
+
+	def test_search_valid_word(self):
 		'''
-		Search for a word that is not in the DB, and is a lemma
-		success: 200
+		Search for a word that exists in the english language
+		succes: 200
 		'''
-		request = self.factory.get('api/entries/search?word=apples')
+		request = self.factory.get('v1/words/search?q=animal')
 		request.user = self.user_anja
-		response = search_entry(request)
-		print(response.content)
+		response = word_search(request)
 		self.assertEqual(response.status_code, 200)
 
-	def test_entry_search_in_db(self):
+	def test_search_unknown_word(self):
 		'''
-		Search for a word that is in the DB already
-		success: 200
+		Search for a word that exists in the english language
+		Error: 404
 		'''
-		request = self.factory.get('api/entries/search?word=Dog')
+		request = self.factory.get('v1/words/search?q=shshs')
 		request.user = self.user_anja
-		response = search_entry(request)
-		print(response.content)
-		self.assertEqual(response.status_code, 200)
-
-	def test_user_add_new_word(self):
-		'''
-		User adds new word that they don't already have in their listt
-		success: 200
-		'''
-		request = self.factory.post('api/entries/1/add')
-		request.user = self.user_anja
-		response = add_entry(request, 1)
-		print(response.content)
-		self.assertEqual(response.status_code, 200)
+		response = word_search(request)
+		status = response.status_code
+		self.assertEqual(status, 404)
 
 
-	def test_user_star_word(self):
-		'''
-		User stars an entry
-		success: 200
-		'''
-		request = self.factory.post('api/entries/1/star')
-		request.user = self.user_anja
-		response = star_entry(request, 1)
-		print(response.content)
-		self.assertEqual(response.status_code, 200)
-
-	def test_user_master_nonexisting_user_entry(self):
-		'''
-		User masters entry that does not exist in their entries
-		Force Error: 404
-		'''
-		request = self.factory.post('api/entries/' + str(self.unadded_entry_id) + '/master')
-		request.user = self.user_anja
-		response = master_entry(request, self.unadded_entry_id)
-		print(response.content)
-		self.assertEqual(response.status_code, 404)
-
-	def test_user_master_nonexisting_entry(self):
-		'''
-		User masters entry that does not exist in their entries
-		Force Error: 404
-		'''
-		request = self.factory.post('api/entries/' + str(33) + '/master')
-		request.user = self.user_anja
-		response = master_entry(request, 33)
-		print(response.content)
-		self.assertEqual(response.status_code, 404)
-
-
-#  NOTE: to run one testcase in file: manage.py test linguilearn.tests:WordsApi.test_test  
-class WordsApi(TestCase):
+class EntriesAPI(TestCase):
 	def setUp(self):
-		# self.factory = RequestFactory()
+		self.factory = RequestFactory()
 		self.user_anja = User.objects.create_user(
 			username='anja', email='anja@anja.com', password='anja')
-		word = Word(word_id="dog")
+		word = Word(text='apple')
 		word.save()
-		word.learning.add(self.user_anja)
-		# word.master(self.user_anja)
-		self.word = word
+		self.wordId = word.id
 
-		# self.user_anja.entries.add(entry)
-		# self.entry = entry
-		# unadded_entry =  Entry(word="test", definition="this entry does not exist in users list")
-		# unadded_entry.save()
-		# self.unadded_entry_id = unadded_entry.id
-	def test_test(self):
+
+	def test_add_word_that_exists(self):
 		'''
-		testing testing
+		Add a word that exists in the database
+		success 200
 		'''
-		print('hi')
-		print(self.word.serialize())
-		# words_learning = Word.objects.filter(learning__id=self.user_anja.id).all()
-		words_learning = Word.objects.get_words_learning(self.user_anja)
-		print(words_learning)
-"""
+		request = self.factory.post('v1/entries/' + str(self.wordId) + '/add')
+		request.user = self.user_anja
+		response = add_entry(request, self.wordId)
+		self.assertEqual(response.status_code, 200)
 
+	def test_add_word_that_does_not_exist(self):
+		'''
+		Add a word that does not exists in the database
+		error 400
+		'''
+		request = self.factory.post('v1/entries/' + '300' + '/add', word_id=300)
+		request.user = self.user_anja
+		response = add_entry(request, 300)
+		self.assertEqual(response.status_code, 400)
 
+	def test_add_word_using_get(self):
+		'''
+		Add a word with incorrect request method
+		error 405
+		'''
+		request = self.factory.get('v1/entries/' + '300' + '/add', word_id=300)
+		request.user = self.user_anja
+		response = add_entry(request, 300)
+		self.assertEqual(response.status_code, 405)
 
-
-
-
-
-
-
+	def test_fetch_library_for_user(self):
+		'''
+		Fetch the library of the logged in user
+		success 200
+		'''
+		request = self.factory.post('v1/entries/' + str(self.wordId) + '/add')
+		request.user = self.user_anja
+		response = add_entry(request, self.wordId)
+		# self.assertEqual(response.status_code, 200)
+		request = self.factory.get('v1/users/library')
+		request.user = self.user_anja
+		response = library(request)
+		self.assertEqual(response.status_code, 200)
 
 
 
