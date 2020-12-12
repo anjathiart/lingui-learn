@@ -89,7 +89,7 @@ const WordSearch = class extends React.Component {
 				{ this.state.error ? <p className="alert alert-danger">{ this.state.error }</p> : null }
 				{ this.state.showSearchResults ?
 					<div>
-						<h3 className="mb-3">{ this.props.wordEntry.word }</h3>
+						<h3 className="mb-3 ml-2">{ this.props.wordEntry.word }</h3>
 						<WordEntry entry={ this.props.wordEntry } />
 						<button className="btn btn-primary mt-3" onClick={ () =>  this.actionSaveEntry() }>Add to Library</button>
 					</div>
@@ -289,7 +289,7 @@ const LibraryEntry = class extends React.Component {
 									? <p className="card-body">
 										<textarea className="form-control" type="text" value={ this.state.notes } onChange={ (e) => this.setState({ notes: e.target.value }) }></textarea>
 									  </p>
-									: <p className="card-body" dangerouslySetInnerHTML={{ __html: this.props.entry.notesMarkdown }}></p>
+									: <p className="card-body" id="notes"><span dangerouslySetInnerHTML={{ __html: this.props.entry.notesMarkdown }}></span></p>
 								}
 							</li>
 						</ul>

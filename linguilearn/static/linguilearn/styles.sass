@@ -21,6 +21,17 @@ p, h1, h2, h3, h4, h5, h6
 a
 	cursor: pointer
 
+textarea
+	min-height: 480px
+	white-space: pre-wrap !important
+
+.card-body
+	white-space: pre-wrap !important
+
+#notes
+	white-space: pre-wrap
+
+
 
 /* Layout / typography */
 body 
@@ -291,9 +302,12 @@ select
 		> ul:first-of-type
 			padding-bottom: 1rem
 
-	p
+	p, h5, h6
 		font-size: 14px
 
+
+	h3, h4
+		font-size: 20px
 	.navTabs
 		font-size: 14px
 
@@ -318,6 +332,11 @@ select
 	.body
 		padding-top: 0px
 		margin-top: 0px
+
+	textarea, input[type=text], select
+		font-size: 14px !important
+ 
+
 
 
 

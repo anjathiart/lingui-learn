@@ -15,6 +15,19 @@ a {
   cursor: pointer;
 }
 
+textarea {
+  min-height: 480px;
+  white-space: pre-wrap !important;
+}
+
+.card-body {
+  white-space: pre-wrap !important;
+}
+
+#notes {
+  white-space: pre-wrap;
+}
+
 /* Layout / typography */
 body {
   color: #283149;
@@ -323,8 +336,12 @@ select {
     padding-bottom: 1rem;
   }
 
-  p {
+  p, h5, h6 {
     font-size: 14px;
+  }
+
+  h3, h4 {
+    font-size: 20px;
   }
 
   .navTabs {
@@ -355,6 +372,10 @@ select {
   .body {
     padding-top: 0px;
     margin-top: 0px;
+  }
+
+  textarea, input[type=text], select {
+    font-size: 14px !important;
   }
 }
 

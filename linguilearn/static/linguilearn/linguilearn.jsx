@@ -37,7 +37,7 @@ function renderPage(currentUser) {
 				wordId: '',
 				list: [],
 				page: 1,
-				limit: 6,
+				limit: 20,
 				order: '-created_at', // options: { alpha: 'word__text'}, { random: '?' } || direction is the '-' thingy
 				numPages: '',
 				prev: '',
@@ -70,16 +70,16 @@ function renderPage(currentUser) {
 					</div>
 					<div className="view__main">
 						{ this.state.loading ? 
-							<div className="loader">Searching...</div>
+							<h3 className="loader ml-2">Searching...</h3>
 							: null }
 						{ this.state.view === 'error' && !this.state.loading
 							? <p className="alert alert-danger">{ this.state.errorMessage }</p>
 							: null }
 						{ this.state.view === 'customWord' && !this.state.loading
 							? <div>
-								<h3 className="mb-2">{ this.state.searchInput.trim().toLowerCase().split(' ')[0] }</h3>
+								<h3 className="mb-2 ml-2">{ this.state.searchInput.trim().toLowerCase().split(' ')[0] }</h3>
 								<p className="alert alert-danger"> This word could not be found in the conventional places! Add it anyway?</p>
-								<button className="btn btn-primary" onClick={ () => { this.addCustomEntry() } }>Add it anyway!</button>
+								<button className="btn btn-primary ml-2" onClick={ () => { this.addCustomEntry() } }>Add it anyway!</button>
 								</div>
 							: null }
 						{ this.state.view === 'wordEntry' && !this.state.loading
@@ -147,7 +147,8 @@ function renderPage(currentUser) {
 						prev: result.data.prev,
 						next: result.data.next,
 						list: result.data.list,
-						view: 'library'
+						view: 'library',
+						searchInput: '',
 					}
 				})
 				// this.loadUser();
@@ -156,7 +157,8 @@ function renderPage(currentUser) {
 			}).catch(error => {
 				console.log({error})
 				this.setState({ view: 'error'});
-				this.setState({ errorMessage: error.error || 'ERROR' })
+				this.setState({ errorMessage: error.hasOwnProperty('error') && !error.error.hasOwnProperty('message') ? error.error : 'Something went wrong' })
+				
 			});
 		};
 
@@ -183,11 +185,13 @@ function renderPage(currentUser) {
 			let word = this.state.searchInput.trim().toLowerCase().split(' ')[0];
 			await secureFetch(`v1/entries/${word}/addcustom`, 'POST').then(async result => {
 				console.log({result})
+				this.setState({ searchInput: '' });
 				await this.loadEntry(result.data.entryId)
 
 			}).catch(error => {
 				this.setState({ view: 'error'});
-				this.setState({ errorMessage: error.error || 'ERROR' })
+				this.setState({ errorMessage: error.hasOwnProperty('error') && !error.error.hasOwnProperty('message') ? error.error : 'Something went wrong' })
+				
 			})
 		};
 
@@ -232,7 +236,8 @@ function renderPage(currentUser) {
 			.catch(error => {
 				console.log({error})
 				this.setState({ view: 'error'});
-				this.setState({ errorMessage: error.error || 'ERROR' })
+				this.setState({ errorMessage: error.hasOwnProperty('error') && !error.error.hasOwnProperty('message') ? error.error : 'Something went wrong' })
+				
 			});
 		};
 
@@ -261,13 +266,13 @@ function renderPage(currentUser) {
 				});
 			})
 			.catch(error => {
-
-				if (error.allow === true) {
+				console.log(typeof error.error)
+				if (error.hasOwnProperty('allow') && error.allow === true) {
 					this.setState({ view: 'customWord'});
 					this.setState({ loading: false });
 				} else {
 					this.setState({ view: 'error'});
-					this.setState({ errorMessage: error.error || 'ERROR' })
+					this.setState({ errorMessage: error.hasOwnProperty('error') && !error.error.hasOwnProperty('message') ? error.error : 'Something went wrong' })
 				}
 
 			});

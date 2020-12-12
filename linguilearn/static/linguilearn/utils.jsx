@@ -9,7 +9,7 @@ const secureFetch = (url, method, data) => {
 		}).then(async (response) => {
 			if (response.ok) {
 				// All 200 errors will have response === ok
-				resolve( await response.json());
+				resolve(await response.json());
 				return;
 			} else if (response.status === 401) {
 				// All 401's redirect user to login
@@ -17,13 +17,12 @@ const secureFetch = (url, method, data) => {
 				return;
 			} else {
 				console.log({response})
-				// Deal with other errors from the server / api
-				reject(await response.json());
+				reject({ ... await response.json(), status: response.status});
 				return;
 			}
 		}).catch(error => {
 			// deal with network errors
-
+			console.log({error})
 			reject({ error });
 		});
 	});
