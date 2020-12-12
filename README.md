@@ -102,3 +102,6 @@ And in `lingiulearn/static/linguilearn`:
 ## Testing
 `python3 manage.py test -s`
 
+# Thank you!
+Thank you to all the staff contributing to CS50W 2020. I have enjoyed this course and building all the problems immensely.
+
