@@ -263,6 +263,8 @@ The views are separated into different files for each of Auth, Entries, Words, a
 ### Django App Files I created / modified
 1. `urls.py`: URL mapping for the application for fetching HTML and API endpoints.
 2. `models.py`: Contains all the models for this application, as well as Managers for some of the models.
+Besides the User model, this app has a Word model and an Entry model. The Word model is used to store a word and (if it is not custom) its details as retreived and parsed / converted into string format. The Entry model stores individual user entries, i.e. words that they have chosen to add as entries, with their own information, categorization etc with it. The Entry model has an EntryManager. The main function it provides is to build out and return the user's library based on pagination, ordering and filtering parameters.
+
 3. `tests.py`: Contains a few unit tests split into different classes.
 4. `settings.py`: I added some information to this file for django-nose logging.
 5. `requirements.txt`: List of all packages used by the application
