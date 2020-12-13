@@ -142,5 +142,6 @@ def word_search(request):
 
 		Word.objects.filter(id=word.id).update(details=json.dumps(result))
 		ctx["data"] = result
+		print(ctx)
 		return JsonResponse(ctx, status=200)
 

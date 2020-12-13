@@ -5,6 +5,7 @@ const start = async () => {
 
 	await secureFetch(`v1/users/current`)
 	.then(res => {
+		console.log({res})
 		renderPage(res);
 	})
 	.catch(error => {

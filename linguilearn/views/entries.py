@@ -11,8 +11,6 @@ def add_entry(request, word_id):
 
 	ctx = { "userId": request.user.id, "wordId": word_id }
 
-	# load post body
-	# data = json.loads(request.body)
 	context = ''
 	source = ''
 	author = ''
@@ -69,8 +67,6 @@ def add_custom_entry(request, text):
 @http_auth_required
 @require_http_methods(['POST'])
 def update_entry(request, entry_id):
-	print('updating')
-	print(entry_id)
 	ctx = { "userId": request.user.id, "entryId": entry_id }
 
 	entry = Entry.objects.get(id=entry_id)
@@ -81,7 +77,6 @@ def update_entry(request, entry_id):
 	# load post body
 	data = json.loads(request.body)
 
-	print(data)
 
 	try:
 		Entry.objects.get(id = entry_id).update_entry(data)
@@ -102,7 +97,6 @@ def get_entry(request, entry_id):
 		ctx["error"] = "The entry could not be found"
 		return JsonResponse(ctx, status=404)
 
-	# entries_serialized = [entry.serialize() for entry in entry_objects]
 	ctx["data"] = entry.serialize_long()
 
 	return JsonResponse(ctx, status=200)
@@ -120,6 +114,5 @@ def delete_entry(request, entry_id):
 		ctx["error"] = "Entry does not exist"
 		return JsonResponse(ctx, status=404)
 
-	# request.user.learning_words.add(entry)
 	return JsonResponse(ctx, status=200)
 

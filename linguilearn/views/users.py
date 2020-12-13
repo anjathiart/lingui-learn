@@ -20,7 +20,6 @@ def library(request):
 	page = request.GET.get('page', 1)
 	limit = request.GET.get('limit', 2)
 	order = request.GET.get('order', '-created_at')
-	print(order)
 	order = '?' if order == '-?' else order
 
 	# TODO: validate the query string
