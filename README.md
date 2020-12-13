@@ -1,5 +1,22 @@
 # LinguiLearn
-Play Learn Love Lingo! A simple app where you can improve and build your English vocabularly, or even add words that are not part of formal English but that are significant to you (custom entries). Search for words and add them to your library as entries. Add information to the entries, like context, author, where you found the word, and even write your own notes about this word and what it means to you - with markdown support! Organize your entries into categories for 'learning', 'mastered', 'custom' and 'favourites'.
+Play Learn Love Lingo! A simple app where you can improve and build your English vocabularly, or even add words that are not part of formal English but that are significant to you. Search for words and add them to your library as entries. Add information to the entries, like context, author, where you found the word, and even write your own notes about this word and what it means to you - with markdown support! Organize your entries into categories for 'learning', 'mastered', 'custom' and 'favourites'.
+
+## Background
+As someone who has rediscovered the joys of reading during the lengthy Covid-19 Lockdown that we have all experienced this year, I have been fascinated with all the English words that exist that are unknown to me. Reading on a Kindle allows one to lookup words on the fly, and save them and review them again later. Kindle has a type of Vocabulary Builder tool built in. However, the Kindle interface is not the fastest or most responsive, and I thought having a web / mobile app to gather such a vocabulary library would be great. This gave me the idea to pull in Kindle highlights / notes and bookmarked words into an app via an API. To my disappointment, I quickly found out that such an API does not exist. So for this course's final capstone, I decided to build an app where words can be discovered, searched for, and added to a library for reference.
+
+The scope of features one could come up with for such an app are vast. For this project submission, I decided the main focus would be to have an app that provides one single place to search for words' definitions, get examples, synonyms, and ohter information about the word, and then have the option to store that word as an entry in one's personal library. I found that many of the interesting words I have come accross are not necessarily recognized as formal English, so there is also the feature to add sucn words as 'custom entries' to one's library. Each entry in the library can be customized, beyond the defintions and information offered by the app. Information such as context (for example the sentence in which one came across the word), source (eg. the article / book) and author can be added to the Entry. The user canalso write notes (with markdown support) about the word, and is thus not limited by the standard dictionary provided definitions and use-cases. An entry can be categorizes as being 'learnt' ('learning') or being 'mastered'. Entries can also be starred as favourites, and so on. 
+
+## Stack
+- Python3
+- Django & Django-models
+- Javascript
+- React JSX
+- HTML
+- SASS / CSS
+
+## External services
+- Oxford Dictionaries API
+- WordsAPI
 
 ## Distinctiveness
 This project is distinct from previous projects because:
@@ -75,33 +92,8 @@ These files are very similar to previous projects (`login.html`, `register.html`
 5. `styles.css`: Stylesheet compiled from the sass stylesheet.
 
 
-# More information
+# Thank you
+I have had a lot of fun building this project. And, it is an app I'm already using for myself! It is very rewarding building an app based on a need you have yourself.
 
-## Stack
-- Python3
-- Django
-- Django-models
-- Django-projects
-- Javascript
-- React JSX
-- HTML
-- SASS / CSS
-
-## External services
-- Oxford Dictionaries API
-- WordsAPI
-
-
-## Dev mode
-`python3 manage.py runserver`
-
-## CSS / Sass
-And in `lingiulearn/static/linguilearn`:
-`sass --watch styles.sass styles.css`
-
-## Testing
-`python3 manage.py test -s`
-
-# Thank you!
-Thank you to all the staff contributing to CS50W 2020. I have enjoyed this course and building all the problems immensely.
+Thank you to all the staff contributing to CS50W 2020. I have enjoyed this course and building all the problems immensely. And, I look forward to the next one.
 
