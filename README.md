@@ -274,7 +274,7 @@ These files are very similar to previous projects (`login.html`, `register.html`
 1. `linguilearn.jsx`: Contains the main App React component and the intitial code to run / start the app. Various 'views' are shown / hidden based on the user's interaction and app state.
 2. `dash-components.jsx`: All children components are in this file. These include:
   - SideBar: Component which consists of the library navigation links / filters and the search form.
-  - Pagination
+  - Pagination: This component provides capabilities to view limited entry items, scroll through the 'pages', order the entries, shuffle them, and so on.
   - WordEntry: Word information that was retreived / created by the app itself by calling the external dictionary services are rendered nicely inside this component. This component is used both when a word is searched for, and when a entry in the library is viewed, to display the word details.
   - LibraryEntry: This component displays all the custom information a user has added to their entry as well as the WordEntry component with the word details.
 3. `utils.jsx`: Contains the wrapper function used to do requests (proxy for javascript `fetch`).
